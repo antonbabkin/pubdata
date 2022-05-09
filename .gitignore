@@ -1,0 +1,4 @@
+.ipynb_checkpoints/
+
+# version notebooks in .qmd format with jupytext
+*.ipynb

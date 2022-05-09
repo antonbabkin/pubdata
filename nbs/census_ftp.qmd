@@ -1,0 +1,127 @@
+---
+jupyter:
+  jupytext:
+    formats: 'ipynb,qmd'
+    text_representation:
+      extension: .qmd
+      format_name: quarto
+      format_version: '1.0'
+      jupytext_version: 1.13.8
+  kernelspec:
+    display_name: Python 3 (ipykernel)
+    language: python
+    name: python3
+---
+
+# Census FTP server
+
+A lot of Census Bureau publications are available at https://www2.census.gov/. There is no search functionality, and one can rely on passing `site:https://www2.census.gov/` to a search engine query. This notebook crawls through server pages and creates an index of all files. For speed, scraping of every top level directory is time-limited. This in effect implies breadth-first traversal with limited max depth.
+
+```{python}
+#| tags: []
+import time
+import json
+
+import requests
+from bs4 import BeautifulSoup
+
+INDEX = {}
+TIMEOUT = None
+```
+
+```{python}
+#| tags: []
+import sys
+sys.stdout = open('census_ftp.log', 'w')
+sys.stderr = sys.stdout
+```
+
+```{python}
+#| tags: []
+def parse(url):
+    resp = requests.get(url)
+    soup = BeautifulSoup(resp.text)
+
+    items = {}
+    for row in soup.find_all('tr'):
+        cells = row.find_all('td')
+        if not cells: continue
+        name = cells[1].get_text()
+        if name == 'Parent Directory': continue
+        href = cells[1].find('a').get('href')
+        last_modified = cells[2].get_text().strip()
+        size = cells[3].get_text().strip()
+        icon = cells[0].find('img')
+        if icon.get('alt') == '[DIR]':
+            items[href] = {}
+        else:
+            items[href] = [last_modified, size]
+    return items
+
+def crawl(url):
+#     time.sleep(1)
+    if time.time() > TIMEOUT:
+        print('TIMEOUT')
+        return {}
+    print(url)
+
+    items = parse(url)
+    for branch, content in items.items():
+        if content == {}:
+            # recursive call
+            items[branch] = crawl(url + branch)
+    return items
+
+def scrape_top_branch(branch):
+    global TIMEOUT
+    print(f'Start scraping branch {branch}.')
+    TIMEOUT = time.time() + 60
+    index = {}
+    index['utc_time_start'] = time.asctime(time.gmtime())
+    index['root_url'] = 'https://www2.census.gov/' + branch
+    index['index'] = crawl(index['root_url'])
+    index['utc_time_finish'] = time.asctime(time.gmtime())
+    incomplete = '_incomplete' if time.time() > TIMEOUT else ''
+    dump_to = f'census_ftp_{branch[:-1]}{incomplete}.json'
+    json.dump(index, open(dump_to, 'w'))
+    print(f'Finish scraping branch {branch}. Index saved to {dump_to}')
+    
+def scrape_all():
+    top = parse('https://www2.census.gov/')
+    for key in top:
+        scrape_top_branch(key)
+
+def load(index_file='census_ftp.json'):
+    index = json.load(open(index_file))
+    print(f'Loading index updated {index["utc_time_start"]}')
+    global INDEX
+    INDEX = index
+
+def find(pattern):
+    matches = []
+    def scan(prefix, tree):
+        for branch, subtree in tree.items():
+            path = prefix + branch
+            if isinstance(subtree, dict):
+                scan(path, subtree)
+            else:
+                if pattern in path.lower():
+                    matches.append(path)
+    scan('', INDEX['index'])
+    return matches
+```
+
+```{python}
+#| tags: []
+scrape_all()
+```
+
+```{python}
+#| tags: []
+load()
+```
+
+```{python}
+#| tags: []
+find('ces')
+```
