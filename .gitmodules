@@ -1,0 +1,3 @@
+[submodule "submodules/reseng"]
+	path = submodules/reseng
+	url = git@github.com:antonbabkin/reseng.git
