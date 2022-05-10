@@ -1,0 +1,15 @@
+name: pubdata
+channels:
+  - conda-forge
+  - nodefaults
+dependencies:
+  - jupyterlab>=3
+  - jupytext
+  - ipywidgets
+  - requests
+  - matplotlib
+  - pandas
+  - openpyxl # new .xlsx format
+  - xlrd # old .xls format
+  - geopandas
+  - pyarrow
