@@ -1,7 +1,12 @@
 data/
+tmp/
+
+# quarto render files
+*_files/
+*.html
 
 .ipynb_checkpoints/
 *.pyc
 
-# version notebooks in .qmd format with jupytext
+# version notebooks in markdown format with jupytext
 *.ipynb
