@@ -1,4 +1,4 @@
-# Public datasets
+# Public data
 
 Describing, tidying and providing usage examples for publicly available datasets.
 

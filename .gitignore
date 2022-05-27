@@ -1,9 +1,11 @@
 data/
 tmp/
 
-# quarto render files
+# quarto files
+.quarto/
 *_files/
 *.html
+_site/
 
 .ipynb_checkpoints/
 *.pyc

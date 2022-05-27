@@ -1,0 +1,24 @@
+project:
+  type: website
+  render:
+    - index.ipynb
+    - naics.ipynb
+  post-render: touch _site/.nojekyll
+
+website:
+  title: "Public data"
+  navbar:
+    background: primary
+    left:
+      - href: index.ipynb
+        text: Home
+      - naics.ipynb
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
+
+
+

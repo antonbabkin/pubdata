@@ -12,26 +12,52 @@ kernelspec:
   name: python3
 ---
 
-# NAICS
+```{raw-cell}
+
+---
+title: "NAICS"
+format:
+  html:
+    code-fold: true
+execute:
+  echo: false
+jupyter: python3
+date: today
+date-format: long
+---
+```
+
++++ {"tags": []}
+
+# Overview
 
 [Website](https://www.census.gov/naics/)
 
-> The North American Industry Classification System (NAICS) is the standard used by Federal statistical agencies in classifying business establishments for the purpose of collecting, analyzing, and publishing statistical data related to the U.S. business economy.
-> 
-> NAICS was developed under the auspices of the Office of Management and Budget (OMB), and adopted in 1997 to replace the Standard Industrial Classification (SIC) system.
-> It was developed jointly by the U.S. Economic Classification Policy Committee (ECPC), Statistics Canada, and Mexico's Instituto Nacional de Estadistica y Geografia, to allow for a high level of comparability in business statistics among the North American countries.
+The North American Industry Classification System (NAICS) is the standard used by Federal statistical agencies in classifying business establishments for the purpose of collecting, analyzing, and publishing statistical data related to the U.S. business economy.
+NAICS was developed under the auspices of the Office of Management and Budget (OMB), and adopted in 1997 to replace the Standard Industrial Classification (SIC) system.
+It was developed jointly by the U.S. Economic Classification Policy Committee (ECPC), Statistics Canada, and Mexico's Instituto Nacional de Estadistica y Geografia, to allow for a high level of comparability in business statistics among the North American countries.
 
-Classification is hierarchical, and each lower level of detail is nested within a higher level. On the highest level, there are 20 2-digit sectors. Classification is comparable between the USA, Canada and Mexico up to a 5-digit level, wich some exceptions. 
+The structure of NAICS is hierarchical.
+The first two digits of the structure designate the 20 NAICS sectors that represent general categories of economic activities.
+NAICS uses a six-digit coding system to identify industries and their placement in this hierarchical structure of the classification system.
+The first two digits of the code designate the sector, the third digit designates the subsector, the fourth digit designates the industry group, the fifth digit designates the NAICS industry, and the sixth digit designates the national industry.
+On the highest 2-digit level there are 20 sectors.
+Classification is comparable between the USA, Canada and Mexico up to a 5-digit level, with some exceptions.
+A zero as the sixth digit generally indicates that the NAICS industry and the U.S. industry are the same.
+
+::: {.column-margin}
 
 | Digits | Level             |
 |--------|-------------------|
 | 2      | sector            |
 | 3      | subsector         |
 | 4      | industry group    |
-| 5      | industry          |
+| 5      | NAICS industry    |
 | 6      | national industry |
 
-Classification is revised every five years and is available for 2002, 2007, 2012, 2017, 2022.
+:::
+
+Classification is revised every five years and is currently available for 2002, 2007, 2012, 2017 and 2022.
 
 ```{code-cell} ipython3
 :tags: [nbd-module]
@@ -63,8 +89,6 @@ pd.options.display.max_colwidth = None
 [Concordances](https://www.census.gov/naics/?68967)
 
 This module provides access to dataframes built from source files.
-
-Kinds of files:
 
 - *Manual*. A PDF with complete information about the classification. All other files are parts of the manual. Available from 2017.
 
@@ -232,11 +256,14 @@ for year in [2017, 2022]:
     assert t1.equals(t0c)
 ```
 
+::: {.panel-tabset}
+<!-- tabset starts -->
 ## 2002
 
 ```{code-cell} ipython3
 :tags: []
 
+#| column: body-outset
 compute_structure_summary(2002)
 ```
 
@@ -245,6 +272,7 @@ compute_structure_summary(2002)
 ```{code-cell} ipython3
 :tags: []
 
+#| column: body-outset
 compute_structure_summary(2007)
 ```
 
@@ -255,6 +283,7 @@ compute_structure_summary(2007)
 ```{code-cell} ipython3
 :tags: []
 
+#| column: body-outset
 compute_structure_summary(2012)
 ```
 
@@ -265,6 +294,7 @@ compute_structure_summary(2012)
 ```{code-cell} ipython3
 :tags: []
 
+#| column: body-outset
 compute_structure_summary(2017)
 ```
 
@@ -275,8 +305,14 @@ compute_structure_summary(2017)
 ```{code-cell} ipython3
 :tags: []
 
+#| column: body-outset
 compute_structure_summary(2022)
 ```
+
+<!-- tabset ends -->
+::: 
+
++++
 
 # Examples
 
@@ -287,7 +323,8 @@ Random sample of codes.
 ```{code-cell} ipython3
 :tags: []
 
-get_df(2022, 'code').sample(5)
+#| echo: true
+get_df(2022, 'code').sample(5).fillna('')
 ```
 
 Full hierarchy of a randomly selected 6-digit code.
@@ -295,6 +332,7 @@ Full hierarchy of a randomly selected 6-digit code.
 ```{code-cell} ipython3
 :tags: []
 
+#| echo: true
 d = get_df(2022, 'code')
 r = d.query('DIGITS == 6').sample()
 q = ' or '.join(f'CODE == "{c}"' for c in r.iloc[0, 3:])
@@ -306,6 +344,7 @@ d.query(q).fillna('')
 ```{code-cell} ipython3
 :tags: []
 
+#| echo: true
 get_df(2022, 'code').query('CODE_3 == "115" and DIGITS == 6')
 ```
 
@@ -314,7 +353,11 @@ Index items of "115115" and "115116" industries. Notice duplication in INDEX_ITE
 ```{code-cell} ipython3
 :tags: []
 
-get_df(2022, 'code').query('CODE == "115115" or CODE == "115116"').merge(get_df(2022, 'index'), 'left')
+#| echo: true
+#| column: body-outset
+d0 = get_df(2022, 'code').query('CODE == "115115" or CODE == "115116"')
+d1 = get_df(2022, 'index')
+d0.merge(d1, 'left')
 ```
 
 # Build this module
