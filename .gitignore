@@ -2,7 +2,6 @@ data/
 tmp/
 
 # quarto files
-.quarto/
 *_files/
 *.html
 _site/

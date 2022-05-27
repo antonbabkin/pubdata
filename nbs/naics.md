@@ -57,7 +57,7 @@ A zero as the sixth digit generally indicates that the NAICS industry and the U.
 
 :::
 
-Classification is revised every five years and is currently available for 2002, 2007, 2012, 2017 and 2022.
+Classification is revised every five years and is currently available for 1997, 2002, 2007, 2012, 2017 and 2022.
 
 ```{code-cell} ipython3
 :tags: [nbd-module]
@@ -85,20 +85,19 @@ pd.options.display.max_colwidth = None
 
 # Source files
 
-[Main tables](https://www.census.gov/naics/?48967) |
-[Concordances](https://www.census.gov/naics/?68967)
+[Main tables](https://www.census.gov/naics/?48967)
 
 This module provides access to dataframes built from source files.
 
 - *Manual*. A PDF with complete information about the classification. All other files are parts of the manual. Available from 2017.
 
-- *Code file*. Table of 2-6 digit *codes* and corresponding sector, subsector, industry group and industry *titles*. Available in all years. Subset files with only 6-digit industries are also available.
+- *Code file*. Table of 2-6 digit *codes* and corresponding sector, subsector, industry group and industry *titles*. Available for all\* years. Subset files with only 6-digit industries are also available.
 
 - *Structure*. Essentially the same as *Code file* with addition of indicators for trilateral aggreement (comparability between US, Canada and Mexico) and change from previous revision. Available from 2017.
 
 - *Structure Summary*. Counts of subsectors, industry groups and industries in each sector. Available from 2017.
 
-- *Definitions*. A PDF with full descriptions of every industry. Available in all years.
+- *Definitions*. A PDF with full descriptions of every industry. Available for all\* years.
 
 - *Descriptions*. Table that contains everything from the *Definitions* file, except Cross-References. Available from 2017.
 
@@ -106,11 +105,14 @@ This module provides access to dataframes built from source files.
 
 - *Index file*. Table of 6-digit industry *codes* and description of *index items* withing each industry (usually multiple). Available from 2007.
 
+\* **IMPORTANT.** For 1997, only [definitions PDFs](https://www.census.gov/naics/?58967?yearbck=1997) by sector are available in the NAICS section of the Census website. More useful code file in table form can be found in the CBP program [documentation](https://www.census.gov/programs-surveys/cbp/technical-documentation/reference/naics-descriptions.html). However, *this version is missing industries* not covered by CBP. Notably, farming subsectors "111: Crop production" and "112: Animal production" are not included. Data source for 1997 should be updated to a complete one once found.
+
 ```{code-cell} ipython3
 :tags: [nbd-module]
 
 _src_url_base = 'https://www.census.gov/naics/'
 _src_urls = {
+    (1997, 'code'): 'https://www2.census.gov/programs-surveys/cbp/technical-documentation/reference/naics-descriptions/naics.txt',
     (2002, 'code'): f'{_src_url_base}reference_files_tools/2002/naics_2_6_02.txt',
     (2007, 'code'): f'{_src_url_base}reference_files_tools/2007/naics07.txt',
     (2012, 'code'): f'{_src_url_base}2012NAICS/2-digit_2012_Codes.xls',
@@ -149,6 +151,12 @@ def get_df(year: typing.Literal[2002, 2007, 2012, 2017, 2022],
     src_file = get_src(year, kind)
     
     if kind == 'code':
+        if year == 1997:
+            df = pd.read_fwf(src_file, widths=(8, 999), dtype=str, skiprows=2, names=['CODE', 'TITLE'])
+            df['CODE'] = df['CODE'].str.strip('-/')
+            df['CODE'] = df['CODE'].replace({'31': '31-33', '44': '44-45', '48': '48-49'})
+            # drop code "99" - unclassified establishments in CBP
+            df = df[df['CODE'] != '99']
         if year == 2002:
             df = pd.read_fwf(src_file, widths=(8, 999), dtype=str, skiprows=5, names=['CODE', 'TITLE'])
         elif year == 2007:
@@ -194,6 +202,7 @@ def get_df(year: typing.Literal[2002, 2007, 2012, 2017, 2022],
         df.iloc[:, 2:] = df.iloc[:, 2:].astype(int)
         df['Sector'] = df['Sector'].astype(str)
     
+    df = df.reset_index(drop=True)
     return df
 ```
 
@@ -205,6 +214,8 @@ for y, k in _src_urls:
     print(y, k, '|', end=' ')
     get_df(y, k)
 ```
+
++++ {"tags": []}
 
 # Structure summary
 
@@ -258,6 +269,15 @@ for year in [2017, 2022]:
 
 ::: {.panel-tabset}
 <!-- tabset starts -->
+## 1997
+
+```{code-cell} ipython3
+:tags: []
+
+#| column: body-outset
+compute_structure_summary(1997)
+```
+
 ## 2002
 
 ```{code-cell} ipython3
@@ -311,6 +331,22 @@ compute_structure_summary(2022)
 
 <!-- tabset ends -->
 ::: 
+
++++
+
+# Concordances
+
+Concordances, also known as crosswalks, are tables that link industries of a given revision of NAICS to other revisions or other classifications. [Census page](https://www.census.gov/naics/?68967) lists the following concordances.
+
+- Between consecutive NAICS revisions: 2017-2022, 2012-2017, 2007-2012, 2002-2007, 1997-2002.
+
+- Between 1997 or 2002 NAICS and 1987 SIC.
+
+- From NAICS to ISIC (United Nations' International Standard Industrial Classification of All Economic Activities).
+
+- From 2002 NAICS to NACE (Statistical Classification of Economic Activities in the European Community).
+
+The main challenge of working with concordances is that links are not always one-to-one. In this module we provide concordance tables with indicators of link types. 
 
 +++
 
