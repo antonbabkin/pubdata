@@ -334,6 +334,52 @@ compute_structure_summary(2022)
 
 +++
 
+# Examples
+
++++
+
+Random sample of codes.
+
+```{code-cell} ipython3
+:tags: []
+
+#| echo: true
+get_df(2022, 'code').sample(5).fillna('')
+```
+
+Full hierarchy of a randomly selected 6-digit code.
+
+```{code-cell} ipython3
+:tags: []
+
+#| echo: true
+d = get_df(2022, 'code')
+r = d.query('DIGITS == 6').sample()
+q = ' or '.join(f'CODE == "{c}"' for c in r.iloc[0, 3:])
+d.query(q).fillna('')
+```
+
+6-digit industries in the "115" subsector.
+
+```{code-cell} ipython3
+:tags: []
+
+#| echo: true
+get_df(2022, 'code').query('CODE_3 == "115" and DIGITS == 6')
+```
+
+Index items of "115115" and "115116" industries. Notice duplication in INDEX_ITEM, e.g. "Farm labor contractors" and "Labor contractors, farm".
+
+```{code-cell} ipython3
+:tags: []
+
+#| echo: true
+#| column: body-outset
+d0 = get_df(2022, 'code').query('CODE == "115115" or CODE == "115116"')
+d1 = get_df(2022, 'index')
+d0.merge(d1, 'left')
+```
+
 # Concordances
 
 Concordances, also known as crosswalks, are tables that link industries of a given revision of NAICS to other revisions or other classifications. [Census page](https://www.census.gov/naics/?68967) lists the following concordances.
@@ -346,12 +392,12 @@ Concordances, also known as crosswalks, are tables that link industries of a giv
 
 - From 2002 NAICS to NACE (Statistical Classification of Economic Activities in the European Community).
 
-Concordances are *symmetric*, i.e. X-to-Y concordance table differs from Y-to-X table only by row ordering. *NEEDS VERIFICATION.*
+Concordances are *symmetric*, i.e. X-to-Y concordance table differs from Y-to-X table only by row ordering.
 
 The main challenge of working with concordances is that links are not always one-to-one. In this module we provide concordance tables with indicators of link types.
 
 ```{code-cell} ipython3
-:tags: []
+:tags: [nbd-module]
 
 _concord_src_urls = {
     ('naics', 1997, 'naics', 2002): f'{_src_url_base}concordances/1997_NAICS_to_2002_NAICS.xls',
@@ -409,6 +455,23 @@ def get_concordance_df(fro: str, fro_year: int, to: str, to_year: int):
         df = df.iloc[:, :4]
         df.columns = [c_fro, t_fro, c_to, t_to]
         
+    # flag link types
+    if (fro == to == 'naics'):
+        dup0 = df[f'DUP_{fro_year}'] = df.duplicated(c_fro, False)
+        dup1 = df[f'DUP_{to_year}'] = df.duplicated(c_to, False)
+
+        flag = f'FLAG_{fro_year}_TO_{to_year}'
+        df[flag] = ''
+        df.loc[~dup0 & ~dup1 & (df[c_fro] == df[c_to]), flag] = '1-to-1 same'
+        df.loc[~dup0 & ~dup1 & (df[c_fro] != df[c_to]), flag] = '1-to-1 diff'
+        df.loc[~dup0 & dup1, flag] = 'join'
+        # splits
+        d = df[dup0].copy()
+        clean = ~d.groupby(c_fro)[f'DUP_{to_year}'].transform('max')
+        d.loc[clean, flag] = 'clean split'
+        d.loc[~clean, flag] = 'messy split'
+        df.loc[dup0, flag] = d[flag]        
+
     df = df.sort_values([c_fro, c_to], ignore_index=True)
     
     return df
@@ -429,7 +492,7 @@ for k in _concord_src_urls:
 #| test: verify concordance symmetry
 years = [1997, 2002, 2007, 2012, 2017, 2022]
 for y0, y1 in zip(years[:-1], years[1:]):
-    print(y0, y1, '|', end=' ')
+    print(y0, y1, end=' |')
     d01 = get_concordance_df('naics', y0, 'naics', y1).iloc[:, [0, 2]]
     d10 = get_concordance_df('naics', y1, 'naics', y0).iloc[:, [0, 2]]
     assert len(d01) == len(d10)
@@ -438,50 +501,107 @@ for y0, y1 in zip(years[:-1], years[1:]):
     assert d10.equals(d01)
 ```
 
-# Examples
+```{code-cell} ipython3
+:tags: []
 
-+++
+#| test: every 6-digit code can be found in concordances
+# not testing 1997, because list of codes from CBP is not complete
+for y in [2002, 2007, 2012, 2017, 2022]:
+    d0 = get_df(y, 'code')
+    d1 = get_concordance_df('naics', y, 'naics', y - 5)
+    print(y, set(d0.query('DIGITS == 6')['CODE']) == set(d1[f'NAICS_{y}']), end=' |')
+```
 
-Random sample of codes.
+Tables below summarize types of links between consequtive years in NAICS concordances. The first table shows forward concordances, i.e. from year `t` to `t+5`. The second table show backward concordances, i.e. from year `t` to year `t-5`.
+
+- `1-to-1 same`: industry and code did not change between years, this is the most common case.
+- `1-to-1 diff`: industry did not change, but it's numerical code changes.
+- `clean split`: industry was split into multiple, but all parts only came for the one source industry.
+- `messy split`: industry was split, but some parts were joined from other industries.
+- `join`: industry was joined and became a part of another industry.
 
 ```{code-cell} ipython3
 :tags: []
 
-#| echo: true
-get_df(2022, 'code').sample(5).fillna('')
+def naics_concordance_summary(year_pairs):
+    t = {}
+    for fro, to in year_pairs:
+        df = get_concordance_df('naics', fro, 'naics', to)
+        t[f'{fro}->{to}'] = c = df.drop_duplicates(f'NAICS_{fro}')[f'FLAG_{fro}_TO_{to}'].value_counts(dropna=False)
+        c['total in "from"'] = c.sum()
+    t = pd.concat(t, axis=1).fillna(0).astype(int)
+    t = t.loc[['total in "from"', '1-to-1 same', '1-to-1 diff', 'clean split', 'messy split', 'join']]
+    return t
+
+display(naics_concordance_summary([(y, y + 5) for y in range(1997, 2020, 5)]))
+display(naics_concordance_summary([(y, y - 5) for y in range(2002, 2025, 5)]))
 ```
 
-Full hierarchy of a randomly selected 6-digit code.
-
-```{code-cell} ipython3
-:tags: []
-
-#| echo: true
-d = get_df(2022, 'code')
-r = d.query('DIGITS == 6').sample()
-q = ' or '.join(f'CODE == "{c}"' for c in r.iloc[0, 3:])
-d.query(q).fillna('')
-```
-
-6-digit industries in the "115" subsector.
-
-```{code-cell} ipython3
-:tags: []
-
-#| echo: true
-get_df(2022, 'code').query('CODE_3 == "115" and DIGITS == 6')
-```
-
-Index items of "115115" and "115116" industries. Notice duplication in INDEX_ITEM, e.g. "Farm labor contractors" and "Labor contractors, farm".
+Example: `1-to-1 same`.
 
 ```{code-cell} ipython3
 :tags: []
 
 #| echo: true
 #| column: body-outset
-d0 = get_df(2022, 'code').query('CODE == "115115" or CODE == "115116"')
-d1 = get_df(2022, 'index')
-d0.merge(d1, 'left')
+df = get_concordance_df('naics', 2012, 'naics', 2017)
+df.query('FLAG_2012_TO_2017 == "1-to-1 same"').sample(3)
+```
+
+Example: `1-to-1 diff`.
+
+```{code-cell} ipython3
+:tags: []
+
+#| echo: true
+#| column: body-outset
+df = get_concordance_df('naics', 2012, 'naics', 2017)
+df.query('FLAG_2012_TO_2017 == "1-to-1 diff"').sample(3)
+```
+
+Example: `clean split`.
+
+```{code-cell} ipython3
+:tags: []
+
+#| echo: true
+#| column: body-outset
+df = get_concordance_df('naics', 2017, 'naics', 2022)
+df.query('NAICS_2017 == "325314"')
+```
+
+Example: `messy split` and `join`.
+By construction, these two types of links will always be together.
+From 2017 to 2022, three industries ("212111: Bituminous Coal and Lignite Surface Mining", "212112: Bituminous Coal Underground Mining" and "212113: Anthracite Mining") were re-classified into two ("212114: Surface Coal Mining" and "212115: Underground Coal Mining").
+This creates a problem, for example, when one wants to identify anthracite mining industry under 2022 NAICS, because the two parts of that industry (surface and underground mining) were combined with other types of coal mining.
+
+```{code-cell} ipython3
+:tags: []
+
+#| echo: true
+#| column: body-outset
+df = get_concordance_df('naics', 2017, 'naics', 2022)
+df.query('NAICS_2022.isin(["212114", "212115"])')
+```
+
+Example: a clean `join`. From 2012 to 2017 three industries joined into one. However, not every `join` is clean. The easiest way to identify a clean `join` from year `t0` to `t1` is to look for a `clean split` from year `t1` to `t0`.
+
+```{code-cell} ipython3
+:tags: []
+
+#| echo: true
+#| column: body-outset
+df = get_concordance_df('naics', 2012, 'naics', 2017)
+df.query('NAICS_2012.isin(["454111", "454112", "454113"]) or NAICS_2017 == "454110"')
+```
+
+```{code-cell} ipython3
+:tags: []
+
+#| echo: true
+#| column: body-outset
+df = get_concordance_df('naics', 2017, 'naics', 2012)
+df.query('NAICS_2017 == "454110"')
 ```
 
 # Build this module
@@ -501,5 +621,6 @@ nbd.nb2mod('naics.ipynb')
 
 #| test: importable module works
 import pubdata.naics
-pubdata.naics.compute_structure_summary(2002).tail(1)
+pubdata.naics.compute_structure_summary(2002)
+pubdata.naics.get_concordance_df('naics', 2017, 'naics', 2022);
 ```
