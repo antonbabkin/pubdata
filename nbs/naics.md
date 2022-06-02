@@ -128,7 +128,7 @@ _src_urls = {
     (2022, 'summary'): f'{_src_url_base}2022NAICS/2022_NAICS_Structure_Summary_Table.xlsx',
 }
 
-def get_src(year: typing.Literal[2002, 2007, 2012, 2017, 2022],
+def get_src(year: typing.Literal[1997, 2002, 2007, 2012, 2017, 2022],
             kind: typing.Literal['code', 'index', 'descriptions', 'summary']):
     """Download source file and return local path."""
     
@@ -144,7 +144,7 @@ def get_src(year: typing.Literal[2002, 2007, 2012, 2017, 2022],
     return path
 
 
-def get_df(year: typing.Literal[2002, 2007, 2012, 2017, 2022],
+def get_df(year: typing.Literal[1997, 2002, 2007, 2012, 2017, 2022],
            kind: typing.Literal['code', 'index', 'descriptions', 'summary']):
     """Return tidy dataframe built from source file."""
     
@@ -209,7 +209,7 @@ def get_df(year: typing.Literal[2002, 2007, 2012, 2017, 2022],
 ```{code-cell} ipython3
 :tags: []
 
-#| test: download and parse all available tables
+# test: download and parse all available tables
 for y, k in _src_urls:
     print(y, k, '|', end=' ')
     get_df(y, k)
@@ -250,7 +250,7 @@ def compute_structure_summary(year):
 ```{code-cell} ipython3
 :tags: []
 
-#| test: summaries computed from code files are identical to published summaries
+# test: summaries computed from code files are identical to published summaries
 for year in [2017, 2022]:
     t0 = compute_structure_summary(year)
     t1 = get_df(year, 'summary')
@@ -329,10 +329,10 @@ compute_structure_summary(2017)
 compute_structure_summary(2022)
 ```
 
+```{raw-cell}
 <!-- tabset ends -->
-::: 
-
-+++
+:::
+```
 
 # Examples
 
@@ -480,7 +480,7 @@ def get_concordance_df(fro: str, fro_year: int, to: str, to_year: int):
 ```{code-cell} ipython3
 :tags: []
 
-#| test: download and parse all available concordances
+# test: download and parse all available concordances
 for k in _concord_src_urls:
     print(k, end=' ')
     get_concordance_df(*k)
@@ -489,7 +489,7 @@ for k in _concord_src_urls:
 ```{code-cell} ipython3
 :tags: []
 
-#| test: verify concordance symmetry
+# test: verify concordance symmetry
 years = [1997, 2002, 2007, 2012, 2017, 2022]
 for y0, y1 in zip(years[:-1], years[1:]):
     print(y0, y1, end=' |')
@@ -504,13 +504,84 @@ for y0, y1 in zip(years[:-1], years[1:]):
 ```{code-cell} ipython3
 :tags: []
 
-#| test: every 6-digit code can be found in concordances
+# test: every 6-digit code can be found in concordances
 # not testing 1997, because list of codes from CBP is not complete
 for y in [2002, 2007, 2012, 2017, 2022]:
     d0 = get_df(y, 'code')
     d1 = get_concordance_df('naics', y, 'naics', y - 5)
     print(y, set(d0.query('DIGITS == 6')['CODE']) == set(d1[f'NAICS_{y}']), end=' |')
 ```
+
+Sometimes one needs to identify all industries involved in a split directly or indirectly.
+The function `find_concordance_group()` returns all connected industries, starting from a given set of codes.
+
+```{code-cell} ipython3
+:tags: [nbd-module]
+
+def find_concordance_group(df, fro, to, fro_values):
+    """Given a concordance table of links between columns `fro` and `to`,
+    return a subset of the table that is related to `fro_values` directly or indirectly.
+    """
+    fc = df[fro]
+    tc = df[to]
+    fvs = set(fro_values)
+    tvs = set()
+    prev_size = 0
+    while len(fvs) + len(tvs) > prev_size:
+        prev_size = len(fvs) + len(tvs)
+        d = df[fc.isin(fvs) | tc.isin(tvs)]
+        fvs.update(d[fro])
+        tvs.update(d[to])
+    
+    return df[fc.isin(fvs) | tc.isin(tvs)].copy().sort_values([fro, to])
+```
+
+```{code-cell} ipython3
+:tags: []
+
+# test
+d = get_concordance_df('naics', 2012, 'naics', 2017)
+find_concordance_group(d, 'NAICS_2012', 'NAICS_2017', ['541711', '115111'])
+```
+
+Function `viz_concordance()` presents links as a diagram.
+
+```{code-cell} ipython3
+:tags: [nbd-module]
+
+def viz_concordance(links, label_fro, label_to):
+    """Return `graphviz.Graph` visualization of `links`.
+    `links` must a list of lists ["from_code", "to_code", "link_type"].
+    """
+    import graphviz
+    
+    g = graphviz.Graph(graph_attr={'rankdir': 'LR', 'ranksep': '4'})
+
+    fro = graphviz.Graph('cluster_fro', graph_attr={'rank': 'same', 'label': str(label_fro)})
+    to = graphviz.Graph('cluster_to', graph_attr={'rank': 'same', 'label': str(label_to)})
+    
+    for f, t, l in links:
+        fro.node(f)
+        # add invisible space to differentiate "fro" and "to" nodes with same codes
+        if t == f: t = f + ' '
+        to.node(t)
+        g.edge(f, t, l)
+
+    g.subgraph(fro)
+    g.subgraph(to)
+    
+    return g
+```
+
+```{code-cell} ipython3
+:tags: []
+
+# test
+d = get_concordance_df('naics', 2017, 'naics', 2022).sample(5)
+viz_concordance(d[['NAICS_2017', 'NAICS_2022', 'FLAG_2017_TO_2022']].values, 2017, 2022)
+```
+
+## Summary
 
 Tables below summarize types of links between consequtive years in NAICS concordances. The first table shows forward concordances, i.e. from year `t` to `t+5`. The second table show backward concordances, i.e. from year `t` to year `t-5`.
 
@@ -537,72 +608,184 @@ display(naics_concordance_summary([(y, y + 5) for y in range(1997, 2020, 5)]))
 display(naics_concordance_summary([(y, y - 5) for y in range(2002, 2025, 5)]))
 ```
 
-Example: `1-to-1 same`.
+## Examples
+
++++ {"tags": [], "jp-MarkdownHeadingCollapsed": true}
+
+### 1-to-1 links and clean splits
+
+```{raw-cell}
+:tags: []
+
+::: {.panel-tabset}
+
+#### diagram
+```
 
 ```{code-cell} ipython3
 :tags: []
 
 #| echo: true
-#| column: body-outset
-df = get_concordance_df('naics', 2012, 'naics', 2017)
-df.query('FLAG_2012_TO_2017 == "1-to-1 same"').sample(3)
+d = get_concordance_df('naics', 2017, 'naics', 2022)
+d = pd.concat([
+    d.query('NAICS_2017 == "115111"'),
+    d.query('NAICS_2017 == "515112"'),
+    d.query('NAICS_2017 == "325314"')
+])
+viz_concordance(d[['NAICS_2017', 'NAICS_2022', 'FLAG_2017_TO_2022']].values, 2017, 2022)
 ```
 
-Example: `1-to-1 diff`.
+```{raw-cell}
+#### table
+```
+
+```{code-cell} ipython3
+:tags: []
+
+#| column: body-outset
+d
+```
+
+```{raw-cell}
+
+:::
+```
+
++++ {"tags": [], "jp-MarkdownHeadingCollapsed": true}
+
+### Clean joins
+
+From 2012 to 2017 three industries joined into one.
+However, not every join is clean.
+The easiest way to identify a clean join from year `t0` to `t1` is to look for a clean split from year `t1` to `t0`.
+
+```{raw-cell}
+
+::: {.panel-tabset}
+
+### diagram 2012->2017
+```
 
 ```{code-cell} ipython3
 :tags: []
 
 #| echo: true
-#| column: body-outset
-df = get_concordance_df('naics', 2012, 'naics', 2017)
-df.query('FLAG_2012_TO_2017 == "1-to-1 diff"').sample(3)
+d = get_concordance_df('naics', 2012, 'naics', 2017)
+d = find_concordance_group(d, 'NAICS_2012', 'NAICS_2017', ['454111'])
+viz_concordance(d[['NAICS_2012', 'NAICS_2017', 'FLAG_2012_TO_2017']].values, 2012, 2017)
 ```
 
-Example: `clean split`.
+```{raw-cell}
+### table 2012->2017
+```
+
+```{code-cell} ipython3
+:tags: []
+
+#| column: body-outset
+d
+```
+
+```{raw-cell}
+### diagram 2017->2012
+```
 
 ```{code-cell} ipython3
 :tags: []
 
 #| echo: true
-#| column: body-outset
-df = get_concordance_df('naics', 2017, 'naics', 2022)
-df.query('NAICS_2017 == "325314"')
+d = get_concordance_df('naics', 2017, 'naics', 2012)
+d = find_concordance_group(d, 'NAICS_2017', 'NAICS_2012', ['454110'])
+viz_concordance(d[['NAICS_2017', 'NAICS_2012', 'FLAG_2017_TO_2012']].values, 2017, 2012)
 ```
 
-Example: `messy split` and `join`.
-By construction, these two types of links will always be together.
+```{raw-cell}
+### table 2017->2012
+```
+
+```{code-cell} ipython3
+:tags: []
+
+#| column: body-outset
+d
+```
+
+```{raw-cell}
+:tags: []
+
+:::
+```
+
++++ {"tags": [], "jp-MarkdownHeadingCollapsed": true}
+
+### Messy splits and joins
+
+By construction, messy split links will always come with joins.
 From 2017 to 2022, three industries ("212111: Bituminous Coal and Lignite Surface Mining", "212112: Bituminous Coal Underground Mining" and "212113: Anthracite Mining") were re-classified into two ("212114: Surface Coal Mining" and "212115: Underground Coal Mining").
 This creates a problem, for example, when one wants to identify anthracite mining industry under 2022 NAICS, because the two parts of that industry (surface and underground mining) were combined with other types of coal mining.
 
-```{code-cell} ipython3
+```{raw-cell}
+:jp-MarkdownHeadingCollapsed: true
 :tags: []
 
-#| echo: true
-#| column: body-outset
-df = get_concordance_df('naics', 2017, 'naics', 2022)
-df.query('NAICS_2022.isin(["212114", "212115"])')
-```
+::: {.panel-tabset}
 
-Example: a clean `join`. From 2012 to 2017 three industries joined into one. However, not every `join` is clean. The easiest way to identify a clean `join` from year `t0` to `t1` is to look for a `clean split` from year `t1` to `t0`.
-
-```{code-cell} ipython3
-:tags: []
-
-#| echo: true
-#| column: body-outset
-df = get_concordance_df('naics', 2012, 'naics', 2017)
-df.query('NAICS_2012.isin(["454111", "454112", "454113"]) or NAICS_2017 == "454110"')
+#### diagram
 ```
 
 ```{code-cell} ipython3
 :tags: []
 
 #| echo: true
-#| column: body-outset
-df = get_concordance_df('naics', 2017, 'naics', 2012)
-df.query('NAICS_2017 == "454110"')
+d = get_concordance_df('naics', 2017, 'naics', 2022)
+d = find_concordance_group(d, 'NAICS_2017', 'NAICS_2022', ['212111'])
+viz_concordance(d[['NAICS_2017', 'NAICS_2022', 'FLAG_2017_TO_2022']].values, 2017, 2022)
 ```
+
+```{raw-cell}
+#### table
+```
+
+```{code-cell} ipython3
+:tags: []
+
+#| column: body-outset
+d
+```
+
+```{raw-cell}
+
+:::
+```
+
++++ {"tags": [], "jp-MarkdownHeadingCollapsed": true}
+
+### All splits and joins
+
+Every link from 2012 to 2017 concordance that is not 1-to-1.
+
+```{raw-cell}
+
+::: {.callout-note appearance=minimal collapse=true}
+
+#### diagram
+```
+
+```{code-cell} ipython3
+:tags: []
+
+# viz of all non 1-to-1 links
+d = get_concordance_df('naics', 2012, 'naics', 2017)
+d = d.query('FLAG_2012_TO_2017.str[0] != "1"')
+viz_concordance(d[['NAICS_2012', 'NAICS_2017', 'FLAG_2012_TO_2017']].values, 2012, 2017)
+```
+
+```{raw-cell}
+
+:::
+```
+
++++ {"tags": []}
 
 # Build this module
 
@@ -619,8 +802,9 @@ nbd.nb2mod('naics.ipynb')
 ```{code-cell} ipython3
 :tags: []
 
-#| test: importable module works
+# test: importable module works
 import pubdata.naics
 pubdata.naics.compute_structure_summary(2002)
-pubdata.naics.get_concordance_df('naics', 2017, 'naics', 2022);
+d = pubdata.naics.get_concordance_df('naics', 2017, 'naics', 2022)
+pubdata.naics.viz_concordance(d.sample(5)[['NAICS_2017', 'NAICS_2022', 'FLAG_2017_TO_2022']].values, 2017, 2022)
 ```

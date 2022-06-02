@@ -34,7 +34,7 @@ _src_urls = {
     (2022, 'summary'): f'{_src_url_base}2022NAICS/2022_NAICS_Structure_Summary_Table.xlsx',
 }
 
-def get_src(year: typing.Literal[2002, 2007, 2012, 2017, 2022],
+def get_src(year: typing.Literal[1997, 2002, 2007, 2012, 2017, 2022],
             kind: typing.Literal['code', 'index', 'descriptions', 'summary']):
     """Download source file and return local path."""
     
@@ -50,7 +50,7 @@ def get_src(year: typing.Literal[2002, 2007, 2012, 2017, 2022],
     return path
 
 
-def get_df(year: typing.Literal[2002, 2007, 2012, 2017, 2022],
+def get_df(year: typing.Literal[1997, 2002, 2007, 2012, 2017, 2022],
            kind: typing.Literal['code', 'index', 'descriptions', 'summary']):
     """Return tidy dataframe built from source file."""
     
@@ -211,4 +211,46 @@ def get_concordance_df(fro: str, fro_year: int, to: str, to_year: int):
     df = df.sort_values([c_fro, c_to], ignore_index=True)
     
     return df
+
+
+def find_concordance_group(df, fro, to, fro_values):
+    """Given a concordance table of links between columns `fro` and `to`,
+    return a subset of the table that is related to `fro_values` directly or indirectly.
+    """
+    fc = df[fro]
+    tc = df[to]
+    fvs = set(fro_values)
+    tvs = set()
+    prev_size = 0
+    while len(fvs) + len(tvs) > prev_size:
+        prev_size = len(fvs) + len(tvs)
+        d = df[fc.isin(fvs) | tc.isin(tvs)]
+        fvs.update(d[fro])
+        tvs.update(d[to])
+    
+    return df[fc.isin(fvs) | tc.isin(tvs)].copy().sort_values([fro, to])
+
+
+def viz_concordance(links, label_fro, label_to):
+    """Return `graphviz.Graph` visualization of `links`.
+    `links` must a list of lists ["from_code", "to_code", "link_type"].
+    """
+    import graphviz
+    
+    g = graphviz.Graph(graph_attr={'rankdir': 'LR', 'ranksep': '4'})
+
+    fro = graphviz.Graph('cluster_fro', graph_attr={'rank': 'same', 'label': str(label_fro)})
+    to = graphviz.Graph('cluster_to', graph_attr={'rank': 'same', 'label': str(label_to)})
+    
+    for f, t, l in links:
+        fro.node(f)
+        # add invisible space to differentiate "fro" and "to" nodes with same codes
+        if t == f: t = f + ' '
+        to.node(t)
+        g.edge(f, t, l)
+
+    g.subgraph(fro)
+    g.subgraph(to)
+    
+    return g
 
