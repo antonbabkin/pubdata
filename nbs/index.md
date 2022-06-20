@@ -51,7 +51,7 @@ naics.compute_structure_summary(2017)
 ```{code-cell} ipython3
 :tags: []
 
-cbp.get_parquet('us', ['year', 'est', 'emp', 'industry'], [('lfo', '=', '-'), ('year', '>', 2010)]).head()
+cbp.get_df('us', 2019).head()
 ```
 
 ```{code-cell} ipython3
