@@ -36,7 +36,7 @@ Run a selection of quick functions from each module.
 ```{code-cell} ipython3
 :tags: []
 
-from pubdata import naics, cbp, bds, population
+from pubdata import naics, cbp, bds, population, geography
 ```
 
 ```{code-cell} ipython3
@@ -64,4 +64,10 @@ bds.get_df('').head()
 :tags: []
 
 population.get_df().head()
+```
+
+```{code-cell} ipython3
+:tags: []
+
+geography.get_state_df(geometry=False).head()
 ```
