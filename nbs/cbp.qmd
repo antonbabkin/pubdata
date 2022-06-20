@@ -6,7 +6,7 @@ jupyter:
       extension: .qmd
       format_name: quarto
       format_version: '1.0'
-      jupytext_version: 1.13.8
+      jupytext_version: 1.13.7
   kernelspec:
     display_name: Python 3 (ipykernel)
     language: python
@@ -32,7 +32,7 @@ from pubdata.reseng.nbd import Nbd
 nbd = Nbd('pubdata')
 PATH = {
     'root': nbd.root,
-    'source': nbd.root/'data/cbp/source/',
+    'source': nbd.root/'data/source/cbp/',
     'parquet': nbd.root/'data/cbp/parquet/'
 }
 ```

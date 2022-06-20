@@ -109,7 +109,5 @@ left.set_title('Establishments entry and exit rates, economy-wide');
 ```{code-cell} ipython3
 :tags: []
 
-from pubdata.reseng.nbd import Nbd
-nbd = Nbd('pubdata')
 nbd.nb2mod('bds.ipynb')
 ```

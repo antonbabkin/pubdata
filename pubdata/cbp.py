@@ -13,7 +13,7 @@ from .reseng.nbd import Nbd
 nbd = Nbd('pubdata')
 PATH = {
     'root': nbd.root,
-    'source': nbd.root/'data/cbp/source/',
+    'source': nbd.root/'data/source/cbp/',
     'parquet': nbd.root/'data/cbp/parquet/'
 }
 
@@ -64,8 +64,7 @@ def get_df(geo: typing.Literal['us', 'state', 'county'], year: int):
     if ((geo == 'us') and (year >= 2008)) or ((geo == 'state') and (year >= 2010)):
         dt.update({'lfo': str})
     
-    suf = (['1_4'] if year < 2017 else ['<5']) \
-        + (employee_size_classes[1:] if geo == 'county' else employee_size_classes[1:-4])
+    suf = (['1_4'] if year < 2017 else ['<5'])         + (employee_size_classes[1:] if geo == 'county' else employee_size_classes[1:-4])
     dt.update({f'n{s}': float for s in suf})
     
     if (year == 2015) or ((geo, year) == ('us', 2006)):

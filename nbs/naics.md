@@ -610,7 +610,7 @@ display(naics_concordance_summary([(y, y - 5) for y in range(2002, 2025, 5)]))
 
 ## Examples
 
-+++ {"tags": [], "jp-MarkdownHeadingCollapsed": true}
++++ {"tags": []}
 
 ### 1-to-1 links and clean splits
 
@@ -794,8 +794,6 @@ Cells with "nbd-module" tag are converted to an importable Python module.
 ```{code-cell} ipython3
 :tags: []
 
-from pubdata.reseng.nbd import Nbd
-nbd = Nbd('pubdata')
 nbd.nb2mod('naics.ipynb')
 ```
 

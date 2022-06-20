@@ -26,3 +26,42 @@ jupyter: python3
 ```
 
 Describing, tidying and providing usage examples for publicly available datasets.
+
++++
+
+# Quick test
+
+Run a selection of quick functions from each module. 
+
+```{code-cell} ipython3
+:tags: []
+
+from pubdata import naics, cbp, bds, population
+```
+
+```{code-cell} ipython3
+---
+jupyter:
+  outputs_hidden: true
+tags: []
+---
+naics.compute_structure_summary(2017)
+```
+
+```{code-cell} ipython3
+:tags: []
+
+cbp.get_parquet('us', ['year', 'est', 'emp', 'industry'], [('lfo', '=', '-'), ('year', '>', 2010)]).head()
+```
+
+```{code-cell} ipython3
+:tags: []
+
+bds.get_df('').head()
+```
+
+```{code-cell} ipython3
+:tags: []
+
+population.get_df().head()
+```
