@@ -36,7 +36,7 @@ Run a selection of quick functions from each module.
 ```{code-cell} ipython3
 :tags: []
 
-from pubdata import naics, cbp, bds, population, geography
+from pubdata import naics, cbp, bds, population, geography, ers_rurality
 ```
 
 ```{code-cell} ipython3
@@ -70,4 +70,22 @@ population.get_df().head()
 :tags: []
 
 geography.get_state_df(geometry=False).head()
+```
+
+```{code-cell} ipython3
+:tags: []
+
+ers_rurality.get_ruc_df().head()
+```
+
+```{code-cell} ipython3
+:tags: []
+
+ers_rurality.get_ui_df().head()
+```
+
+```{code-cell} ipython3
+:tags: []
+
+ers_rurality.get_ruca_df().head()
 ```
