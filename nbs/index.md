@@ -31,7 +31,7 @@ Describing, tidying and providing usage examples for publicly available datasets
 
 # Quick test
 
-Run a selection of quick functions from each module. 
+Run a selection of quick functions from each module.
 
 ```{code-cell} ipython3
 :tags: []
@@ -88,4 +88,11 @@ ers_rurality.get_ui_df().head()
 :tags: []
 
 ers_rurality.get_ruca_df().head()
+```
+
+```{code-cell} ipython3
+:tags: []
+
+from pubdata import bea_io
+bea_io.get_naics_df().head()
 ```

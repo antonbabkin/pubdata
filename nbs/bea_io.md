@@ -15,7 +15,7 @@ kernelspec:
 # Input-Output Tables
 
 ```{code-cell} ipython3
-:tags: []
+:tags: [nbd-module]
 
 import zipfile
 
@@ -45,7 +45,7 @@ pd.options.display.max_colwidth = None
 # Source files
 
 ```{code-cell} ipython3
-:tags: []
+:tags: [nbd-module]
 
 def get_source_files():
     if (PATH['source'] / 'AllTablesSUP').exists(): return
@@ -60,7 +60,7 @@ def get_source_files():
 "NAICS Codes" table is parsed so that at the lowest classification level ("detail") each row corresponds to a single NAICS code. Detail industries with multiple NAICS are split into multiple rows. Levels about "detail" have their separate rows.
 
 ```{code-cell} ipython3
-:tags: []
+:tags: [nbd-module]
 
 def get_naics_df():
     path = PATH['naics_codes']
@@ -138,11 +138,8 @@ assert split_codes('1-3, 5-7') == ['1', '2', '3', '5', '6', '7']
 Example: all sector level industries.
 
 ```{code-cell} ipython3
----
-jupyter:
-  outputs_hidden: true
-tags: []
----
+:tags: []
+
 get_naics_df().query('SUMMARY.isna()')
 ```
 
@@ -337,6 +334,83 @@ df.loc[df['DETAIL'] == '531HST', ['est', 'emp', 'ap']] *= 0.5
 df.loc[df['DETAIL'] == '531ORE', ['est', 'emp', 'ap']] *= 0.5
 ```
 
+```{code-cell} ipython3
+:tags: []
+
+df = get_naics_df()
+# ignore construction and government sectors for simplicity
+df = df.query('SECTOR != "23" and SECTOR != "G"')
+
+d = cbp.get_df('county', 2014)\
+    .query('fipstate == "01" and fipscty == "003"')\
+    [['industry', 'est', 'emp', 'ap']]\
+    .rename(columns={'industry': 'NAICS'})
+
+df = df.merge(d, 'left', 'NAICS', indicator=True)
+# split "531" between "531HST" and "531ORE" with equal weights
+df.loc[df['DETAIL'] == '531HST', ['est', 'emp', 'ap']] *= 0.5
+df.loc[df['DETAIL'] == '531ORE', ['est', 'emp', 'ap']] *= 0.5
+```
+
+```{code-cell} ipython3
+:tags: []
+
+df.head(10)
+```
+
+```{code-cell} ipython3
+:tags: []
+
+d = df.loc[df['DETAIL'].notna(), ['DETAIL', 'ap']]
+d = d.groupby('DETAIL').sum()
+d_us = d
+```
+
+```{code-cell} ipython3
+:tags: []
+
+d = df.loc[df['SUMMARY'].notna(), ['SUMMARY', 'ap']]
+d = d.groupby('SUMMARY').sum()
+d
+```
+
+```{code-cell} ipython3
+:tags: []
+
+d = df.loc[df['DETAIL'].notna(), ['DETAIL', 'ap']]
+d = d.groupby('DETAIL').sum()
+d_01001 = d
+```
+
+```{code-cell} ipython3
+:tags: []
+
+d = df.loc[df['DETAIL'].notna(), ['DETAIL', 'ap']]
+d = d.groupby('DETAIL').sum()
+d_01003 = d
+```
+
+```{code-cell} ipython3
+---
+jupyter:
+  outputs_hidden: true
+tags: []
+---
+pd.concat([d_us, d_01001, d_01003], 1)
+```
+
+```{code-cell} ipython3
+:tags: []
+
+df.query('DETAIL == "33329A"')
+```
+
+```{code-cell} ipython3
+:tags: []
+
+df.query('DETAIL == "33329A"').groupby('DETAIL')['ap'].sum()
+```
+
 Merged totals are almost equal to CBP totals.
 Small difference is likely due to CBP noise (in CBP itself total != sum of 6-digit rows).
 
@@ -384,4 +458,12 @@ df = df[['SUMMARY', 'NAICS3']].drop_duplicates()
 df['DUP_IO'] = df['SUMMARY'].duplicated(False)
 df['DUP_N3'] = df['NAICS3'].duplicated(False)
 df[df['DUP_N3']]
+```
+
+# Build this module
+
+```{code-cell} ipython3
+:tags: []
+
+nbd.nb2mod('bea_io.ipynb')
 ```
