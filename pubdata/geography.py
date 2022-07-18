@@ -8,6 +8,7 @@ import typing
 import zipfile
 import xml
 
+import numpy as np
 import pandas as pd
 import geopandas
 import pyarrow
@@ -20,13 +21,14 @@ nbd = Nbd('pubdata')
 
 PATH = {
     'source': nbd.root / 'data/source/geo',
-    'state': nbd.root / 'data/geo/state.pq',
+    'geo': nbd.root / 'data/geo/',
+    'state': nbd.root / 'data/geo/state/',
     'county': nbd.root / 'data/geo/county.pq',
     'tract': nbd.root / 'data/geo/tract.pq',
     'zcta': nbd.root / 'data/geo/zcta/'
 }
 PATH['source'].mkdir(parents=True, exist_ok=True)
-PATH['state'].parent.mkdir(parents=True, exist_ok=True)
+PATH['geo'].mkdir(parents=True, exist_ok=True)
 
 
 # in geopandas 0.8, parquet support is still experimental
@@ -35,55 +37,90 @@ import warnings
 warnings.filterwarnings('ignore', message='.*initial implementation of Parquet.*')
 
 
-def get_source(src):
-    """Return path to file specified by `src` key, downloading if missing."""
-    if src == 'state-boundary':
-        url = 'https://www2.census.gov/geo/tiger/GENZ2018/shp/cb_2018_us_state_20m.zip'
-        local = PATH['source']/'cb_2018_us_state_20m.zip'
-    elif src.startswith('tract-boundary-'):
-        # tract-boundary-YYYY-SS, YYYY = decennial census year, SS = state FIPS code
-        y = int(src[15:19])
-        s = src[-2:]
-        if y == 1990:
-            url = f'https://www2.census.gov/geo/tiger/PREVGENZ/tr/tr90shp/tr{s}_d90_shp.zip'
-        elif y == 2000:
-            url = f'https://www2.census.gov/geo/tiger/PREVGENZ/tr/tr00shp/tr{s}_d00_shp.zip'
-        elif y == 2010:
-            url = f'https://www2.census.gov/geo/tiger/GENZ2010/gz_2010_{s}_140_00_500k.zip'
-        elif y == 2020:
-            url = f'https://www2.census.gov/geo/tiger/GENZ2020/shp/cb_2020_{s}_tract_500k.zip'
-        else:
-            raise Exception(f'No tract revisions in {y}.')
-        local = PATH['source']/f'tract/{y}/{s}.zip'
+_REGION_STATE = {}
+
+_REGION_STATE['BEA'] = {
+    # (region_name, region_code): [state_codes]
+    ('New England', '91'): ['09', '23', '25', '33', '44', '50'],
+    ('Mideast', '92'): ['10', '11', '24', '34', '36', '42'],
+    ('Great Lakes', '93'): ['17', '18', '26', '39', '55'],
+    ('Plains', '94'): ['19', '20', '27', '29', '31', '38', '46'],
+    ('Southeast', '95'): ['01', '05', '12', '13', '21', '22', '28', '37', '45', '47', '51', '54'],
+    ('Southwest', '96'): ['04', '35', '40', '48'],
+    ('Rocky Mountain', '97'): ['08', '16', '30', '49', '56'],
+    ('Far West', '98'): ['02', '06', '15', '32', '41', '53']
+}
+
+
+_STATE_REVISION_YEAR = 2021
+
+def get_state_src(scale: typing.Literal['20m', '5m', '500k', 'tiger'] = '5m'):
+    """Download state boundary zipped shapefile and return path to it."""
+    year = _STATE_REVISION_YEAR
+    url = 'https://www2.census.gov/geo/tiger/'
+    if scale == 'tiger':
+        file_name = f'tl_{year}_us_state.zip'
+        url += f'TIGER{year}/STATE/{file_name}'
     else:
-        raise Exception(f'Unknown source: {src}')
-        
-    if not local.exists():
-        print(f'File "{local}" not found, attempting download.')
-        download_file(url, local.parent, local.name)
-    return local
+        file_name = f'cb_{year}_us_state_{scale}.zip'
+        url += f'GENZ{year}/shp/{file_name}'
+    local_path = PATH['source'] / 'state' / file_name
+    if not local_path.exists():
+        print(f'File "{local_path}" not found, attempting download.')
+        download_file(url, local_path.parent, local_path.name)
+    return local_path    
 
-
-def get_state_df(geometry=True):
-    path = PATH['state']
-    if path.exists():
+def get_state_df(geometry: bool = True,
+                 scale: typing.Literal['20m', '5m', '500k', 'tiger'] = '5m'):
+    """Return geopandas.GeoDataFrame with state shapes.
+    Set `geometry = False` to return pandas.DataFrame.
+    """
+    columns = ['CODE', 'NAME', 'ABBR', 'CONTIGUOUS', 'TERRITORY', 'BEA_REGION_NAME', 'BEA_REGION_CODE', 'ALAND', 'AWATER']
+    pq_path = PATH['state'] / f'{scale}.pq'
+    if pq_path.exists():
         if geometry:
-            return geopandas.read_parquet(path)
+            return geopandas.read_parquet(pq_path)
         else:
-            return pd.read_parquet(path, 'pyarrow', ['CODE', 'ABBR', 'NAME', 'ALAND', 'AWATER'])
+            return pd.read_parquet(pq_path, 'pyarrow', columns)
 
-    p = get_source('state-boundary')
-    df = geopandas.read_file(p)
+    src_path = get_state_src(scale)
+    df = geopandas.read_file(src_path)
     df = df.rename(columns={'STATEFP': 'CODE', 'STUSPS': 'ABBR'})
-    df = df[['CODE', 'ABBR', 'NAME', 'ALAND', 'AWATER', 'geometry']]
-    assert not df.duplicated('CODE').any()
-    df.to_parquet(path)
+    df['CONTIGUOUS'] = ~df['CODE'].isin(['02', '15', '60', '66', '69', '72', '78'])
+    df['TERRITORY'] = df['CODE'].isin(['60', '66', '69', '72', '78'])
+
+    assert df.notna().all().all()
+    
+    df[['BEA_REGION_NAME', 'BEA_REGION_CODE']] = None
+    for (region_name, region_code), state_codes in _REGION_STATE['BEA'].items():
+        df.loc[df['CODE'].isin(state_codes), 'BEA_REGION_NAME'] = region_name
+        df.loc[df['CODE'].isin(state_codes), 'BEA_REGION_CODE'] = region_code
+    
+    df = df[columns + ['geometry']]
+    df = df.sort_values('CODE').reset_index(drop=True)
+    
+
+    for c in ['CODE', 'NAME', 'ABBR']:
+        assert not df.duplicated(c).any()
+    assert len(df) == (52 if scale == '20m' else 56)
+    
+    pq_path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_parquet(pq_path)
     if not geometry:
         df = pd.DataFrame(df).drop(columns='geometry')
     return df
 
+def _data_cleanup_state(which: typing.Literal['downloaded', 'processed', 'all']):
+    """Remove state data files."""
+    if which in ['downloaded', 'all']:
+        print('Removing downloaded state files.')
+        shutil.rmtree(PATH['source'] / 'state', ignore_errors=True)
+    if which in ['processed', 'all']:
+        print('Removing processed state files.')
+        shutil.rmtree(PATH['state'], ignore_errors=True)
 
-def get_source_county(year=2020, scale='20m'):
+
+def get_county_src(year=2020, scale='20m'):
     """Download and return path to county boundary shapefile."""
 
     base = 'https://www2.census.gov/geo/tiger/'
@@ -120,7 +157,7 @@ def get_county_df(year=2020, geometry=True, scale='20m'):
         else:
             return pd.read_parquet(path, 'pyarrow', ['CODE', 'NAME', 'STATE_CODE', 'COUNTY_CODE'])
 
-    p = get_source_county(year, scale)
+    p = get_county_src(year, scale)
     df = geopandas.read_file(p)
     if year == 1990:
         df = df.rename(columns={'ST': 'STATE_CODE', 'CO': 'COUNTY_CODE'})
@@ -145,6 +182,26 @@ def get_county_df(year=2020, geometry=True, scale='20m'):
         df = pd.DataFrame(df).drop(columns='geometry')
     return df
 
+
+def get_tract_src(year, state_code):
+    """Return path to zipped tract shapefile, downloading if missing."""
+    url = 'https://www2.census.gov/geo/tiger/'
+    if year == 1990:
+        url += f'PREVGENZ/tr/tr90shp/tr{state_code}_d90_shp.zip'
+    elif year == 2000:
+        url += f'PREVGENZ/tr/tr00shp/tr{state_code}_d00_shp.zip'
+    elif year == 2010:
+        url += f'GENZ2010/gz_2010_{state_code}_140_00_500k.zip'
+    elif year == 2020:
+        url += f'GENZ2020/shp/cb_2020_{state_code}_tract_500k.zip'
+    else:
+        raise Exception(f'No tract revisions in {year}.')
+    local = PATH['source'] / f'tract/{year}/{state_code}.zip'
+        
+    if not local.exists():
+        print(f'File "{local}" not found, attempting download.')
+        download_file(url, local.parent, local.name)
+    return local
 
 def get_tract_df(years=None, state_codes=None, geometry=True):
     _years = years or [1990, 2000, 2010, 2020]
@@ -176,7 +233,7 @@ def _prep_tract_df(year, state_code):
     path = PATH['tract']/f'YEAR={year}/STATE_CODE={state_code}/part.pq'
     if path.exists(): return
 
-    p = get_source(f'tract-boundary-{year}-{state_code}')
+    p = get_tract_src(year, state_code)
     df = geopandas.read_file(p)
     if year == 1990:
         if state_code == '34':
