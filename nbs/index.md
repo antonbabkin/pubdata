@@ -44,10 +44,7 @@ def init_symlinks():
     
     _recreate_dir_symlink('nbs/pubdata', '../pubdata', root_dir)
     _recreate_dir_symlink('pubdata/reseng', '../submodules/reseng/reseng', root_dir)
-    
-    # test
-    import pubdata
-    import pubdata.reseng
+    from pubdata import reseng
 
 def _dir_up():
     """Return dir path two levels above current notebook or script."""
