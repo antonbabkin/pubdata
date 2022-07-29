@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 import geopandas
 import pyarrow
-import pyarrow.dataset
+import pyarrow.dataset, pyarrow.parquet
 
 from .reseng.util import download_file
 from .reseng.nbd import Nbd
@@ -263,6 +263,87 @@ def _prep_tract_df(year, state_code):
         
     path.parent.mkdir(parents=True, exist_ok=True)
     df.to_parquet(path)
+
+
+def _get_tract_xwalk_time_src(y1: typing.Literal[2000, 2010]):
+    """National relationship file for tract change between `y1` and `y1`-10."""
+    urls = {
+        2000: 'https://www2.census.gov/geo/relfiles/tract/us/us2kpop.txt',
+        2010: 'https://www2.census.gov/geo/docs/maps-data/data/rel/trf_txt/us2010trf.txt'
+    }
+    local = PATH['source'] / f'tract_xwalk_time/{y1}.txt'
+        
+    if not local.exists():
+        print(f'File "{local}" not found, attempting download.')
+        download_file(urls[y1], local.parent, local.name)
+    return local
+
+def _get_tract_xwalk_time_meta(y1: typing.Literal[2000, 2010]):
+    """Metadata for national relationship file for tract change between `y1` and `y1`-10."""
+    base = 'https://www.census.gov/programs-surveys/geography/technical-documentation/records-layout/'
+    urls = {
+        2000: f'{base}2000-tract-relationship-record-layout.html',
+        2010: f'{base}2010-census-tract-record-layout.html'
+    }
+    meta = pd.read_html(urls[y1])[0]
+    return meta
+
+def get_tract_xwalk_time_df(y1: typing.Literal[2000, 2010]):
+    """Dataframe of national relationship table for tract change between `y1` and `y1`-10."""
+    cache_path = PATH['geo'] / f'tract_xwalk_time/{y1}.pq'
+    if cache_path.exists():
+        return pd.read_parquet(cache_path)
+    
+    src = _get_tract_xwalk_time_src(y1)
+    meta = _get_tract_xwalk_time_meta(y1)
+    col_desc = {}
+    y0 = y1 - 10
+    if y1 == 2000:
+        df = pd.read_fwf(src, encoding='ISO-8859-1', dtype='str', header=None,
+                         widths=meta['Field Length'].tolist())
+        df.columns = meta['Field Description']
+
+        c = col_desc['ALAND'] = 'Land area of the record (1000 sq.meters)'
+        df['ALAND'] = df[c].astype(int)
+        c = col_desc['POP_2000'] = '2000 population of the area covered by the record'
+        df['POP_2000'] = df[c].astype(int)    
+        for y in [y0, y1]:
+            col_desc[f'TRACT_{y}'] = f'{y} state + county + tract FIPS code'
+            df[f'TRACT_{y}'] = df[f'{y} state FIPS code'] + df[f'{y} county FIPS code'] + df[f'{y} census tract base'] + df[f'{y} census tract suffix']
+            col_desc[f'PART_{y}'] = f'{y} census tract part flag'
+            df[f'PART_{y}'] = (df[f'{y} census tract part flag'] == 'P')
+            col_desc[f'POP_PCT_{y}'] = f'Percentage of {y} census tract population'
+            df[f'POP_PCT_{y}'] = df[f'Percentage of {y} census tract population*'].astype(int) / 10
+    elif y1 == 2010:
+        df = pd.read_csv(src, encoding='ISO-8859-1', dtype='str', header=None)
+        df.columns = meta['Column Name']
+
+        col_desc['ALAND'] = 'Land Area for the record'
+        df['ALAND'] = df['AREALANDPT'].astype('int64')
+        col_desc['POP_2010'] = 'Calculated 2010 Population for the relationship record'
+        df['POP_2010'] = df['POP10PT'].astype(int)    
+        for y in [y0, y1]:
+            yy = str(y)[-2:]
+            col_desc[f'TRACT_{y}'] = f'{y} state + county + tract FIPS code'
+            df[f'TRACT_{y}'] = df[f'GEOID{yy}']
+            col_desc[f'PART_{y}'] = f'{y} Tract Part Flag'
+            df[f'PART_{y}'] = (df[f'PART{yy}'] == 'P')
+            col_desc[f'POP_PCT_{y}'] = f'Calculated Percentage of the {y} population this record contains'
+            df[f'POP_PCT_{y}'] = df[f'POPPCT{yy}'].astype(float)
+
+    df.columns.name = None
+    df = df[['ALAND', f'POP_{y1}',
+             f'TRACT_{y0}', f'PART_{y0}', f'POP_PCT_{y0}',
+             f'TRACT_{y1}', f'PART_{y1}', f'POP_PCT_{y1}']]
+    
+    # cache to parquet
+    sch = pyarrow.Schema.from_pandas(df)
+    for i, f in enumerate(sch):
+        sch = sch.set(i, f.with_metadata({'description': col_desc[f.name]}))
+    cache_path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_parquet(cache_path, engine='pyarrow', index=False, schema=sch)
+    
+    return df
 
 
 def get_zcta_src(year: int):

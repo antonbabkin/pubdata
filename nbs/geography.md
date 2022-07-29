@@ -5,7 +5,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.13.7
+    jupytext_version: 1.14.0
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -41,7 +41,7 @@ import numpy as np
 import pandas as pd
 import geopandas
 import pyarrow
-import pyarrow.dataset
+import pyarrow.dataset, pyarrow.parquet
 
 from pubdata.reseng.util import download_file
 from pubdata.reseng.nbd import Nbd
@@ -599,43 +599,90 @@ Relationship files are currently available for 2010 (relative to 2000) and 2000 
 - 2000: [data](https://www.census.gov/geographies/reference-files/time-series/geo/relationship-files.2000.html), [metadata](https://www.census.gov/programs-surveys/geography/technical-documentation/records-layout/2000-tract-relationship-record-layout.html).
 
 ```{code-cell} ipython3
-@functools.cache
-def get_tract_changes(y1):
-    """Return relationship table for tracts in `y1` and `y1-10`."""
+:tags: [nbd-module]
+
+def _get_tract_xwalk_time_src(y1: typing.Literal[2000, 2010]):
+    """National relationship file for tract change between `y1` and `y1`-10."""
+    urls = {
+        2000: 'https://www2.census.gov/geo/relfiles/tract/us/us2kpop.txt',
+        2010: 'https://www2.census.gov/geo/docs/maps-data/data/rel/trf_txt/us2010trf.txt'
+    }
+    local = PATH['source'] / f'tract_xwalk_time/{y1}.txt'
+        
+    if not local.exists():
+        print(f'File "{local}" not found, attempting download.')
+        download_file(urls[y1], local.parent, local.name)
+    return local
+
+def _get_tract_xwalk_time_meta(y1: typing.Literal[2000, 2010]):
+    """Metadata for national relationship file for tract change between `y1` and `y1`-10."""
+    base = 'https://www.census.gov/programs-surveys/geography/technical-documentation/records-layout/'
+    urls = {
+        2000: f'{base}2000-tract-relationship-record-layout.html',
+        2010: f'{base}2010-census-tract-record-layout.html'
+    }
+    meta = pd.read_html(urls[y1])[0]
+    return meta
+
+def get_tract_xwalk_time_df(y1: typing.Literal[2000, 2010]):
+    """Dataframe of national relationship table for tract change between `y1` and `y1`-10."""
+    cache_path = PATH['geo'] / f'tract_xwalk_time/{y1}.pq'
+    if cache_path.exists():
+        return pd.read_parquet(cache_path)
+    
+    src = _get_tract_xwalk_time_src(y1)
+    meta = _get_tract_xwalk_time_meta(y1)
+    col_desc = {}
     y0 = y1 - 10
     if y1 == 2000:
-        meta = pd.read_html('https://www.census.gov/programs-surveys/geography/technical-documentation/records-layout/2000-tract-relationship-record-layout.html')
-        df = pd.read_fwf('https://www2.census.gov/geo/relfiles/tract/us/us2kpop.txt',
-                         widths=meta[0]['Field Length'].tolist(),
-                         encoding='ISO-8859-1', dtype='str', header=None)
-        df.columns = meta[0]['Field Description']
+        df = pd.read_fwf(src, encoding='ISO-8859-1', dtype='str', header=None,
+                         widths=meta['Field Length'].tolist())
+        df.columns = meta['Field Description']
 
-        df['ALAND'] = df['Land area of the record (1000 sq.meters)'].astype(int)
-        df['POP_2000'] = df['2000 population of the area covered by the record'].astype(int)    
+        c = col_desc['ALAND'] = 'Land area of the record (1000 sq.meters)'
+        df['ALAND'] = df[c].astype(int)
+        c = col_desc['POP_2000'] = '2000 population of the area covered by the record'
+        df['POP_2000'] = df[c].astype(int)    
         for y in [y0, y1]:
+            col_desc[f'TRACT_{y}'] = f'{y} state + county + tract FIPS code'
             df[f'TRACT_{y}'] = df[f'{y} state FIPS code'] + df[f'{y} county FIPS code'] + df[f'{y} census tract base'] + df[f'{y} census tract suffix']
+            col_desc[f'PART_{y}'] = f'{y} census tract part flag'
             df[f'PART_{y}'] = (df[f'{y} census tract part flag'] == 'P')
-            df[f'POP_PCT_{y}'] = df[f'Percentage of {y} census tract population*'].astype(int)/10
+            col_desc[f'POP_PCT_{y}'] = f'Percentage of {y} census tract population'
+            df[f'POP_PCT_{y}'] = df[f'Percentage of {y} census tract population*'].astype(int) / 10
     elif y1 == 2010:
-        meta = pd.read_html('https://www.census.gov/programs-surveys/geography/technical-documentation/records-layout/2010-census-tract-record-layout.html')
-        df = pd.read_csv('https://www2.census.gov/geo/docs/maps-data/data/rel/trf_txt/us2010trf.txt',
-                         encoding='ISO-8859-1', dtype='str', header=None)
-        df.columns = meta[0]['Column Name']
+        df = pd.read_csv(src, encoding='ISO-8859-1', dtype='str', header=None)
+        df.columns = meta['Column Name']
 
-        df['ALAND'] = df['AREALANDPT'].astype(int)
+        col_desc['ALAND'] = 'Land Area for the record'
+        df['ALAND'] = df['AREALANDPT'].astype('int64')
+        col_desc['POP_2010'] = 'Calculated 2010 Population for the relationship record'
         df['POP_2010'] = df['POP10PT'].astype(int)    
         for y in [y0, y1]:
             yy = str(y)[-2:]
+            col_desc[f'TRACT_{y}'] = f'{y} state + county + tract FIPS code'
             df[f'TRACT_{y}'] = df[f'GEOID{yy}']
+            col_desc[f'PART_{y}'] = f'{y} Tract Part Flag'
             df[f'PART_{y}'] = (df[f'PART{yy}'] == 'P')
+            col_desc[f'POP_PCT_{y}'] = f'Calculated Percentage of the {y} population this record contains'
             df[f'POP_PCT_{y}'] = df[f'POPPCT{yy}'].astype(float)
 
     df.columns.name = None
     df = df[['ALAND', f'POP_{y1}',
              f'TRACT_{y0}', f'PART_{y0}', f'POP_PCT_{y0}',
              f'TRACT_{y1}', f'PART_{y1}', f'POP_PCT_{y1}']]
+    
+    # cache to parquet
+    sch = pyarrow.Schema.from_pandas(df)
+    for i, f in enumerate(sch):
+        sch = sch.set(i, f.with_metadata({'description': col_desc[f.name]}))
+    cache_path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_parquet(cache_path, engine='pyarrow', index=False, schema=sch)
+    
     return df
+```
 
+```{code-cell} ipython3
 def plot_tract_change(y0, t0, y1, t1):
     state_code = t0[0][:2]
     ts0 = get_tract_df([y0], [state_code]).query('CODE.isin(@t0)')
@@ -670,11 +717,8 @@ All tracts in $y_1$ are a partition of a single tract in $y_0$.
 :::
 
 ```{code-cell} ipython3
----
-jupyter:
-  outputs_hidden: true
-tags: []
----
+:tags: []
+
 #| output: false
 def show_random_tract_split():
     w_y1 = widgets.Dropdown(description='Years', value=2010,
@@ -686,7 +730,7 @@ def show_random_tract_split():
     def _prep():
         y1 = w_y1.value
         y0 = y1 - 10
-        df = get_tract_changes(y1)
+        df = get_tract_xwalk_time_df(y1)
         if w_state.value != '00':
             df = df[df[f'TRACT_{y0}'].str[:2] == w_state.value]
         d = df.groupby(f'TRACT_{y0}')[f'PART_{y1}'].agg(['size', 'sum'])
@@ -718,11 +762,8 @@ All tracts in $y_0$ are a partition of a single tract in $y_1$.
 :::
 
 ```{code-cell} ipython3
----
-jupyter:
-  outputs_hidden: true
-tags: []
----
+:tags: []
+
 #| output: false
 def show_random_tract_join():
     w_y1 = widgets.Dropdown(description='Years', value=2010,
@@ -734,7 +775,7 @@ def show_random_tract_join():
     def _prep():
         y1 = w_y1.value
         y0 = y1 - 10
-        df = get_tract_changes(y1)
+        df = get_tract_xwalk_time_df(y1)
         if w_state.value != '00':
             df = df[df[f'TRACT_{y0}'].str[:2] == w_state.value]
         d = df.groupby(f'TRACT_{y1}')[f'PART_{y0}'].agg(['size', 'sum'])
@@ -780,7 +821,7 @@ def show_random_tract_reshape():
     def _prep():
         y1 = w_y1.value
         y0 = y1 - 10
-        df = get_tract_changes(y1)
+        df = get_tract_xwalk_time_df(y1)
         if w_state.value != '00':
             df = df[df[f'TRACT_{y0}'].str[:2] == w_state.value]
         # Identification of reshaping cluster:

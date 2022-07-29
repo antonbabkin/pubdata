@@ -14,3 +14,4 @@ dependencies:
   - geopandas
   - pyarrow
   - python-graphviz # option visualization of NAICS concordances
+  - lxml
