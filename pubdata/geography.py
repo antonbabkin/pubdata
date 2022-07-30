@@ -7,6 +7,7 @@ import shutil
 import typing
 import zipfile
 import xml
+import contextlib
 
 import numpy as np
 import pandas as pd
@@ -181,6 +182,96 @@ def get_county_df(year=2020, geometry=True, scale='20m'):
     if not geometry:
         df = pd.DataFrame(df).drop(columns='geometry')
     return df
+
+
+def _get_tract_gaz_src(year):
+    """National geographic gazeteer files for census tracts."""
+    base = 'https://www2.census.gov/geo/docs/maps-data/data/gazetteer/'
+    urls = {
+        2000: f'{base}ustracts2k.zip',
+        2010: f'{base}Gaz_tracts_national.zip',
+        2012: f'{base}2012_Gazetteer/2012_Gaz_tracts_national.zip',
+        2013: f'{base}2013_Gazetteer/2013_Gaz_tracts_national.zip',
+        2014: f'{base}2014_Gazetteer/2014_Gaz_tracts_national.zip',
+        2015: f'{base}2015_Gazetteer/2015_Gaz_tracts_national.zip',
+        2016: f'{base}2016_Gazetteer/2016_Gaz_tracts_national.zip',
+        2017: f'{base}2017_Gazetteer/2017_Gaz_tracts_national.zip',
+        2018: f'{base}2018_Gazetteer/2018_Gaz_tracts_national.zip',
+        2019: f'{base}2019_Gazetteer/2019_Gaz_tracts_national.zip',
+        2020: f'{base}2020_Gazetteer/2020_Gaz_tracts_national.zip',
+        2021: f'{base}2021_Gazetteer/2021_Gaz_tracts_national.zip',
+    }
+    local = PATH['source'] / f'tract_gaz/{year}.zip'
+    return download_file(urls[year], local.parent, local.name)
+
+
+def get_tract_gaz_df(year):
+    """Dataframe of national geographic gazeteer files for census tracts."""
+    cache_path = PATH['geo'] / f'tract_gaz/{year}.pq'
+    if cache_path.exists():
+        return pd.read_parquet(cache_path)
+
+    src = _get_tract_gaz_src(year)
+
+    if year == 2000:
+        cols = [
+            # (name, width, dtype)
+            ('USPS', 2, 'str'),
+            ('GEOID', 11, 'str'),
+            ('POP00', 9, 'int64'),
+            ('HU00', 9, 'int64'),
+            ('ALAND', 14, 'int64'),
+            ('AWATER', 14, 'int64'),
+            ('ALAND_SQMI', 14, 'float64'),
+            ('AWATER_SQMI', 14, 'float64'),
+            ('INTPTLAT', 14, 'float64'),
+            ('INTPTLONG', 15, 'float64')
+        ]
+        df = pd.read_fwf(src, compression='zip', header=None,
+                         widths=[c[1] for c in cols],
+                         names=[c[0] for c in cols],
+                         dtype={c[0]: c[2] for c in cols})
+    elif year == 2010:
+        cols = {
+            'USPS': 'str',
+            'GEOID': 'str',
+            'POP10': 'int64',
+            'HU10': 'int64',
+            'ALAND': 'int64',
+            'AWATER': 'int64',
+            'ALAND_SQMI': 'float64',
+            'AWATER_SQMI': 'float64',
+            'INTPTLAT': 'float64',
+            'INTPTLONG': 'float64'
+        }
+        df = pd.read_csv(src, sep='\t', skiprows=1, names=cols.keys(), dtype=cols)
+    else:
+        cols = {
+            'USPS': 'str',
+            'GEOID': 'str',
+            'ALAND': 'int64',
+            'AWATER': 'int64',
+            'ALAND_SQMI': 'float64',
+            'AWATER_SQMI': 'float64',
+            'INTPTLAT': 'float64',
+            'INTPTLONG': 'float64'
+        }
+        df = pd.read_csv(src, sep='\t', skiprows=1, names=cols.keys(), dtype=cols)
+    
+    cache_path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_parquet(cache_path, engine='pyarrow', index=False)
+    
+    return df
+
+
+def _data_cleanup_tract_gaz(which: typing.Literal['downloaded', 'processed', 'all']):
+    """Remove tract gazeteer data files."""
+    if which in ['downloaded', 'all']:
+        print('Removing downloaded tract gazeteer files.')
+        shutil.rmtree(PATH['source'] / 'tract_gaz', ignore_errors=True)
+    if which in ['processed', 'all']:
+        print('Removing processed tract gazeteer files.')
+        shutil.rmtree(PATH['geo'] / 'tract_gaz', ignore_errors=True)
 
 
 def get_tract_src(year, state_code):

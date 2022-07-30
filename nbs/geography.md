@@ -36,6 +36,7 @@ import shutil
 import typing
 import zipfile
 import xml
+import contextlib
 
 import numpy as np
 import pandas as pd
@@ -91,7 +92,7 @@ Census Bureau:
 - [Relationship files](https://www.census.gov/geographies/reference-files/time-series/geo/relationship-files.html). These text files describe geographic relationships. There are two types of relationship files; those that show the relationship between the same type of geography over time (comparability) and those that show the relationship between two types of geography for the same time period.
 - [LSAD codes](https://www.census.gov/library/reference/code-lists/legal-status-codes.html). Legal/Statistical Area Description Codes and Definitions
 - [FIPS codes](https://www.census.gov/geographies/reference-files/2019/demo/popest/2019-fips.html)
-- [Gazeteer reference files](https://www.census.gov/geographies/reference-files/time-series/geo/gazetteer-files.html)
+- [Gazeteer reference files](https://www.census.gov/geographies/reference-files/time-series/geo/gazetteer-files.html). The U.S. Gazetteer Files provide a listing of all geographic areas for selected geographic area types. The files include geographic identifier codes, names, area measurements, and representative latitude and longitude coordinates.
 - [Character encoding](https://www.census.gov/programs-surveys/geography/technical-documentation/user-note/special-characters.html). Files from 2014 and earlier use "ISO-8859-1", 2015 and after use "UTF-8".
 
 ## Shapefile format
@@ -477,7 +478,145 @@ df.explore(tiles='CartoDB positron')
 
 Code is 11 digits: 2 state, 5 county, 4+2 tract.
 
-[Reference](https://www2.census.gov/geo/pdfs/education/CensusTracts.pdf)
+[Slides](https://www2.census.gov/geo/pdfs/education/CensusTracts.pdf)
+
++++
+
+## Gazeteer files
+
+[Data](https://www.census.gov/geographies/reference-files/time-series/geo/gazetteer-files.html) |
+[Record layouts](https://www.census.gov/programs-surveys/geography/technical-documentation/records-layout/gaz-record-layouts.html)
+
+Gazeteer files for census tracts for the 50 states, the District of Columbia, and the Commonwealth of Puerto Rico.
+
+The vintage of files is usually as of January 1.
+
+Only 2000 file is available that is based on 2000 census.
+2010, 2012-2019 files are based on 2010 census.
+2020-2021 files are based on 2020 census.
+
+Between decenial census year files contain "updates based on small boundary corrections".
+
+```{code-cell} ipython3
+:tags: [nbd-module]
+
+def _get_tract_gaz_src(year):
+    """National geographic gazeteer files for census tracts."""
+    base = 'https://www2.census.gov/geo/docs/maps-data/data/gazetteer/'
+    urls = {
+        2000: f'{base}ustracts2k.zip',
+        2010: f'{base}Gaz_tracts_national.zip',
+        2012: f'{base}2012_Gazetteer/2012_Gaz_tracts_national.zip',
+        2013: f'{base}2013_Gazetteer/2013_Gaz_tracts_national.zip',
+        2014: f'{base}2014_Gazetteer/2014_Gaz_tracts_national.zip',
+        2015: f'{base}2015_Gazetteer/2015_Gaz_tracts_national.zip',
+        2016: f'{base}2016_Gazetteer/2016_Gaz_tracts_national.zip',
+        2017: f'{base}2017_Gazetteer/2017_Gaz_tracts_national.zip',
+        2018: f'{base}2018_Gazetteer/2018_Gaz_tracts_national.zip',
+        2019: f'{base}2019_Gazetteer/2019_Gaz_tracts_national.zip',
+        2020: f'{base}2020_Gazetteer/2020_Gaz_tracts_national.zip',
+        2021: f'{base}2021_Gazetteer/2021_Gaz_tracts_national.zip',
+    }
+    local = PATH['source'] / f'tract_gaz/{year}.zip'
+    return download_file(urls[year], local.parent, local.name)
+
+
+def get_tract_gaz_df(year):
+    """Dataframe of national geographic gazeteer files for census tracts."""
+    cache_path = PATH['geo'] / f'tract_gaz/{year}.pq'
+    if cache_path.exists():
+        return pd.read_parquet(cache_path)
+
+    src = _get_tract_gaz_src(year)
+
+    if year == 2000:
+        cols = [
+            # (name, width, dtype)
+            ('USPS', 2, 'str'),
+            ('GEOID', 11, 'str'),
+            ('POP00', 9, 'int64'),
+            ('HU00', 9, 'int64'),
+            ('ALAND', 14, 'int64'),
+            ('AWATER', 14, 'int64'),
+            ('ALAND_SQMI', 14, 'float64'),
+            ('AWATER_SQMI', 14, 'float64'),
+            ('INTPTLAT', 14, 'float64'),
+            ('INTPTLONG', 15, 'float64')
+        ]
+        df = pd.read_fwf(src, compression='zip', header=None,
+                         widths=[c[1] for c in cols],
+                         names=[c[0] for c in cols],
+                         dtype={c[0]: c[2] for c in cols})
+    elif year == 2010:
+        cols = {
+            'USPS': 'str',
+            'GEOID': 'str',
+            'POP10': 'int64',
+            'HU10': 'int64',
+            'ALAND': 'int64',
+            'AWATER': 'int64',
+            'ALAND_SQMI': 'float64',
+            'AWATER_SQMI': 'float64',
+            'INTPTLAT': 'float64',
+            'INTPTLONG': 'float64'
+        }
+        df = pd.read_csv(src, sep='\t', skiprows=1, names=cols.keys(), dtype=cols)
+    else:
+        cols = {
+            'USPS': 'str',
+            'GEOID': 'str',
+            'ALAND': 'int64',
+            'AWATER': 'int64',
+            'ALAND_SQMI': 'float64',
+            'AWATER_SQMI': 'float64',
+            'INTPTLAT': 'float64',
+            'INTPTLONG': 'float64'
+        }
+        df = pd.read_csv(src, sep='\t', skiprows=1, names=cols.keys(), dtype=cols)
+    
+    cache_path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_parquet(cache_path, engine='pyarrow', index=False)
+    
+    return df
+
+
+def _data_cleanup_tract_gaz(which: typing.Literal['downloaded', 'processed', 'all']):
+    """Remove tract gazeteer data files."""
+    if which in ['downloaded', 'all']:
+        print('Removing downloaded tract gazeteer files.')
+        shutil.rmtree(PATH['source'] / 'tract_gaz', ignore_errors=True)
+    if which in ['processed', 'all']:
+        print('Removing processed tract gazeteer files.')
+        shutil.rmtree(PATH['geo'] / 'tract_gaz', ignore_errors=True)
+```
+
+```{code-cell} ipython3
+:tags: []
+
+# test: download and prepare all tract gazeteer dataframes
+# _data_cleanup_tract_gaz('all')
+_data_cleanup_tract_gaz('processed')
+for y in [2000, 2010] + list(range(2012, 2022)):
+    print(y)
+    get_tract_gaz_df(y)
+```
+
+Data summary.
+
+```{code-cell} ipython3
+t = {}
+for y in [2000, 2010] + list(range(2012, 2022)):
+    df = get_tract_gaz_df(y)
+    t[y] = pd.Series({
+        'Number of tracts': len(df),
+        'Number of states': df['USPS'].nunique(),
+        'Total ALAND (sq km)': (df['ALAND'].sum() / 1_000_000).astype(int),
+        'Total AWATER (sq km)': (df['AWATER'].sum() / 1_000_000).astype(int)
+    })
+pd.concat(t, axis=1)
+```
+
+## Shapefiles
 
 ```{code-cell} ipython3
 :tags: [nbd-module]
@@ -707,6 +846,11 @@ def plot_tract_change(y0, t0, y1, t1):
     ax.set_title(f'{state}, {county} county ({county_code})')
     plt.close()
     return fig
+```
+
+```{code-cell} ipython3
+plot_tract_change(2000, ['26027000300', '26027000400', '26027000500', '26027000600', '26027000700'],
+                  2010, ['26027001900', '26027002000', '26027002100', '26027002200'])
 ```
 
 ::: {.hidden}
