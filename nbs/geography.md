@@ -598,22 +598,39 @@ def _data_cleanup_tract_gaz(which: typing.Literal['downloaded', 'processed', 'al
 _data_cleanup_tract_gaz('processed')
 for y in [2000, 2010] + list(range(2012, 2022)):
     print(y)
-    get_tract_gaz_df(y)
+    df = get_tract_gaz_df(y)
+    assert df.notna().all().all()
 ```
 
 Data summary.
+There are special tracts with name "000000" (in 2000) or "990000" in other years which are always `ALAND == 0` and `AWATER > 0`.
 
 ```{code-cell} ipython3
 t = {}
 for y in [2000, 2010] + list(range(2012, 2022)):
     df = get_tract_gaz_df(y)
     t[y] = pd.Series({
-        'Number of tracts': len(df),
         'Number of states': df['USPS'].nunique(),
+        'Number of tracts': len(df),
+        'Number of ALAND = 0': (df['ALAND'] == 0).sum(),
+        'Number of AWATER = 0': (df['AWATER'] == 0).sum(),
         'Total ALAND (sq km)': (df['ALAND'].sum() / 1_000_000).astype(int),
-        'Total AWATER (sq km)': (df['AWATER'].sum() / 1_000_000).astype(int)
+        'Total AWATER (sq km)': (df['AWATER'].sum() / 1_000_000).astype(int),
+        'Name "000000" or "990000"': df['GEOID'].str[-6:].isin(['000000', '990000']).sum(),
     })
 pd.concat(t, axis=1)
+```
+
+```{code-cell} ipython3
+# test: all-water tracts are empty
+for y in [2000, 2010] + list(range(2012, 2022)):
+    df = get_tract_gaz_df(y)
+    d = df[df['GEOID'].str[-6:].isin(['000000', '990000'])]
+    if y in [2000, 2010]:
+        y2 = str(y)[-2:]
+        assert (d[f'POP{y2}'] + d[f'HU{y2}'] == 0).all()
+    assert (d['ALAND'] == 0).all()
+    assert (d['AWATER'] > 0).all()
 ```
 
 ## Shapefiles

@@ -5,7 +5,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.13.7
+    jupytext_version: 1.14.0
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -26,6 +26,9 @@ Construction of each dataframe takes the following steps.
 
 ```{code-cell} ipython3
 :tags: [nbd-module]
+
+import typing
+import shutil
 
 import pandas as pd
 
@@ -622,7 +625,7 @@ def download_and_combine_ruca():
     ruca_doc_dfs = []
 
     # 1990
-    url = 'https://www.ers.usda.gov/webdocs/DataFiles/53241/ruca1990.xls?v=9882.5'
+    url = 'https://www.ers.usda.gov/webdocs/DataFiles/53241/ruca1990.xls'
     fname = download_file(url, ruca_src)
 
     df = pd.read_excel(fname, 'Data', dtype='str')
@@ -649,7 +652,7 @@ def download_and_combine_ruca():
 
 
     # 2000
-    url = 'https://www.ers.usda.gov/webdocs/DataFiles/53241/ruca00.xls?v=9882.5'
+    url = 'https://www.ers.usda.gov/webdocs/DataFiles/53241/ruca00.xls'
     fname = download_file(url, ruca_src)
 
     df = pd.read_excel(fname, 'Data', dtype='str')
@@ -678,7 +681,7 @@ def download_and_combine_ruca():
 
 
     # 2010
-    url = 'https://www.ers.usda.gov/webdocs/DataFiles/53241/ruca2010revised.xlsx?v=9882.5'
+    url = 'https://www.ers.usda.gov/webdocs/DataFiles/53241/ruca2010revised.xlsx'
     fname = download_file(url, ruca_src)
 
     df = pd.read_excel(fname, 'Data', dtype='str', skiprows=1)
@@ -721,11 +724,73 @@ def download_and_combine_ruca():
     p = PATH['ruca_doc']
     df.to_csv(p, '\t', header=False, index=False)
     print(f'Saved documentation to "{p}".')
+    
+def _data_cleanup_ruca(which: typing.Literal['downloaded', 'processed', 'all']):
+    """Remove RUCA data files."""
+    if which in ['downloaded', 'all']:
+        print('Removing downloaded RUCA files.')
+        shutil.rmtree(PATH['source'] / 'ruca', ignore_errors=True)
+    if which in ['processed', 'all']:
+        print('Removing processed RUCA files.')
+        PATH['ruca'].unlink(missing_ok=True)
+        PATH['ruca_doc'].unlink(missing_ok=True)
+```
+
+```{code-cell} ipython3
+:tags: []
+
+# test: download and build all RUCA years
+# _data_cleanup_ruca('all')
+_data_cleanup_ruca('processed')
+download_and_combine_ruca()
+df = get_ruca_df()
+assert df.shape == (200_581, 8)
+assert df['RUCA_CODE'].notna().all()
 ```
 
 ## Descriptive summary
 
+Distribution of tracts and population over primary codes.
+
+```{code-cell} ipython3
+df = get_ruca_df()
+df['RUCA_CODE_PRIMARY'] = df['RUCA_CODE'].astype(float).astype(int)
+t = df.groupby(['YEAR', 'RUCA_CODE_PRIMARY'])['POPULATION'].agg(['size', 'sum'])
+t.columns = ['TRACTS', 'POPULATION']
+t = t.unstack('YEAR').fillna(0).astype(int)
+display(t)
+t.apply(lambda r: r / t.sum(), 1)
+```
+
+### Missing data
+
+How is the overlap with tract gazeteer lists? Note that those lists do not include four minor island territories.
+
 +++
+
+#### 2000
+Puerto Rico is not included.
+There are also 122 tracts that do not match to gazeteer list, but they are water-only `ALAND == 0 and AWATER > 0`.
+
+```{code-cell} ipython3
+df = get_ruca_df().query('YEAR == 2000')
+d = geography.get_tract_gaz_df(2000)
+df = df.merge(d, 'outer', left_on='FIPS', right_on='GEOID', indicator=True)
+display(df['_merge'].value_counts())
+d = df.query('_merge == "right_only" and USPS != "PR"')
+assert ((d['ALAND'] == 0) & (d['AWATER'] > 0)).all()
+```
+
+#### 2010
+
+Every tract is covered.
+
+```{code-cell} ipython3
+df = get_ruca_df().query('YEAR == 2010')
+d = geography.get_tract_gaz_df(2010)[['GEOID']]
+df = df.merge(d, 'outer', left_on='FIPS', right_on='GEOID', indicator=True)
+assert (df['_merge'] == 'both').all()
+```
 
 # Tests
 
@@ -742,14 +807,6 @@ assert df['RUC_CODE'].notna().all()
 df = get_ui_df()
 assert df.shape == (9583, 9)
 assert df['UI_CODE'].notna().all()
-```
-
-```{code-cell} ipython3
-:tags: []
-
-df = get_ruca_df()
-assert df.shape == (200581, 8)
-assert df['RUCA_CODE'].notna().all()
 ```
 
 # Build this module
