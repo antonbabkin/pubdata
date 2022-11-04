@@ -4,6 +4,7 @@ project:
     - index.ipynb
     - naics.ipynb
     - geography.ipynb
+    - geography_cbsa.ipynb
   post-render: touch _site/.nojekyll
 
 website:
@@ -11,10 +12,14 @@ website:
   navbar:
     background: primary
     left:
-      - href: index.ipynb
-        text: Home
+      - text: Home
+        href: index.ipynb
       - naics.ipynb
-      - geography.ipynb
+      - text: Geography
+        menu:
+          - geography.ipynb
+          - text: CBSA
+            href: geography_cbsa.ipynb
 
 format:
   html:
