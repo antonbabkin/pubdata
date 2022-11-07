@@ -19,63 +19,87 @@ title: "Public data"
 format:
   html:
     code-fold: true
-execute:
-  echo: false
-jupyter: python3
+    ipynb-filters:
+      - pubdata/reseng/nbd.py filter-docs
 ---
 ```
 
 Describing, tidying and providing usage examples for publicly available datasets.
 
-+++
++++ {"tags": ["nbd-docs"]}
 
-# Recreate symlinks (Windows)
+# Initialization
+
+Run code in this section when you start working with the project.
+It will create symbolic links necessary for file discovery within project directory structure.
+If project is used as a library, importing code must call the `init()` function.
 
 ```{code-cell} ipython3
 :tags: [nbd-module]
 
-import os, pathlib
+import os
+import importlib
+from pathlib import Path
 
-def init_symlinks():
-    """Recreate symlinks of this project and all subprojects."""
-    print('Initializing symlinks for the project "pubdata".')
-    root_dir = _dir_up()
-    print(f'VERIFY! Project root directory: "{root_dir}"')
+def init():
+    """Initialize project file structure by recreating symlinks to package and all submodule packages.
+    Safe to run multiple times.
+    """
+    print('Initializing project "pubdata" and submodule "reseng"...')
+    root_dir = _this_proj_root()
+    print(f'  Project "pubdata" root directory: "{root_dir}"')
     
     _recreate_dir_symlink('nbs/pubdata', '../pubdata', root_dir)
-    _recreate_dir_symlink('pubdata/reseng', '../submodules/reseng/reseng', root_dir)
-    from pubdata import reseng
+    _recreate_dir_symlink('pubdata/reseng', f'../submodules/reseng/reseng', root_dir)
+    from pubdata.reseng.index import init as reseng_init
+    reseng_init()
+    
+    print('Initialization of "pubdata" finished.\n')
 
-def _dir_up():
-    """Return dir path two levels above current notebook or script."""
+def _this_proj_root():
+    """Return abs path to this project's root dir."""
     try:
-        caller_dir = pathlib.Path(__file__).parent.resolve()
+        # caller is "index.py" module
+        caller_dir = Path(__file__).parent.resolve()
     except Exception as e:
         if str(e) != "name '__file__' is not defined": raise
-        caller_dir = pathlib.Path.cwd()
+        # caller is "index.ipynb" notebook
+        caller_dir = Path.cwd()
     return caller_dir.parent
 
 def _recreate_dir_symlink(link, targ, root):
     """Remove and create new symlink from `link` to `targ`.
     `link` must be relative to `root`.
-    `targ must be relative to directory containing `link`.
+    `targ` must be relative to directory containing `link`.
+    Example: _recreate_dir_symlink('nbs/reseng', '../reseng', Path('/path/to/proj/root'))
     """
     link = (root / link).absolute()
     assert (link.parent / targ).is_dir()
     link.unlink(missing_ok=True)
-    link.symlink_to(pathlib.Path(targ), target_is_directory=True)
+    link.symlink_to(Path(targ), target_is_directory=True)
     link_res = link.resolve()
     assert link_res.is_dir()
-    print(f'symlink: "{link.relative_to(root)}" -> "{link_res.relative_to(root)}"')
+    print(f'  symlink: "{link.relative_to(root)}" -> "{link_res.relative_to(root)}"')
 ```
+
++++ {"tags": ["nbd-docs"]}
+
+Run initialization in the notebook.
 
 ```{code-cell} ipython3
-init_symlinks()
+:tags: [nbd-docs]
+
+#| code-fold: false
+init()
 ```
 
-# Quick test
+# Reproduction and testing
 
-Run a selection of quick functions from each module.
+## Quick
+
+Full reproduction of this project downloads a lot of data and might take significant time.
+This section performs a set of quick tests.
+Passing these tests does not guarantee that everything works, but gives a high degree of confidence.
 
 ```{code-cell} ipython3
 :tags: []
@@ -141,9 +165,20 @@ from pubdata import bea_io
 bea_io.get_naics_df().head()
 ```
 
-# Built this module
+## Full
 
 ```{code-cell} ipython3
+:tags: []
+
+from pubdata import geography_cbsa
+geography_cbsa.test_all(redownload=False)
+```
+
+# Build this module
+
+```{code-cell} ipython3
+:tags: []
+
 from pubdata.reseng.nbd import Nbd
 nbd = Nbd('pubdata')
 nbd.nb2mod('index.ipynb')
