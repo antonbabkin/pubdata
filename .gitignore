@@ -11,3 +11,8 @@ _site/
 
 # version notebooks in markdown format with jupytext
 *.ipynb
+
+# symbolic links to packages: OS dependent, created on init
+nbs/pubdata
+pubdata/reseng
+
