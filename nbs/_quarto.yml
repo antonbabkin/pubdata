@@ -5,6 +5,7 @@ project:
     - naics.ipynb
     - geography.ipynb
     - geography_cbsa.ipynb
+    - bea_io.ipynb
   post-render: touch _site/.nojekyll
 
 website:
@@ -20,6 +21,10 @@ website:
           - geography.ipynb
           - text: CBSA
             href: geography_cbsa.ipynb
+      - text: Input-Output
+        menu:
+          - text: Tables
+            href: bea_io.ipynb
 
 format:
   html:
