@@ -1,0 +1,969 @@
+---
+title: "IO for Dummies"
+author: "Austin Sandler"
+date: "3/22/2022"
+bibliography: ../references.bib
+format:
+  html:
+    self-contained: false
+    page-layout: full
+    code-fold: true
+    code-tools: true
+    code_download: yes
+    latex_engine: pdflatex
+---
+
+```{r preamble, include = FALSE}
+# When you click the **Render** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document.
+
+#For nonscientific notation
+options(scipen=999)
+
+```
+
+```{r packages and libraries, include = FALSE}
+# Load packages
+library(gtools)
+library(knitr)
+library(tools)
+```
+
+This R Markdown document is a reference page for all things Input-Output related.
+
+
+::: {.panel-tabset}
+
+### IO Fundamentals
+
+**Introduction**
+
+I-O analysis, or "inter-industry analysis," is an economic tool that measures the relationships between various industries in the economy. The framework measures flows of products from each of the sectors (as a producer/seller) to each of the sectors (as a purchaser/buyer); these *interindustry* flows, or transactions (or intersectoral flows -- the terms *industry* and *sector* are often used interchangeably in input--output analysis) are measured for a particular time period (usually a year) and in monetary terms. 
+
+**Fundamental Relationships**
+
+Assume that the economy can be categorized into $n$ sectors and denote the total output (production) of sector $i$, $x_{i}$. In addition, there are sales to purchasers who are external or *exogenous* to the industrial sectors that constitute the producers in the economy e.g., households, government, and foreign trade. The demand of these external units, is referred to as *final demand*. Denote total final demand for sector $i$'s product, $f_{i}$. The accounting equation for the way sector $i$ distributes its product to other sectors and to final demand is given by:
+
+```{=tex}
+\begin{equation}
+x_{i} = z_{i1} + ... + z_{ij} + ... + z_{in} + f_{i} = \sum^{n}_{j=1} z_{ij} + f_{i}
+\end{equation}
+```
+The $z_{ij}$ terms represent monetary transactions between pairs of sectors or *interindustry* sales (*intermediate* sales) by sector $i$ to all sectors $j$ (including itself, when $j = i$). This single equation represents sector $i$'s *output*. Similarly, there are output equations for each of the $n$ sectors in the economy.
+
+```{=tex}
+\begin{align*}
+& x_{1} = z_{11} + ... + z_{1j} + ... + z_{1n} + f_{1} \\
+& \vdots \\
+& x_{i} = z_{i1} + ... + z_{ij} + ... + z_{in} + f_{i} \\
+& \vdots \\
+& x_{n} = z_{n1} + ... + z_{nj} + ... + z_{nn} + f_{n} \\
+\end{align*}
+```
+The total output, interindustry sales, and final demand are given by:
+
+```{=tex}
+\begin{equation}
+\mathbf{x} = 
+  \begin{bmatrix} 
+  x_{1} \\ 
+  \vdots \\ 
+  x_{n} \\ 
+  \end{bmatrix}, \; \;
+\mathbf{Z} = 
+  \begin{bmatrix}
+    z_{11} & \dots & z_{1n}\\
+    \vdots & \ddots & \vdots\\
+    z_{n1} & \dots & z_{nn} \\
+  \end{bmatrix}
+, \; \text{  and } \; \;
+\mathbf{f} = 
+  \begin{bmatrix}
+    f_{1} \\
+    \vdots \\
+    f_{n} \\
+  \end{bmatrix}
+\end{equation}
+```
+with the output equations for distribution of each sector's sales summarized in matrix notation as:
+
+$$\mathbf{x} = \mathbf{Zi} + \mathbf{f}$$
+
+where $\mathbf{i}$ represent a column vector of 1's. (Postmultiplication of a matrix by $\mathbf{i}$ creates a column vector whose elements are the row sums of the matrix. Similarly, premultiplication of a matrix by $\mathbf{i'}$ creates a row vector whose elements are the column sums of the matrix.)
+
+The magnitudes of the interindustry flows can be recorded in a table, with sectors of origin (producers) listed on the left and the same sectors, now destinations (purchasers), listed across the top. From the column point of view, these show each sector's inputs; from the row point of view the figures are each sector's outputs; hence the name *input--output* table.
+
+```{=tex}
+\begin{equation}
+\begin{matrix}
+&  & 1 & \dots & j & \dots & n \\ 
+\hline
+1 & & z_{11} & \dots & z_{1j} & \dots & z_{1n} \\ 
+\vdots & & \vdots &  & \vdots &  & \vdots \\ 
+i & & z_{i1} & \dots & z_{ij} & \dots & z_{in} \\ 
+\vdots & & \vdots &  & \vdots &  & \vdots \\ 
+n & & z_{n1} & \dots & z_{nj} & \dots & z_{nn} \\ 
+\hline
+\end{matrix}
+\end{equation}
+```
+**Technical Coefficients**
+
+In input--output studies, a fundamental assumption is that the interindustry flows from $i$ to $j$ depend entirely on the total output of sector $j$ for that same time period. The quantity of the output of sector $i$ absorbed by sector $j$ per unit of its total output is identified as $a_{ij}$ and called the *input coefficient* of sector $i$'s product in sector $j$.
+
+$a_{ij} = z_{ij} / x_{j}$
+
+A complete table of input coefficients is called a *structural matrix*, given by: $\mathbf{A} = \left[a_{ij}\right]$. This ratio is also called the *technical coefficient*; the terms *input--output coefficient* and *direct input coefficient* are also used. This ratio specifies the required amount of industry $i$'s commodity used to produce of one unit of industry $j$'s commodity, or how much of the $i$th commodity is used for the production of each unit of the $j$th commodity. Therefore the $n \times n$ matrix of technical coefficients can be represented as
+
+$$\mathbf{A} = \mathbf{Z\hat{x}}^{-1}$$ where the "hat" over a vector denotes a diagonal matrix with the elements of the vector along the main diagonal i.e.,
+
+```{=tex}
+\begin{equation}
+\mathbf{\hat{x}^{-1}} = 
+  \begin{bmatrix}
+    \dfrac{1}{x_{1}} & \dots & 0\\
+    \vdots & \ddots & \vdots\\
+    0 & \dots & \dfrac{1}{x_{n}} \\
+  \end{bmatrix}
+\end{equation}
+```
+and the inverse must satisfy the usual requirement $(\mathbf{\hat{x}})(\mathbf{\hat{x}})^{-1} = \mathbf{I}$.
+
+Note input--output analysis requires that a sector use inputs in *fixed proportions*. The form of the production function inherent in input--output systems are isoquant "curves" that exhibit constant output. Such Leontief production functions require inputs in fixed proportions where a fixed amount of each input is required to produce one unit of output. Given a set of fixed technical coefficients, the accounting equations for the distribution of total output to other sectors and to final demand can be rewritten as
+
+```{=tex}
+\begin{align*}
+& x_{1} = a_{11}x_{1} + ... + a_{1j}x_{i} + ... + a_{1n}x_{n} + f_{1} \\
+& \vdots \\
+& x_{i} = a_{i1}x_{1} + ... + a_{ij}x_{i} + ... + a_{in}x_{n} + f_{i} \\
+& \vdots \\
+& x_{n} = a_{n1}x_{1} + ... + a_{nj}x_{i} + ... + a_{nn}x_{n} + f_{n} \\
+\end{align*}
+```
+Or in matrix notation as
+
+$$\mathbf{x} = \mathbf{Ax} + \mathbf{f}$$
+
+These equations serve to make explicit the dependence of interindustry flows on the total outputs of each sector.
+
+**IO Analysis**
+
+In input--output *analysis*, one may pose the question: If the demands of the exogenous sectors were forecast to be some specific amounts next year, how much output from each of the sectors would be necessary to supply these final demands? From the point of view of this equation, the $f_{1} \dots f_{n}$ are known numbers, the $a_{ij}$ are known coefficients, and the $x_{1} \dots x_{n}$ are to be found. Rearranging to answer the question gives:
+
+```{=tex}
+\begin{align*}
+& \left(1- a_{11}\right)x_{1} - ... - a_{1j}x_{i} - ... - a_{1n}x_{n} = f_{1} \\
+& \vdots \\
+& -a_{i1}x_{1} - ... + \left(1- a_{ij}\right)x_{i} - ... - a_{in}x_{n} = f_{i} \\
+& \vdots \\
+& -a_{n1}x_{1} - ... - a_{nj}x_{i} - ... + \left(1- a_{nn}\right)x_{n} = f_{n} \\
+\end{align*}
+```
+Or in matrix notation as
+
+$$\left(\mathbf{I} - \mathbf{A}\right)\mathbf{x} = \mathbf{f}$$ If $\left(\mathbf{I} - \mathbf{A}\right)$ is non-singular, that is, $\left(\mathbf{I} - \mathbf{A}\right)^{-1}$ exists, then the solution is given by
+
+$$\mathbf{x} = \left(\mathbf{I} - \mathbf{A}\right)^{-1}\mathbf{f} = \mathbf{Lf}$$ where $\left(\mathbf{I} - \mathbf{A}\right)^{-1} = \mathbf{L} = \left[l_{ij}\right]$ is known as the *Leontief inverse* or the *total requirements matrix*. Also recognizing that $\partial{x_{i}}/\partial{f_{j}} = l_{ij}$, this equation makes clear the dependence of gross output on the value of final demand.
+
+The input--output model allows us to deal equally easily with *changes* in demands and outputs instead of *levels*. Assuming that technology is unchanged $\mathbf{A}^{base} = \mathbf{A}^{new} = \mathbf{A}$ and $\mathbf{L}^{base} = \mathbf{L}^{new} = \mathbf{L}$, so $\mathbf{x}^{base} = \mathbf{Lf}^{base}$ and $\mathbf{x}^{new} = \mathbf{Lf}^{new}$; letting $\Delta \mathbf{x} = \mathbf{x}^{new} - \mathbf{x}^{base}$ and $\Delta \mathbf{f} = \mathbf{f}^{new} - \mathbf{f}^{base}$ provides
+
+$$\Delta \mathbf{x} = \mathbf{Lf}^{new} - \mathbf{Lf}^{base} = \mathbf{L}\Delta\mathbf{f}$$
+
+### IO Extentions
+
+**Commodity-by-Industry Approach in Input--Output Models**
+
+To explicitly account for "non-characteristic" production such as secondary products and by-products a "commodity--industry" format was developed. This format allows for the fact that an industry may produce more than one commodity. The underlying motivational observation is that industries use commodities to make commodities. It is commodities that are the inputs to industrial processes and that are used to satisfy final demands. An industry can be thought of as defined by its primary product (commodity) but some industries also produce additional commodities as secondary products. In order to highlight the differentiation between commodities and industries, assume that the commodity index, $i$, runs from 1 to $m$ and the industry index, $j$, runs from 1 to $n$.
+
+This more realistic classification scheme accounts for industrial production by commodity type rather than industry category. More recent studies, including the US National Tables complied for years since 1972, redefine all secondary production by establishing a set of "commodity-by-industry" accounts. In national accounting parlance, the commodity-by-industry interindustry transactions tables are also often referred to as *Make* or *Supply*, and *Use* tables. The core of modern I-O accounts consists of these two basic national-accounting tables.
+
+**Use and Make Tables**
+
+The Use table shows the uses of commodities by intermediate and final users. The rows in the Use table present the commodities or products, and the columns display the industries and final users that utilize them. The sum of the entries in a row is the output of that commodity. The columns show the products consumed by each industry and the three components of "value added"---compensation of employees, taxes on production and imports less subsidies, and gross operating surplus. Value added is the difference between an industry's output and the cost of its intermediate inputs, and total value added is equal to GDP. The sum of the entries in a column is that industry's output.
+
+The "industries use commodities" part of the "industries use commodities to make commodities" observation is quantified in the *Use* matrix $\underset{(c \times i)}{\mathbf{U}} = [u_{ij}]$ where $u_{ij}$ is the value of purchases of commodity $i$ by industry $j$.
+
+In conjunction with total industry output, $\mathbf{x}$, the parallel to the ordinary technical coefficient, $a_{ij}$, is
+
+$$b_{ij} = u_{ij}/x_{j}$$ Or in matrix notation as
+
+$$\mathbf{B} = \mathbf{U\hat{x}}^{-1}$$
+
+The Use matrix, $\mathbf{U}$ is constructed in dimensions of commodities (rows) by industries (columns) and, in matrix terms, the accounting identities are $\mathbf{q} = \mathbf{Ui} + \mathbf{e}$ and $\mathbf{x'} = \mathbf{i'U} + \mathbf{v'}$, where $\mathbf{q}$ is the vector of total commodity outputs, $\mathbf{e}$ is the vector of commodity final demands, $\mathbf{v'}$ is the (row) vector of total value-added inputs, and $\mathbf{x}$ is the vector of total industry outputs. The dimensions of $\mathbf{B}$ are therefore commodities-by-industries.
+
+The Make table shows the production of commodities by industries, $\underset{(i \times c)}{\mathbf{V}} = [v_{ij}]$. The rows present the industries, and the columns display the commodities that the industries produce. Looking across a row, all the commodities produced by that industry are identified, and the sum of the entries is that industry's output. Looking down a column, all the industries producing that commodity are identified, and the sum of the entries is the output of that commodity. Define the Make matrix (or *output* matrix) as $\mathbf{V}$, the row sums of which comprise the vector of total industry output, $\mathbf{x} = \mathbf{Vi}$, and the column sums of which comprise total commodity output, $\mathbf{q'} = \mathbf{i'V}$.
+
+**Accounting Equations**
+
+In the commodity--industry framework, both total industry output ($\mathbf{x}$) and total commodity output ($\mathbf{q}$) are accounted for. From the data in the Make matrix, total output of any industry is found by summing over all commodities produced by that industry. These totals are the *row* sums of $\mathbf{V}$,
+
+```{=tex}
+\begin{equation}
+x_{j} = v_{j1} + ... + v_{jm}
+\end{equation}
+```
+Or in matrix notation as
+
+$$\mathbf{x} = \mathbf{Vi}$$
+
+total output of any commodity can be found by summing over all industries that produce the commodity. These totals are the column sums of $\mathbf{V}$.
+
+```{=tex}
+\begin{equation}
+q_{j} = v_{1j} + ... + v_{nj}
+\end{equation}
+```
+Or in matrix notation as
+
+$$\mathbf{q'} = \mathbf{i'V} \;  \; \text{ or } \;\;   \mathbf{q} = \mathbf{V'i}$$ Alternatively, from the Use matrix
+
+```{=tex}
+\begin{equation}
+q_{j} = u_{j1} + ... + u_{jn} + e_{j}
+\end{equation}
+```
+Or in matrix notation as
+
+$$\mathbf{q} = \mathbf{Ui} + \mathbf{e}$$ The commodity--industry approach employs the *input* matrix, $\mathbf{B}$, from the Use table, where $\mathbf{U} = \mathbf{B\hat{x}}$ much in the same way as the input $\mathbf{A}$ matrix of *technical* coefficients, giving
+
+$$\mathbf{q} = \mathbf{Bx} + \mathbf{e}$$ akin to the ordinary $\mathbf{x} = \mathbf{Ax} + \mathbf{f}$ specification. However, unlike the ordinary specification one cannot generate a total requirements matrix (Leontief inverse) because of the presence of both commodity output ($\mathbf{q}$) on the left-hand side and industry output ($\mathbf{x}$) on the right-hand side.
+
+One solution to this problem is to find an expression transforming industry outputs, $\mathbf{x}$, to commodity outputs, $\mathbf{q}$ -- or, alternatively, to transform commodity outputs (and commodity final demand, $\mathbf{e}$) into industry terms. The data needed for such transformations are to be found in the Make matrix, whose row sums are industry outputs and whose column sums are commodity outputs.
+
+**Technology and Total Requirement Matrices**
+
+The direct requirements table shows the amount of a commodity that is required by an industry to produce a dollar of the industry's output. Total requirements tables show the relationship between final uses and gross output. There are three variations of total requirements tables. The commodity-by-commodity total requirements table shows the production required, both directly and indirectly, of the commodity at the beginning of each row per dollar of delivery to final use of the commodity at the top of the column. The industry-by-commodity total requirements table shows the production required, both directly and indirectly, from the industry at the beginning of the row per dollar of delivery to final use of the commodity at the top of the column. The industry-by-industry total requirements table shows the production required, both directly and indirectly, from the industry at the beginning of the row per dollar of delivery to final use of the industry at the top of the column.
+
+Define $d_{ij} = v_{ij}/q_{j}$, so that $d_{ij}$ denotes the fraction of total commodity $j$ output that was produced by industry $i$. Therefore a matrix of *commodity output proportions*, $\underset{(i \times c)}{\mathbf{D}} = [d_{ij}]$ is denoted as
+
+$$\mathbf{D} = \mathbf{V\hat{q}}^{-1}$$ $\mathbf{D}$ is often called the *market shares* matrix, and by definition, each column sum in $\mathbf{D}$ is unity.
+
+Define $c_{ij} = v_{ij}/x_{i}$, so that $c_{ij}$ denotes the fraction of total industry $i$ output that is in the form of commodity $j$. These *industry output proportions*, $\underset{(c \times i)}{\mathbf{C}} = [c_{ij}]$ are denoted as
+
+$$\mathbf{C} = \mathbf{V'\hat{x}}^{-1}$$ $\mathbf{C}$ is often called the *product mix* matrix or the *commodity mix* matrix, and $\mathbf{V'}$ is refered to as the *supply* matrix. By definition, each column sum in $\mathbf{D}$ is unity.
+
+These output matrices offer two possible sources from which to generate the technology and total requirement matrices from the Make/Use tables. Let the *Direct Requirements Matrices* be given by
+
+```{=tex}
+\begin{equation}
+\underset{(i \times i)}{\mathbf{A}_{C}}  = \mathbf{C}^{-1}\mathbf{B} \; \text{, } \; \;
+%
+\underset{(i \times i)}{\mathbf{A}_{I}}  = \mathbf{D}\mathbf{B} \; \text{, } \; \;
+%
+\underset{(c \times c)}{\mathbf{A}_{C}}  = \mathbf{B}\mathbf{C}^{-1} \; \text{, and } \; \;
+%
+\underset{(c \times c)}{\mathbf{A}_{I}}  = \mathbf{B}\mathbf{D}
+\end{equation}
+```
+
+
+**Commodity-Demand Driven Models**
+
+<!-- Something is wrong in the texts of this section. Same texts, different equations. -->
+
+Using $\mathbf{D}$, one can derive the *commodity-by-commodity total requirements matrix*, connecting commodity final demand to commodity output by:
+
+$$\mathbf{q} = \left(\mathbf{I} - \mathbf{BD}\right)^{-1}\mathbf{e}$$ and the *industry-by-commodity total requirements matrix*, connecting commodity final demand to industry output by:
+
+$$\mathbf{x} = [\mathbf{D}\left(\mathbf{I} - \mathbf{BD}\right)^{-1}]\mathbf{e}$$
+
+Using $\mathbf{D}$, one can derive the *commodity-by-commodity total requirements matrix*, connecting commodity final demand to commodity output by:
+
+$$\mathbf{q} = (\left(\mathbf{I} - \mathbf{BC}\right)^{-1})^{-1}\mathbf{e}$$ and the *industry-by-commodity total requirements matrix*, connecting commodity final demand to industry output by:
+
+$$\mathbf{x} = [\mathbf{C}^{-1}(\mathbf{I} - \mathbf{BC}^{-1})^{-1}]\mathbf{e}$$
+
+**Industry-Demand Driven Models**
+
+It is also possible to derive total requirements matrices for *industry-demand driven* models, replacing $\mathbf{e}$ by an equivalent expression involving $\mathbf{f}$ in appropriate equations
+
+<!-- Something is wrong in the texts of this section. Same texts, different equations. -->
+
+Using $\mathbf{D}$, one can derive the *industry-by-industry total requirements matrix*, connecting industry final demand to industry output by:
+
+$$\mathbf{q} = \left(\mathbf{I} - \mathbf{DB}\right)^{-1}\mathbf{f}$$ and the *industry-by-commodity total requirements matrix*, connecting commodity final demand to industry output by:
+
+$$\mathbf{x} = [\mathbf{D}^{-1}\left(\mathbf{I} - \mathbf{DB}\right)^{-1}]\mathbf{f}$$
+
+Using $\mathbf{D}$, one can derive the *commodity-by-commodity total requirements matrix*, connecting commodity final demand to commodity output by:
+
+$$\mathbf{q} = ((\mathbf{I} - \mathbf{C}^{-1} \mathbf{B})^{-1})^{-1}\mathbf{f}$$ and the *industry-by-commodity total requirements matrix*, connecting commodity final demand to industry output by:
+
+$$\mathbf{x} = [\mathbf{C}(\mathbf{I} - \mathbf{C}^{-1}\mathbf{B})^{-1}]\mathbf{f}$$
+
+### Regional IO
+
+**Input--Output Models at the Regional Level**
+
+There are at least two basic features of a regional economy that influence the characteristics of a regional input--output study.
+
+First, although the national input--output coefficients are averages of data from individual producers in specific regions, the structure of production in a particular region may be identical to or it may differ markedly from the national input--output tables. Secondly, the smaller the economic area the more dependent that area's economy is on trade with "outside" areas -- transactions that cross the region's borders -- both for sales of regional outputs and purchases of inputs needed for production. That is, exports will be relatively more important and a higher proportion of inputs will be imported from outside the region.
+
+**Single-Region Models**
+
+Let superscript $r$ designate "region $r$" in the same way that subscript $i$ denotes "sector $i$." Thus, just as $X_{i}$ denotes the gross output of sector $i$, let $\mathbf{x^{r}} = [x^{r}_{i}]$ denote the vector of gross output of sectors in region $r$. Similarly, $\mathbf{f^{r}} = [f^{r}_{i}]$ represents the vector of exogenous demand for goods made in region $r$.
+
+The problem is that only a national technical coefficients matrix, $\mathbf{A}$, is available, but what is needed is a matrix showing inputs from firms *in the region* to production *in that region*. Denote this matrix by $\mathbf{A^{rr}} = [a^{rr}_{ij}]$, where $a^{rr}_{ij}$ is the amount of input from sector $i$ in $r$ per dollar's worth of output of sector $j$ in $r$. For now assume that local producers use the same production recipes as the national coefficients table, meaning that the *technology* of production in each sector in region $r$ is the same as in the nation as a whole. To translate regional final demands into outputs of *regional* firms ($\mathbf{x^{r}}$), the national coefficients matrix must be modified to produce $\mathbf{A^{rr}}$ (*locally* produced goods in local production).
+
+**Regional Supply Percentages**
+
+One option is through the use of estimated *regional supply percentages*, one for each sector in the regional economy, designed to show the percentage of the total required outputs from each sector that could be expected to originate within the region. One way to estimate these percentages requires knowledge of (1) total regional output of each sector $i$, $x^{r}_{i}$, (2) exports of the product of each sector $i$ from region $r$, $e^{r}_{i}$, and (3) imports of good $i$ into region $r$, $m^{r}_{i}$. Then, one can form an expression for the *proportion* of the total amount of good $i$ available in region $r$ that was produced in $r$ (the *regional supply proportion* of good $i$). Denote this by $p^{r}_{i}$, where
+
+$$p^{r}_{i} = \frac{x^{r}_{i} - e^{r}_{i}}{x^{r}_{i} - e^{r}_{i} + m^{r}_{i}}$$
+
+The numerator is the *locally produced* amount of $i$ that is available to purchasers in $r$; the denominator is the *total* amount of $i$ available in $r$, either produced locally or imported. (Thus $p^{r}_{i} \times 100$ is an estimate of the regional supply percentage for sector $i$ in region $r$ i.e., the percentage of good $i$ available in $r$ that was produced there.) Each element in the $i$th row of the national coefficients matrix could be multiplied by $p^{r}_{i}$ to generate a row of locally produced direct input coefficients of good $i$ to each local producer. Arranging these proportions in an $n$-element column vector, $\mathbf{p^{r}}$, then a working estimate of the regional matrix will be $\mathbf{A^{rr} = \hat{p}^{r}A}$.
+
+**Regional Coefficients**
+
+In even very disaggregated national input--output tables sectors are made up of a variety of products. And firms within that sector, located in various regions of the country, will produce only a small number of those products. This illustrates the so-called *product-mix problem* in input--output; firms classified in the same sector actually produce different sets of products. The most straightforward way to avoid this problem is to survey firms in the region and construct what is called a survey-based regional input--output table.
+
+Let $z^{rr}_{ij}$ denote the dollar flow of goods from sector $i$ in region $r$ to sector $j$ in region $r$. Just as the order of subscripts is "from--to" with respect to sectors, the order of superscripts indicates "from--to" with respect to geographic locations. Given a complete set of data on $z^{rr}_{ij}$ for all $n$ sectors in the regional economy, and also data on gross outputs ($x^{r}_{j}$) of each sector in the region, a set of regional input coefficients could be derived as
+
+$$a^{rr}_{ij} = \frac{z^{rr}_{ij}} {x^{r}_{j}}$$
+
+Let $\underset{(n \times n)}{\mathbf{Z^{rr}}} = [z^{rr}_{ij}]$ and $\underset{(n \times 1)}{\mathbf{x^{r}}} = [x^{r}_{j}]$; then the regional input coefficients matrix is
+
+$$\mathbf{A^{rr}} = \mathbf{Z^{rr}\left(\hat{x}^{r}\right)^{-1} }$$
+
+This matrix is approximated in the formula above by $\mathbf{\hat{p}^{r}A}$. Note that this specification utilizes *intra*regional information only.
+
+The impact on regional production of a final-demand change in region $r$ is found as
+
+$$\mathbf{x^{r}} = (\mathbf{I} - \mathbf{A^{rr})^{-1}f^{r} }$$
+
+**Many-Region Input--Output Models**
+
+Single-region models, of the sort just described, represent one approach to modeling a regional economy in input--output terms. What they fail to do, however, is to recognize in an operational way the interconnections between regions. The one region of interest (region $r$) is "disconnected" from the rest of the country within which it is located, in the sense that its production recipes are reflected in an intraregional matrix, $\mathbf{A^{rr}}$. A fundamental problem in many-region input--output modeling is therefore estimation of transactions between regions. One approach, the *interregional* model, requires a complete (ideal) set of both intra- and interregional data.
+
+Let $z^{rr}_{ij}$ denote the dollar flow of goods from sector $i$ in region $r$ to sector $j$ in region $r$. For the two-region case, this means knowing $\mathbf{x^{r}} = [x^{r}_{i}]$, $\mathbf{x^{s}} = [x^{s}_{i}]$, $\mathbf{Z^{rr}} = [z^{rr}_{ij}]$, $\mathbf{Z^{ss}} = [z^{ss}_{ij}]$, $\mathbf{Z^{sr}} = [z^{sr}_{ij}]$ - recording transactions from sector $i$ in region $r$ to sector $j$ in region $s$ -- $\mathbf{Z^{rs}} = [z^{rs}_{ij}]$ -- in which flows from $s$ to $r$ are captured. It is the last two matrices that cause the most trouble. In practice, it is never the case that one has such detailed information, and the requirements grow quickly with the number of regions -- a three-region model has six interregional matrices, a four-region model has 12, and so on.
+
+Many alternative forms of many-region input--output models exist. Chronologically they are
+
+1)  the interregional input--output model (IRIO) structure (often labeled the "Isard model"),
+2)  the intranational input--output model (often referred to as a "balanced regional model"),
+3)  the multiregional input--output model (MRIO) (often labeled a "Chenery--Moses model"),
+4)  and a gravity-model approach of interregional flows in a connected region input--output model.
+
+**Two-Region Interregional Input--Output Model**
+
+Using $r$ and $s$, for the two regions, let there be three producing sectors (1, 2, 3) in region $r$ and two (1, 2) in region $s$. Suppose that one has information for region $r$ on both *intra*regional flows, $z^{rr}_{ij}$, and *inter*regional flows, $z^{sr}_{ij}$. There will be nine of the former and six of the latter. Suppose, that the same kind of information is available on the use of inputs by firms located in region $s$, $z^{rs}_{ij}$ and $z^{ss}_{ij}$. This complete table of intraregional and interregional data can be represented as
+
+```{=tex}
+\begin{equation}
+\mathbf{Z = \begin{bmatrix} 
+      \mathbf{Z^{rr}} & \mathbf{Z^{rs}}\\ 
+      \mathbf{Z^{sr}} & \mathbf{Z^{ss}} 
+      \end{bmatrix} }
+\end{equation}
+```
+The *columns* of $\mathbf{Z}$ represent purchases of locally produced inputs and inputs from the other region, by firms in both regions. The *rows* of $\mathbf{Z}$ represent sales by firms to each sector in their region and how much they sold to sectors in the other region. Note, the off-diagonal matrices of explicit *inter*regional linkages, $\mathbf{Z^{rs}}$ and $\mathbf{Z^{sr}}$, need not be square. The on-diagonal matrices of *intra*regional linkages, $\mathbf{Z^{rr}}$ and $\mathbf{Z^{ss}}$, are always square. The elements in $\mathbf{Z^{rs}}$ represent "exports" from region $r$ and simultaneously "imports" to region $s$, it is usual in regional input--output work to refer to these as *interregional trade* (or simply *trade*) flows and to use the terms *export* and *import* when dealing with foreign trade crossing national boundaries.
+
+In the two-region interregional input--output model, the part of $f_{i}$ that represents sales of sector $i$'s product to the productive sectors in the other region (but not to consumers in the other region) is removed from the final-demand category and specified explicitly. For our two-region example, the output of sector 1 in region $r$ would be expressed as
+
+$$x^{r}_{1} = z^{rr}_{11} + z^{rr}_{12} + z^{rr}_{13} + z^{rs}_{11} + z^{rs}_{12} + f^{r}_{1}$$
+
+The regional input coefficients for region $r$ are the same as the single region *intra*regional specification
+
+$$a^{rr}_{ij} = \frac{z^{rr}_{ij}} {x^{r}_{j}}$$
+
+And similarly for region $s$ the regional input coefficients are
+
+$$a^{ss}_{ij} = \frac{z^{ss}_{ij}} {x^{s}_{j}}$$
+
+The *inter*regional trade coefficients are found in the same manner, where the denominators are gross outputs of sectors in the receiving region.
+
+<p align="center">
+
+$a^{rs}_{ij} = \frac{z^{rs}_{ij}} {x^{s}_{j}}$ and $a^{sr}_{ij} = \frac{z^{sr}_{ij}} {x^{r}_{j}}$
+
+</p>
+
+Using these regional input and trade coefficients, the output of sector 1 in region $r$ can be re-expressed as
+
+$$x^{r}_{1} = a^{rr}_{11}x^{r}_{1} + a^{rr}_{12}x^{r}_{2} + a^{rr}_{13}x^{r}_{3} + a^{rs}_{11}x^{s}_{1} + a^{rs}_{12}x^{s}_{2} + f^{r}_{1}$$ Note the regional input coefficients matrices are given by
+
+$$\mathbf{A^{rr}} = \mathbf{Z^{rr}\left(\hat{x}^{r}\right)^{-1}}$$
+
+$$\mathbf{A^{rs}} = \mathbf{Z^{rs}\left(\hat{x}^{s}\right)^{-1}}$$
+
+$$\mathbf{A^{sr}} = \mathbf{Z^{sr}\left(\hat{x}^{r}\right)^{-1}}$$
+
+$$\mathbf{A^{ss}} = \mathbf{Z^{ss}\left(\hat{x}^{s}\right)^{-1}}$$
+
+such that the final demand equation for each region can be expressed as
+
+$$\left(\mathbf{I} - \mathbf{A^{rr}}\right)\mathbf{x^{r}} - \mathbf{A^{rs}x^{s}} = \mathbf{f^{r}}$$
+
+$$-\mathbf{A^{sr}x^{r}} + \left(\mathbf{I} - \mathbf{A^{ss}}\right)\mathbf{x^{s}} = \mathbf{f^{s}}$$
+
+and the complete coefficients matrix for the two-region interregional model is defined as
+
+```{=tex}
+\begin{equation}
+\mathbf{A = \begin{bmatrix} 
+          \mathbf{A^{rr}} & \mathbf{A^{rs}}\\ 
+          \mathbf{A^{sr}} & \mathbf{A^{ss}} 
+          \end{bmatrix}}
+\end{equation}
+```
+Using an interregional model of this kind for analysis, not only is stability of the (intra)regional input coefficients necessary (the elements of $\mathbf{A^{rr}}$ and $\mathbf{A^{ss}}$), but also interregional input coefficients in $\mathbf{A^{rs}}$ and $\mathbf{A^{sr}}$ are assumed unvarying over time. Thus both the structure of production in each region and interregional trade patterns are "frozen" in this model.
+
+The advantage is that the model captures the magnitude of effects on each sector in each region; interregional linkages are made specific by sector in the supplying region and by sector in the receiving region. The accompanying disadvantages are the increased data needs and the necessary assumption of interregional trading relationship constancy. It is not always easy to accept the idea of constant input coefficients, in the national input--output model, and it is even more difficult to believe that imports of good $i$ per dollar's worth of sector $j$ output in a specific region remain constant, no matter how much sector $j$'s output changes.
+
+**Interregional Feedback**
+
+Suppose that $\mathbf{x^{r}}$, $\mathbf{x^{s}}$, $\mathbf{f^{r}}$, and $\mathbf{f^{s}}$ are marginal "changes" $\Delta\mathbf{x^{r}}$, $\Delta\mathbf{x^{s}}$, $\Delta\mathbf{f^{r}}$, and $\Delta\mathbf{f^{s}}$. And for simplicity assume $\Delta\mathbf{f^{s}} = 0$ such that $\mathbf{x^{s}}$ is
+
+$$\mathbf{x^{s}} = \left(\mathbf{I} - \mathbf{A^{ss}}\right)^{-1} \mathbf{A^{sr}x^{r}}$$ Solving for final demand in region $r$ gives
+
+$$\left(\mathbf{I} - \mathbf{A^{rr}}\right)\mathbf{x^{r}} - \mathbf{A^{rs}} \left(\mathbf{I} - \mathbf{A^{ss}}\right)^{-1} \mathbf{A^{sr}x^{r}} = \mathbf{f^{r}}$$ Note the same specification for the single region would be $\left(\mathbf{I} - \mathbf{A^{rr}}\right)\mathbf{x^{r}} = \mathbf{f^{r}}$. The "extra" second term $\mathbf{A^{rs}} \left(\mathbf{I} - \mathbf{A^{ss}}\right)^{-1} \mathbf{A^{sr}x^{r}}$ represents the added demands made on the output of region $r$ because of interregional trade linkages: an interregional feedback term. The strength and importance of interregional linkages depend not only on the elements of the interregional input coefficients matrices $\mathbf{-A^{rs}}$ and $\mathbf{A^{sr}}$, but also on the full set of regional input coefficients in the other region, as represented by $\left(\mathbf{I} - \mathbf{A^{ss}}\right)^{-1}$. It is these kinds of spatial linkages that distinguish complete interregional models from single-region models. In terms of outputs, the single- and two region models will generate $\mathbf{x^{r}} = \left(\mathbf{I} - \mathbf{A^{rr}}\right)\mathbf{f^{r}}$ and $\mathbf{x^{r}} = \left(\mathbf{I} - \mathbf{A^{rr}} - \mathbf{A^{rs}L^{ss}A^{sr}}\right)\mathbf{f^{r}}$, respectively. Clearly, the interregional input--output model requires a large amount of detailed data. For this reason, there have been few real-world applications.
+
+**MRIO Model - The Multiregional Approach to IRIO**
+
+Generally it is impossible to implement IRIO for many regions and/or sectors because of the enormous amounts of data that it requires. One attempt toward operationalization through simplification is the "Chenery--Moses" or MRIO approach.
+
+The MRIO model uses a regional *technical* coefficients matrix, $\mathbf{A^{r}}$, in place of the regional *input* coefficients matrix, $\mathbf{A^{rr}}$. These regional technical coefficients, $a^{r}_{ij}$, can be produced from responses to the question "How much sector $i$ product did you buy last year in making your output?" Information regarding the region of origin of a given input is ignored; one only needs information on the dollars' worth of input from sector $i$ used by sector $j$ in region $r$. These transactions are denoted by $z^{\cdot r}_{ij}$, where the dot indicates that all possible geographical locations for sector $i$ are lumped together. These coefficients are defined as $a^{r}_{ij} = \frac{z^{\cdot r}_{ij}}{x^{r}_{j}}$ and $\mathbf{A^{r}} = \left[ a^{r}_{ij} \right]$.
+
+In practice, when actual regional data on technology are not available, estimates of regional technical coefficients matrices are made using what is known as the *product-mix approach*. The basic assumption is that input requirements per unit of output are constant from region to region at a very fine level of industrial classification, but that an important distinguishing characteristic of production at the regional level is the composition of sector outputs, when one is dealing with more aggregate sectors.
+
+**The Interregional Tables**
+
+The interconnections among regions in the multiregional input--output model are captured in an entirely different way from the interregional input--output framework. Trade flows in the multiregional model are estimated by sector, again to take advantage of the kinds of data likely to be available. For sector $i$, let $z^{rs}_{i}$ denote the dollar flow of good $i$ from region $r$ to region $s$, irrespective of the sector of destination in the receiving region. These flows will include shipments to the producing sectors in region $s$ as well as to final demand in $s$.
+
+```{=tex}
+\begin{equation}
+\begin{matrix}
+&  & 1 & 2 & \dots & s & \dots & p \\ 
+\hline
+1 & & z^{11}_{i} & z^{12}_{i} & \dots & z^{1s}_{i} & \dots & z^{1p}_{i} \\ 
+2 & & z^{21}_{i} & z^{22}_{i} & \dots & z^{2s}_{i} & \dots & z^{2p}_{i} \\ 
+\vdots & & \vdots & \vdots & \dots & \vdots & \dots & \vdots \\ 
+r & & z^{r1}_{i} & z^{r2}_{i} & \dots & z^{rs}_{i} & \dots & z^{rp}_{i} \\ 
+\vdots & & \vdots & \vdots &  & \vdots &   & \vdots \\ 
+p & & z^{p1}_{i} & z^{p2}_{i} & \dots & z^{ps}_{i} & \dots & z^{pp}_{i} \\ 
+Total & & T^{1}_{i} & T^{2}_{i} & \dots & T^{s}_{i} & \dots & T^{p}_{i} \\ 
+\hline
+\end{matrix}
+\end{equation}
+```
+Note that each of the column sums in this table represents the total shipments of good $i$ into that region from all of the regions in the model; this total, for column $s$, is denoted in the table for good $i$ by $T^{s}_{i}$:
+
+$$T^{s}_{i} = z^{1s}_{i} + z^{2s}_{i} + \dots + z^{rs}_{i} + \dots + z^{ps}_{i}$$
+
+If each element in column $s$ is divided by this total, one has coefficients denoting the proportion of all of good $i$ used in $s$ that comes from each region $r \; \left(r = 1, \dots, p \right)$. These proportions are denoted $c^{rs}_{i}$:
+
+$$c^{rs}_{i} = \frac{z^{rs}_{i}}{T^{s}_{i}}$$
+
+For each possible origin destination pair of regions, denote the n-element column vector:
+
+```{=tex}
+\begin{equation}
+\mathbf{c^{rs}} = 
+  \begin{bmatrix} 
+  c^{rs}_{1} \\ 
+  \vdots \\ 
+  c^{rs}_{n} \\ 
+  \end{bmatrix}
+\end{equation}
+```
+These elements show, for region $s$, the proportion of the total amount of each good used in $s$ that comes from region $r$. Note that there will be *intra*regional matrices in this set. For example, $\mathbf{\hat{c}^{ss}}$ whose elements, $c^{ss}_{i} = \frac{z^{ss}_{i}}{T^{s}_{i}}$, indicate the proportion of good $i$ used in region $s$ that came from within region $s$.
+
+**The Multiregional Model**
+
+Consider a small two-sector, two-region example, where
+
+```{=tex}
+\begin{equation}
+\mathbf{A^{r}} = 
+  \begin{bmatrix} 
+  a^{r}_{11} & a^{r}_{11} \\ 
+  a^{r}_{21} & a^{r}_{22} \\ 
+  \end{bmatrix}, \; \;
+  \mathbf{A^{s}} = 
+  \begin{bmatrix} 
+  a^{s}_{11} & a^{s}_{11} \\ 
+  a^{s}_{21} & a^{s}_{22} \\ 
+  \end{bmatrix}
+\end{equation}
+```
+```{=tex}
+\begin{equation}
+\mathbf{\hat{c}^{rs}} = 
+  \begin{bmatrix} 
+  c^{rs}_{1} & 0 \\ 
+  0 & c^{rs}_{2} \\ 
+  \end{bmatrix}, \; \;
+  \mathbf{\hat{c}^{ss}} = 
+  \begin{bmatrix} 
+  c^{ss}_{1} & 0 \\ 
+  0 & c^{ss}_{2} \\
+  \end{bmatrix}
+\end{equation}
+```
+Then the multiregional input--output model uses the matrix
+
+```{=tex}
+\begin{equation}
+\mathbf{\hat{c}^{rs}A^{s}} = 
+  \begin{bmatrix} 
+  c^{rs}_{1}a^{s}_{11} & c^{rs}_{1}a^{s}_{11} \\ 
+  c^{rs}_{2}a^{s}_{21} & c^{rs}_{2}a^{s}_{22} \\ 
+  \end{bmatrix}
+\end{equation}
+```
+as an estimate of $\mathbf{A^{rs}}$ in the interregional input--output model. Similarly,
+
+```{=tex}
+\begin{equation}
+\mathbf{\hat{c}^{ss}A^{s}} = 
+  \begin{bmatrix} 
+  c^{ss}_{1}a^{s}_{11} & c^{ss}_{1}a^{s}_{11} \\ 
+  c^{ss}_{2}a^{s}_{21} & c^{ss}_{2}a^{s}_{22} \\ 
+  \end{bmatrix}
+\end{equation}
+```
+as an estimate of $\mathbf{A^{ss}}$ in the interregional input--output model. Therefore the multiregional input--output model embodies the same assumptions as regional models with estimated supply percentages.
+
+The multiregional input--output counterpart to the interregional model is therefore
+
+$$\left(\mathbf{I} - \mathbf{\hat{c}^{rr}A^{r}}\right)\mathbf{x^{r}} - \mathbf{\hat{c}^{rs}A^{s}x^{s}} = \mathbf{\hat{c}^{rr}f^{r}} + \mathbf{\hat{c}^{rs}f^{s}}$$
+
+$$ -\mathbf{\hat{c}^{sr}A^{r}x^{r}} \left(\mathbf{I} - \mathbf{\hat{c}^{ss}A^{s}}\right)\mathbf{x^{s}} = \mathbf{\hat{c}^{rs}f^{r}} + \mathbf{\hat{c}^{ss}f^{s}}$$
+
+Or in matrix notation as
+
+$$\left(\mathbf{I} - \mathbf{CA}\right)\mathbf{x} = \mathbf{Cf}$$
+
+Let
+
+```{=tex}
+\begin{equation}
+\mathbf{A} = 
+  \begin{bmatrix} 
+    \mathbf{A^{r}} & 0 \\ 
+    0 & \mathbf{A^{s}} \\ 
+  \end{bmatrix}, \; \;
+\mathbf{C} = 
+  \begin{bmatrix} 
+    \mathbf{\hat{c}^{rr}} & \mathbf{\hat{c}^{rs}} \\ 
+    \mathbf{\hat{c}^{sr}} & \mathbf{\hat{c}^{ss}} \\ 
+    \end{bmatrix}, \; \;
+  \mathbf{x} = 
+    \begin{bmatrix} 
+      \mathbf{x^{r}} \\ 
+      \mathbf{x^{s}} \\ 
+    \end{bmatrix}, \;  \text{ and} \; \;
+  \mathbf{f} = 
+    \begin{bmatrix} 
+      \mathbf{f^{r}} \\ 
+      \mathbf{f^{s}} \\ 
+  \end{bmatrix}
+\end{equation}
+```
+Giving the solution as
+
+$$\mathbf{x} = \left(\mathbf{I} - \mathbf{CA}\right)^{-1} \mathbf{Cf}$$
+
+Similarly, when there are $p$ regions, let
+
+```{=tex}
+\begin{equation}
+\mathbf{A} = 
+  \begin{bmatrix} 
+      \mathbf{A^{1}} & 0 & \dots &  0 \\ 
+      0 & \mathbf{A^{2}} & \dots &  0 \\ 
+      \vdots & \vdots & \ddots &  \vdots \\
+      0 & 0 & \dots & \mathbf{A^{p}} \\ 
+  \end{bmatrix}, \; \;
+\mathbf{c} = 
+  \begin{bmatrix} 
+      \mathbf{\hat{c}^{11}} & \dots &  \mathbf{\hat{c}^{1p}} \\ 
+      \mathbf{\hat{c}^{21}} & \dots &  \mathbf{\hat{c}^{2p}} \\ 
+      \vdots & \ddots &  \vdots \\
+      \mathbf{\hat{c}^{p1}} & \dots &  \mathbf{\hat{c}^{pp}} \\ 
+  \end{bmatrix}, \; \;
+  \mathbf{x} = 
+    \begin{bmatrix} 
+      \mathbf{x^{1}} \\ 
+      \mathbf{x^{2}} \\ 
+      \vdots \\
+      \mathbf{x^{p}} \\ 
+    \end{bmatrix}, \; \text{ and} \; \;
+  \mathbf{f} = 
+    \begin{bmatrix} 
+      \mathbf{f^{1}} \\ 
+      \mathbf{f^{2}} \\ 
+      \vdots \\
+      \mathbf{f^{p}} \\ 
+  \end{bmatrix}
+\end{equation}
+```
+In this way $\left(\mathbf{I} - \mathbf{CA}\right)\mathbf{x} = \mathbf{Cf}$ and $\mathbf{x} = \left(\mathbf{I} - \mathbf{CA}\right)^{-1} \mathbf{Cf}$ still still represents the system and its solution.
+
+From the general statement of the multiregional input--output model both intermediate demands, $\mathbf{Ax}$, and final demand, $\mathbf{f}$, are premultiplied by the matrix $\mathbf{C}$; this distributes these demands to supplying sectors across regions. Thus $\mathbf{f^{r}}$ and $\mathbf{f^{s}}$ represent demands by (shipments to) the final-demand sectors in regions $r$ and $s$ respectively, not final demands for the products of regions $r$ and $s$ (as in the interregional input--output model).
+
+### Regional IO Extentions
+
+**Nonsurvey methods**
+
+Regional input--output tables share with their national counterparts the problem of becoming outdated with the simple passage of time. But smaller geographic scale introduces other problems. When one is concerned with models in which two or more regions are connected (or a single region and the rest of the country) shipments out of and into the regions assume a much more important role -- the former providing inputs to production and the latter representing markets for outputs. One procedure for obtaining this estimate for sector $i$ was to find the ratio of total regional output, less exports, of sector $i$, to the total output, less exports, plus imports, of sector $i$ given by
+
+$$p^{r}_{i} = \frac{x^{r}_{i} - e^{r}_{i}}{x^{r}_{i} - e^{r}_{i} + m^{r}_{i}}$$
+
+Thus, when none of good $i$ is imported, $p^{r}_{i} = 1$, and the assumption is that all of the region's needs for $i$ can be supplied internally. The regional input coefficient matrix is derived from $\mathbf{A^{rr} = \hat{p}A^{n}}$ where $\mathbf{p} = [p^{r}_{i}]$ and $\mathbf{A^{n}}$ is the national technical coefficients matrix.
+
+A regional input coefficient, $a^{rr}_{ij}$, is defined as the difference between a regional technical coefficient, $a^{r}_{ij}$, and a regional import coefficient, $a^{sr}_{ij}$, where $s$ indicates "outside of $r$." If a complete set of intra- and interregional data is available, then the $a^{rr}_{ij}$'s (and $a^{sr}_{ij}$'s) are observable directly. However, if one is trying to estimate $a^{rr}_{ij}$ from national data, as is the case, the estimation problem can be posed in the following way: (1) estimate a regional technical coefficient, $a^{r}_{ij}$, from the corresponding national coefficient, $a^{n}_{ij}$, and then (2) estimate the regional input coefficient, $a^{rr}_{ij}$, as some proportion of the regional technical coefficient; that is, $a^{rr}_{ij} = p^{r}_{ij}a^{r}_{ij}$ (where $0 \leq p^{r}_{ij} \leq 1$).
+
+Instead of estimating, $a^{r}_{ij}$ and $a^{sr}_{ij}$ one estimates $a^{r}_{ij}$ and $p^{r}_{ij}$. The two steps in this procedure for estimating $a^{rr}_{ij}$ from $a^{n}_{ij}$ would therefore be:
+
+(1) find $\alpha^{r}_{ij} \geq 0$ such that
+
+$$a^{r}_{ij} = (\alpha^{r}_{ij}) (a^{n}_{ij})$$
+
+and
+
+(2) find $\beta^{r}_{ij}$ ($0 \leq \beta^{r}_{ij} \leq 1$) such that
+
+$$a^{rr}_{ij} = (\beta^{r}_{ij}) (a^{r}_{ij})$$.
+
+If one can find $\alpha^{r}_{ij}$ and $\beta^{r}_{ij}$ for every $i$ and $j$, this is equivalent to finding
+
+$$a^{rr}_{ij} = (\gamma^{r}_{ij}) (a^{n}_{ij})$$ where
+
+$$\gamma^{r}_{ij} = (\alpha^{r}_{ij}) (\beta^{r}_{ij})$$
+
+However, in general there is not enough regional information to find $\alpha^{r}_{ij}$ and $\beta^{r}_{ij}$.
+
+Assuming region $r$ and national production recipes are identical, $a^{r}_{ij} \equiv a^{n}_{ij}$, results in $\alpha^{r}_{ij} = 1$ for all $i$ and $j$. This assumption overlooks probable regional differences in product mixes within a sector. Or assuming each regional purchaser, $j$, of input $i$ buys the same proportion of those inputs from within the region, results in $\beta^{r}_{ij} = p^{r}_{i}$ for all $i$. In the absence of specific survey information, it is customary, at least initially, to invoke one or more these assumptions. A number of nonsurvey techniques exist for regionalization of national coefficients -- through adjustments based only on published information on regional employment, income, or output by industry.
+
+**Simple Location Quotients**
+
+Let $x^{r}_{i}$ and $x^{r}$ denote gross output of sector $i$ in region $r$ and total output of all sectors in region $r$, respectively, and let $x^{n}_{i}$ and $x^{n}$ denote these totals at the national level. Then the simple location quotient for sector $i$ in region $r$ is defined as:
+
+$$LQ^{r}_{i} = \left( \frac{x^{r}_{i} / x^{r}} {x^{n}_{i} / x^{n}} \right) = \left( \frac{x^{r}_{i} / x^{n}_{i}} {x^{r} / x^{n}} \right)$$
+
+The simple location quotient is a measure of the ability of regional industry $i$ to supply the demands placed upon it by other industries (and by final demand) in that region. Also denoted as $SLQ_{i}$.
+
+If industry $i$ is less concentrated in the region than in the nation ($LQ^{r}_{i} < 1$), it is seen as less capable of satisfying regional demand for its output, and its regional direct input coefficients, $a^{rr}_{ij}$ ($j = 1, \dots, n$) are created by reducing the national coefficients, $a^{n}_{ij}$, by multiplying them by $LQ^{r}_{i}$. However, if industry $i$ is more highly concentrated in the region than in the nation ($LQ^{r}_{i} > 1$), then it is assumed that the national input coefficients from industry $i$, $a^{n}_{ij}$ ($j = 1, \dots, n$) apply to the region, and the regional "surplus" produced by $i$ will be exported to the rest of the nation. If a national sector is not present in the region ($LQ^{r}_{i} = 0$), that row and column are simply deleted from $\mathbf{A^{n}}$. Thus, for each row $i$ of an estimated regional table,
+
+$$
+a^{rr}_{ij} = \left\{ 
+\begin{align*}
+(LQ^{r}_{i})a^{n}_{ij} \space\space \text{if} \space\space LQ^{r}_{i} < 1 \\
+a^{n}_{ij} \space\space \text{if} \space\space LQ^{r}_{i} \geq 1
+\end{align*}
+\right\}
+$$
+
+This procedure is equivalent to assuming $\alpha^{r}_{ij} = 1$ for all $i$ and $j$ and letting $\beta^{r}_{ij} = LQ^{r}_{i}$ when $LQ^{r}_{i} < 1$ and $\beta^{r}_{ij} = 1$ when $LQ^{r}_{i} \geq 1$. Note ttha this approach does have a distinct asymmetry. When a sector is import-oriented ($LQ^{r}_{i} < 1$), the modification of the national coefficient varies with the strength of the import orientation $a^{rr}_{ij} = (LQ^{r}_{i})a^{n}_{ij}$, but when a sector is export-oriented ($LQ^{r}_{i} > 1$), the strength of that orientation is not reflected in the modification $a^{rr}_{ij} = (1)a^{n}_{ij}$.
+
+A complication may arise if the estimates of regional industry output that are obtained using *LQ* coefficients exceed actual output for some industries. In this event, coefficients developed by this method have often been "balanced" to ensure that they do not overestimate the regional output of each sector. If estimated coefficients generate a regional output for sector $i$, $(\tilde{x}_{i})$ that is too large (meaning $\tilde{x}^{r}_{i} > x^{r}_{i}$ ), then the row-$i$ estimates, $a^{rr}_{ij}$ (for all $j$), should be uniformly reduced -- multiplied by ($x^{r}_{i} / \tilde{x}^{r}_{i}$).
+
+For example, estimated sector $i$ output on the basis of actual regional industry outputs, and the *LQ*-estimated regional input coefficients for sector $i$
+
+$$\tilde{x}^{r}_{i} = \sum_{j}a^{rr}_{ij}x^{r}_{j} + \sum_{f}c^{rr}_{if}f^{r}_{f}$$
+
+where
+
+$\tilde{x}^{r}_{i}$ is estimated regional output of sector $i$,
+
+$f^{r}_{f}$ is total regional final demand of final-demand sector $f$, and
+
+$c^{rr}_{if}$ is estimated regional final-demand purchase coefficient of regional final-demand sector $f$ from industry $i$.
+
+The $c^{rr}_{if}$ elements reflect purchases of regionally produced output $i$ by regional final-demand sector $f$. These estimates are found in much the same manner as were the $a^{rr}_{ij}$; that is, using national data and the region-specific location quotients. In particular,
+
+$$
+c^{rr}_{if} = \left\{ 
+\begin{align*}
+(LQ^{r}_{i})c^{n}_{if} \space\space \text{if} \space\space LQ^{r}_{i} < 1 \\
+c^{n}_{if} \space\space \text{if} \space\space LQ^{r}_{i} \geq 1
+\end{align*}
+\right\}
+$$
+
+where
+
+$$c^{n}_{if} = f_{if} / f_{f}$$
+
+$f_{if}$ is national sales of industry $i$ to final-demand sector $f$, and
+
+$f_{f}$ is total national purchases of final-demand sector $f$.
+
+Thus, when $LQ^{r}_{i} \geq 1$, it is assumed that purchases of good $i$ by final-demand sector $f$ are the same proportion of total sector $f$ purchases in the region as in the nation. When \$ LQ\^{r}\_{i} \< 1\$, then the national proportion is modified downward.
+
+The next step in the balancing procedure is to calculate the ratio of estimated to actual regional output; denote this by $Z^{r}_{i}$. Then
+
+$$Z^{r}_{i} = x^{r}_{i} / \tilde{x}^{r}_{i}$$
+
+Each row of estimated regional input coefficients for which $Z^{r}_{i}$ is less than one is adjusted downward. That is, adjusted ("balanced") regional input coefficients are estimated as
+
+$$
+\bar{a}^{rr}_{ij} = \left\{ 
+\begin{align*}
+Z^{r}_{i}a^{rr}_{ij} \space\space \text{if} \space\space Z^{r}_{i} < 1 \\
+a^{rr}_{ij} \space\space \text{if} \space\space Z^{r}_{i} \geq 1
+\end{align*}
+\right\}
+$$
+
+Note, in this *LQ* and all other quotient approaches, $\alpha^{r}_{ij} = 1$ is assumed. And with high disaggregation, the assumption of constant (national) technology across regions may be reasonable.
+
+**Purchases-Only Location Quotients**
+
+The purchases-only location quotient (*PLQ*) for sector $i$ in region $r$ relates regional to national ability to supply sector $i$ inputs, but only to those sectors that use $i$ as an input. That is,
+
+$$PLQ^{r}_{i} = \left( \frac{x^{r}_{i} / x^{*r}} {x^{n}_{i} / x^{*n}} \right) $$
+
+where $x^{r}_{i}$ and $x^{n}_{i}$ are regional and national output of good $i$, as before, and where $x^{*r}$ and $x^{*n}$ are total regional and national output of only those sectors that use $i$ as an input. If input $i$ is not used by sector $k$, then the size of sector $k$'s output is not relevant in determining whether or not the region can supply all of its needs for input $i$.
+
+**Cross-Industry Quotients**
+
+Another variant is the cross-industry quotient (*CIQ*). This allows for differing modifiers within a given row of the national matrix; that is, it allows for differing cell-by-cell adjustments within $\mathbf{A^{n}}$ rather than uniform adjustments along each row. Specifically,
+
+$$CIQ^{r}_{ij} = \left( \frac{x^{r}_{i} / x^{n}_{i}} {x^{r}_{j} / x^{n}_{j}} \right)$$
+
+Then
+
+$$
+a^{rr}_{ij} = \left\{ 
+\begin{align*}
+(CIQ^{r}_{ij})a^{n}_{ij} \space\space \text{if} \space\space CIQ^{r}_{ij} < 1 \\
+a^{n}_{ij} \space\space \text{if} \space\space CIQ^{r}_{ij} \geq 1
+\end{align*}
+\right\}
+$$
+
+If the output of regional sector $i$ relative to the national output of $i$ is larger than the output of regional sector $j$ relative to the national output of sector $j$ ($CIQ^{r}_{ij} > 1$), then all of $j$'s needs of input $i$ can be supplied from within the region. Similarly, if sector $i$ at the regional level is relatively smaller than sector $j$ at the regional level ($CIQ^{r}_{ij} < 1$), then it is assumed that some of $j$'s needs for $i$ inputs will have to be imported. Note that $CIQ^{r}_{ij} = LQ^{r}_{i}/LQ^{r}_{j}$ and that $CIQ^{r}_{ij} = 1$ (along the main diagonal, when $i=j$).
+
+**The Semilogarithmic Quotient**
+
+Since the *LQ* approach will never increase a national coefficient (they are either left unchanged or made smaller), this procedure is also called *reducing* the national coefficients table. This $a^{rr}_{ij} \leq a^{n}_{ij}$ characteristic of the *LQ* approach has also been called into question. A producer in sector $j$ might use relatively fewer imported inputs than is reflected in the national coefficients for sector $j$, and thus at least some regionally supplied inputs could be larger, per unit of output $j$ in that region than in the nation as a whole. And in general, if the national coefficient is an average of observed regional coefficients, then some coefficients in some regions should be expected to be above average while others in other regions would necessarily be below average.
+
+Let a "semilogarithmic quotient (*SLQ*)" be defined as
+
+$$SLQ^{r}_{ij} = LQ^{r}_{i}/ \log_{2} (1 + LQ^{r}_{j})$$ Or alternatively as
+
+$$SLQ^{r}_{ij} = [(x^{r}_{i} / x^{n}_{i}) \div (x^{r} / x^{n})]/ \log_{2}\{1 + [(x^{r}_{j} / x^{n}_{j}) \div (x^{r} / x^{n})] \}$$ along with relative sizes of both industries, $i$ and $j$, this includes the regional size component in both numerator and denominator but not in such a way that the terms cancel out.
+
+**Flegg**
+
+The Flegg Location Quotient measure is generated by modifying the $CIQ^{r}_{ij}$ to incorporate an additional measure of the relative size of the region,
+
+$$FLQ^{r}_{ij} = (\lambda)CIQ^{r}_{ij}$$ where $\lambda = \{\log_{2}[1 + (x^{r}_{E} / x^{n}_{E})]\}^{\delta}$, $0 \leq \delta < 1$. Then
+
+$$
+a^{rr}_{ij} = \left\{ 
+\begin{align*}
+(FLQ^{r}_{ij})a^{n}_{ij} \space\space \text{if} \space\space FLQ^{r}_{ij} < 1 \\
+a^{n}_{ij} \space\space \text{if} \space\space FLQ^{r}_{ij} \geq 1
+\end{align*}
+\right\}
+$$
+
+Flegg uses employment rather than output as the relevant measures of regional and national activity; these are $x^{r}_{E}$ and $x^{n}_{E}$ for the region and the nation, respectively, so $x^{r}_{E} / x^{n}_{E}$ provides an alternative to the output ratio ($x^{r} / x^{n}$) as a measure of relative regional size. It also uses employment as the measure of sector $i$ and $j$ activity (output). The idea is to reduce national coefficients less for larger regions -- on the belief that larger regions import less than smaller ones. The problem, however, is that one must specify a value of $\delta$ in advance, and it is not at all clear what this value (or range of values) should be. Empirical work has suggested that $\delta = 0.3$ seems to work well in a variety of situations.
+
+Specialization might lead to increased intraregional purchases (by the specialized industry) and hence to intraregional input coefficients that are larger than their national counterparts. A variant of the *FLQ* can reflect this regional specialization. The Augmented Flegg Location Quotient (*AFLQ*) is given by
+
+$$ 
+AFLQ^{r}_{ij} = \left\{ 
+\begin{align*}
+[\log_{2}(1 + LQ^{r}_{ij})]FLQ^{r}_{ij} \space\space \text{if} \space\space LQ^{r}_{ij} > 1 \\
+FLQ^{r}_{ij} \space\space \text{if} \space\space LQ^{r}_{ij} \leq 1
+\end{align*}
+\right\}
+$$
+
+such that
+
+$$
+a^{rr}_{ij} = \left\{ 
+\begin{align*}
+(AFLQ^{r}_{ij})a^{n}_{ij} \space\space \text{if} \space\space LQ^{r}_{ij} > 1 \\
+(FLQ^{r}_{ij})a^{n}_{ij} \space\space \text{if} \space\space LQ^{r}_{ij} \leq 1
+\end{align*}
+\right\}
+$$
+
+Now *FLQ* is increased in those cases (only) in which sector $j$ is relatively specialized in region $r$ (when $LQ^{r}_{ij} > 1$, so $[\log_{2}(1 + LQ^{r}_{ij})]$). Thus far national coefficients could never be increased by any of the quotient techniques examined. The argument is that a large industry ($j$) in a particular region may attract in-movement to the region of firms in other sectors that supply $j$; hence $j$'s *intra*regional input purchases may be larger than the national coefficient would suggest.
+
+**Supply--Demand Pool Approaches**
+
+The supply--demand pool (*SDP*) technique estimates regional from national coefficients in much the same way as the procedure that was used to balance the regional coefficients estimated by the simple location quotient technique. National technical coefficients are taken as the first approximation to regional coefficients. Regional output by sector is then found, as above, by multiplying each of these coefficients by the appropriate actual regional output of that sector (and similarly for final-demand sectors, but using the national final-demand input proportions, $c^{n}_{if}$) and summing:
+
+$$\tilde{x}^{r}_{i} = \sum_{j}a^{n}_{ij}x^{r}_{j} + \sum_{f}c^{n}_{if}f^{r}_{f}$$
+
+Then the regional commodity balance, $b^{r}_{i}$, is calculated for industry $i$ as $b^{r}_{i} = x^{r}_{i} - \tilde{x}^{r}_{i}$. If this balance is positive, using national coefficients as estimates of regional coefficients does not generate an overestimate of regional production and so $a^{rr}_{ij} = a^{n}_{ij}$ and $c^{rr}_{if} = c^{n}_{if}$ are acceptable estimates. However, if the balance is negative, national coefficients are too large, in the sense that they generate unrealistically high regional outputs, by sector, so $a^{rr}_{ij} = a^{n}_{ij}(x^{r}_{i} / \tilde{x}^{r}_{i})$ and $c^{rr}_{if} = c^{n}_{if}(x^{r}_{i} / \tilde{x}^{r}_{i})$ -- the national coefficients are reduced by the amount necessary to make the regional balance for that sector exactly zero.
+
+$$
+a^{rr}_{ij} = \left\{ 
+\begin{align*}
+(x^{r}_{i} / \tilde{x}^{r}_{i})a^{n}_{ij} \space\space \text{if} \space\space b^{r}_{i} < 0 \\
+a^{n}_{ij} \space\space \text{if} \space\space b^{r}_{i} \geq 0
+\end{align*}
+\right\}
+$$
+
+the supply-demand pool technique assumes that $\alpha^{r}_{ij} = 1$, as do all of the quotient techniques mentioned above. Further, $\beta^{r}_{ij} = (x^{r}_{i} / \tilde{x}^{r}_{i})$ when $x^{r}_{i} - \tilde{x}^{r}_{i} < 0$ and $\beta^{r}_{ij} = 1$ when $x^{r}_{i} - \tilde{x}^{r}_{i} \geq 0$. As with the *LQ*-based techniques, only reductions of national coefficients are possible and cross-hauling is not captured.
+
+**Regional Purchase Coefficients**
+
+The regional supply proportions, $p^{r}_{i}$ have also been defined as *regional purchase coefficients* (RPCs). These coeffecients operate uniformly across rows, as do LQ-based methods, similarly assume $\alpha^{r}_{ij} = 1$, and $\beta^{r}_{ij} = p^{r}_{i} = RPC^{r}_{i}$. The regional purchase coefficient for a sector is defined as the proportion of regional demand for that sector's output that is fulfilled from regional production. Formally, for region $r$ and good $i$,
+
+$$RPC^{r}_{i} = z^{rr}_{i} / (z^{rr}_{i} + z^{sr}_{i})$$ Various relationships between $RPC^{r}_{i}$ and proxies for these relative terms have been proposed and fitted by regression techniques to data that are available in US published sources such as *County Business Patterns*, *Census of Transportation*, and *Census of Manufactures*, as well as a national input--output technical coefficients table. An alternative approach to estimation of RPCs are gravity models of commodity flows.
+
+**Regional RAS**
+
+A traditional RAS is concerned with adjusting coefficient matrices across time (the updating problem), however, it may also be used to adjust coefficient matrices across space (the regionalization problem). Therefore, one can perform a regional RAS to estimate $\mathbf{A^{r}}$, given a national input--output table, $\mathbf{A^{n}}$, and current marginal information about regional economic activity -- regional total gross outputs, $\mathbf{x^{r}}$, regional total interindustry (intermediate) sales, $\mathbf{u^{r}}$, and regional total interindustry purchases $\mathbf{v^{r}}$.
+
+Unlike the many other clean I/O accounting procedures, RAS is an iterative maximization process. Step 1 is to assume $\mathbf{A^{r}} = \mathbf{A^{r}}$ such that $\mathbf{Z^{0}} = \mathbf{A^{n}\hat{x}^{r}}$, where zero superscript denotes the base or zeroth iteration.
+
+Step 2 is to then ask: Does $\mathbf{Z^{0}i} = \mathbf{u^{r}}$ and $\mathbf{iZ^{0}} = \mathbf{v^{r}}$? If the answer is yes to both, then $\mathbf{Z^{0}} = \mathbf{Z^{r}}$ and $\mathbf{A^{n}} = \mathbf{A^{r}}$. If the answer is no to either, then we update the direct requirements matrix. First by $\mathbf{A^{1}} = \mathbf{\hat{r}^{1}A^{n}}$, where $\mathbf{\hat{r}^{1}} = [\mathbf{\hat{u}^{r}}](\mathbf{\hat{Z}^{0}i})^{-1}$. And by definition, now $\mathbf{u^{r}} = \mathbf{Z^{1}i} = [\mathbf{\hat{r}^{1}A^{n}\hat{x}^{r}}]\mathbf{i}$.
+
+Step 3 is to then ask: Does $\mathbf{iZ^{1}} = \mathbf{v^{r}}$? If the answer is yes, then $\mathbf{Z^{1}} = \mathbf{Z^{r}}$ and $\mathbf{Z^{1}\hat{x}^{r}} = \mathbf{A^{r}}$. If the answer is no, then iterate again, this time let $\mathbf{A^{2}} = \mathbf{A^{1}\hat{s}^{1}}$, where $\mathbf{\hat{s}^{1}} = [\mathbf{\hat{v}^{r}}](\mathbf{iZ^{1}})^{-1}$. And by definition, now $\mathbf{\hat{v}^{r}} = (\mathbf{Z^{2}})'\mathbf{i} = [\mathbf{A^{2}\hat{x}^{r}}]'\mathbf{i}$.
+
+Note that $\mathbf{A^{2}} = \mathbf{\hat{r}^{1}A^{n}\hat{s}^{1}}$, and similarly for $t$ repetitions of this procedures $\mathbf{A^{2t}} = [\mathbf{\hat{r}^{t}\cdots\hat{r}^{1}}]\mathbf{A^{n}}[\mathbf{\hat{s}^{1}\cdots\hat{s}^{t}}]$. Let $\mathbf{\hat{r}} = [\mathbf{\hat{r}^{t}\cdots\hat{r}^{1}}]$ and $\mathbf{\hat{s}} = [\mathbf{\hat{s}^{1}\cdots\hat{s}^{t}}]$, thus $\mathbf{\hat{r}A\hat{s}}$ and the name of the "RAS" procedure is reveled.
+
+Lastly, one must specify a value $\epsilon$ such that $[|\mathbf{u^{r}} - \mathbf{u^{t}}|]$ and $[|\mathbf{v^{r}} - \mathbf{v^{t}}|]$ are no more than $\epsilon$ and the iterative balancing may cease.
+
+**Gravity Model Formulations**
+
+Many versions of gravity model formulations have been proposed and explored for estimating commodity flows between regions. The basic idea is that the flow of good $i$ from region $r$ to region $s$ can be looked upon as a function of (1) some measure of the total output of $i$ in $r$, $x^{r}_{i}$, (2) some measure of the total purchases of $i$ in $s$, $x^{s}_{i}$ ,and (3) the distance (as a measure of "impedance") between the two regions, $d^{rs}$.
+
+One straightforward function, taking inspiration from Newton's observations on gravity, would involve the product of the two "masses" ($x^{r}_{i}$ and $x^{s}_{i}$ ) divided by the square of the distance. The relatively simplified form is given by: $$ z^{rs}_{i} = \frac{x^{r \cdot}_{i}x^{\cdot s}_{i}} {x^{\cdot \cdot}_{i}} Q^{rs}_{i}$$ where $x^{r \cdot}_{i}$ is the "supply pool" of good $i$ in region $r$, $x^{\cdot s}_{i}$ is the "demand pool" of good $i$ in region $s$, $x^{\cdot \cdot}_{i}$ is the total production of commodity $i$ in the system and $Q^{rs}_{i}$ is a parameter to be estimated. Note that the denominator in this formulation is aspatial; that is, its magnitude is unrelated to any measure of "distance" between $r$ and $s$. Rather, it provides the flexibility necessary so that if, for good $i$, the supply pool in $r$, the demand pool in $s$ and total output all increase by $p$ percent, then $z^{rs}_{i}$ increases by that same percent (assuming $Q^{rs}_{i} > 0$). An important feature of this kind of formulation is that cross-hauling is allowed; that is, good $i$ can be shipped simultaneously from $r$ to $s$ and from $s$ to $r$.
+
+The most optimistic scenario is that values of $x^{r \cdot}_{i}$, $x^{\cdot s}_{i}$, $x^{\cdot \cdot}_{i}$, and $z^{rs}_{i}$ are known from some base period or for some subset of transportation data. In that case, one can evaluate the parameter $Q^{rs}_{i}$ from those data, as $$Q^{rs}_{i} = \frac{\bar{z}^{rs}_{i} \bar{x}^{\cdot \cdot}_{i}} {\bar{x}^{r \cdot}_{i}  \bar{x}^{\cdot s}_{i}}$$ where overbars indicate known values.
+
+**Two-Region Interregional Models**
+
+One important feature in a two-region interregional model is that one region's (domestic) exports of a particular good are the other region's (domestic) imports. Since,
+
+$$
+a^{rr}_{ij} = \left\{ 
+\begin{align*}
+(LQ^{r}_{i})a^{n}_{ij} \space\space \text{if} \space\space LQ^{r}_{i} < 1 \\
+a^{n}_{ij} \space\space \text{if} \space\space LQ^{r}_{i} \geq 1
+\end{align*}
+\right\}
+$$
+
+then, in a two-region interregional model (with regions $r$ and $s$),
+
+$$
+a^{sr}_{ij} = \left\{ 
+\begin{align*}
+(1 - LQ^{r}_{i})a^{n}_{ij} \space\space \text{if} \space\space LQ^{r}_{i} < 1 \\
+0 \space\space \text{if} \space\space LQ^{r}_{i} \geq 1
+\end{align*}
+\right\}
+$$
+
+The two-region logic may also be implemented across more than two regions. The idea is to use location quotients, a sequence of two-region models, and an RAS balancing approach.
+
+### Further Reading
+
+The majority of this documents structure is a selective abbreviation of Miller and Blair's superb and elucidative book *Input-Output Analysis: Foundations and Extensions* [-@miller_io_2009]. 
+
+**For more on I-O foundations and fundamentals see:**  
+@leontief_qio_1936  
+@christ_review_1955  
+@leontief_environmental_1970  
+@leontief_ioe_1986  
+@UN_accounts_2003  
+@ten_econio_2006  
+@horowitz_concepts_2009  
+
+**For Regional I-O see:**  
+@isard_methods_1960  
+@leontief_multiregional_1963  
+@round_nonsurvey_1983  
+@batten_spatial_1987  
+@hewings_regional_1987  
+@polenske_leontief_1995  
+@benat_rims2_1997  
+@brand_reassessment_1998  
+@nan_inflows_2004  
+@polenske_trade_2004  
+@lindall_implan_2006  
+@sargento_rio_2009  
+
+**For I-O Gravity models and other extensions see:**  
+@polenski_mrio_1969  
+@curry_spatial_1972  
+@ahmad_operationalisation_1991  
+@anderson_gravity_2003  
+@trinh_ras_2013  
+
+**For rurality and other applied topics see:**  
+@beyers_methods_2006  
+@isserman_prosper_2007  
+@feser_rural_2009  
+@locke_industry_2009  
+@han_resilience_2019  
+@khalaf_typology_2021  
+
+
+
+### Emperics 
+
+**NAICS**
+
+The North American Industry Classification System ([NAICS](https://www.census.gov/naics/)) is the standard used by Federal statistical agencies in classifying business establishments for the purpose of collecting, analyzing, and publishing statistical data related to the U.S. business economy. NAICS was developed under the auspices of the Office of Management and Budget (OMB), and adopted in 1997 to replace the Standard Industrial Classification ([SIC](https://www.osha.gov/data/sic-manual)) system.
+
+The highest level of NAICS classification is called the sector. There are 20 broad NAICS sectors two-digit NAICS. The subsequent hierarchy of NAICS specifications include subsector (three-digit), industry group (four-digit), NAICS industry (five-digit), and U.S. industry (six-digit). Counts of unique NAICS specifications for CBP 2019 data include 20, 86, 288, 635, and 960 clusters respectively [@executive_naics_2022].
+
+
+**BEA**
+
+Bureau of Economic Analysis ([BEA](https://www.bea.gov/resources)) methodologies broadly encompass [National](https://www.bea.gov/data/economic-accounts/national), 
+[International](https://www.bea.gov/data/economic-accounts/international), 
+[Regional](https://www.bea.gov/data/economic-accounts/regional), and 
+[Industry](https://www.bea.gov/data/economic-accounts/industry). Of principal relevance to this project are the industry economic accounts. The industry economic accounts, presenting both an input-output framework and an annual output of each industry, provide a detailed view of the interrelationships between U.S. producers and users, and the contribution to production across industries. See [here](https://www.bea.gov/resources/learning-center/what-to-know-industries) for more. Industry account data products include: 
+[GDP by Industry](https://www.bea.gov/data/gdp/gdp-industry), 
+[Gross Output by Industry](https://www.bea.gov/data/industries/gross-output-by-industry), 
+[Input-Output Accounts](https://www.bea.gov/data/industries/input-output-accounts-data), 
+[Employment by Industry](https://www.bea.gov/data/employment/employment-by-industry), and 
+[Integrated Industry-Level Production Account (KLEMS)](https://www.bea.gov/data/special-topics/integrated-industry-level-production-account-klems). 
+
+At the foundation of most BEA industry statistics are the input-output accounts, which are of principal relevance to this project. Also called [I-O accounts](https://www.bea.gov/industry/input-output-accounts-data), these detailed tables capture the flow of goods and services from one industry to another and to consumers. An important use of the I-O tables is in the estimation of the direct and indirect effects that changes in final uses will have on industry and commodity output, on employment, or on income [@horowitz_concepts_2009]. 
+
+The input-output accounts contain many data files including: Supply Tables, Use Tables, and Import Matrices. Supply Tables show the value of goods and services available in the U.S. economy, whether produced by domestic industries or imported. Whereas, Use Tables show how the supply of goods and services is used: including purchases by U.S. industries, individuals, and government, and exports to foreign purchasers. In addition, supplemental estimate tables encompass Requirements Tables, Make-Use Tables, and Historical Make-Use Tables. Requirements Tables are a summary of the full supply chain, with both direct and indirect connections among industries. For example, a baker relies directly on a miller for flour and indirectly on a farmer who supplies the miller with wheat.
+
+Estimates in the Industry Economic Accounts are generally [available](https://apps.bea.gov/iTable/itable.cfm?isuri=1&reqid=151&step=1) at four levels of detail: sector (21 industry groups), summary (71 industry groups), underlying summary (138 industry groups), and detail (405 industry groups). However, in practice the available BEA industry codes are sector (SEC) with 15 $\times$ 15 commodities and industries, summary (SUM) with 71 $\times$ 71 commodities and industries, and detail (DET) with 401 $\times$ 405 commodities and industries. For most I-O type data products from BEA, estimates at the detail level are available only for available for year 2007 and 2012. Data products from at the sector and summary detail levels are available from 1997 to 2020.
+
+Annual I‐O accounts, which are updated once a year, are available from 1997 to 2020 at the sector and summary levels. Benchmark I‐O accounts include more detail, but are prepared less frequently, roughly once every 5 years based on detailed data from the [Economic Census](https://www.census.gov/programs-surveys/economic-census.html) conducted by the Census Bureau. The 2002 benchmark was released in October 2007 [@locke_industry_2009]. Detail level estimates are only available for 2007 and 2012.
+
+BEA develops analytical tools derived from the I-O framework, too, including: Trade in Value Added (TiVA) Statistics — Trace global value chains through direct and indirect U.S. trade partners, improving understanding of the U.S. role in international trade. Computable General Equilibrium (CGE) Models —
+Used to anticipate the response of the economy to changes in policy, changes in technology, and other external shocks. Regional Impact Analysis Models (such as BEA’s Regional Input-Output Modeling System - [RIMS II](https://www.bea.gov/resources/methodologies/RIMSII-user-guide)) — Used to show the local impact of a specific project or event like a strike or natural disaster. For example, state or local government planners could use these models to assess the economic impact of a new baseball stadium or the closing of a military base.
+
+BEA industry codes used in national IO tables are not bijective with NAICS codes. Though they are similar at many levels and groupings some codes are not applicable (government) or do not align at any higher detail specificity e.g., construction data published by BEA at the detail level do not align with 2012 NAICS industries.
+
+
+### Notes
+
+Summary of Input--Output Relationships
+
+```{=tex}
+\begin{equation}
+\begin{matrix}
+&  \text{Economic } (n \times n) \\ 
+\hline
+\text{Transactions } & \mathbf{Z} \\ 
+& \mathbf{Zi} + \mathbf{f} = \mathbf{x} \\ 
+& \\
+\text{Direct Requirements } & \mathbf{A} = \mathbf{Z\hat{x}^{-1}} \\ 
+& \mathbf{Ax} + \mathbf{f} = \mathbf{x} \\ 
+& \\
+\text{Total Requirements } & \mathbf{L} = (\mathbf{I} - \mathbf{A})^{-1} \\ 
+& \mathbf{x} = \mathbf{Lf} \\ 
+\hline
+\end{matrix}
+\end{equation}
+```
+The (industry-by-industry) *Transactions* matrix shows monetary transactions between pairs of sectors or interindustry sales (intermediate sales) by sector $i$ to all sectors $j$.
+
+The (industry-by-industry) *Direct Requirements* (technical coefficients) matrix specifies the required amount of industry $i$'s commodity used to produce of one unit of industry $j$'s commodity.
+
+The (industry-by-industry) *Total Requirements* matrix shows, on a per-dollar basis, the industry output the economy generates in order to provide an industry's commodities to final users: $\partial{x_{i}}/\partial{f_{j}} = l_{ij}$.
+
+Technically speaking, the *Direct Requirements* matrix constructed from the BEA *Total Requirements* matrix (from a *Make* and *Use* table framework) is an industry based technology, industry-by-industry class table $\underset{(i \times i)}{\mathbf{A}_{I}} = \mathbf{V}(\mathbf{\widehat{V'i}})^{-1}\mathbf{U}(\mathbf{\widehat{Vi}})^{-1}$
+:::
