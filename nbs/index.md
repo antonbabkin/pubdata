@@ -168,10 +168,23 @@ bea_io.get_naics_df().head()
 ## Full
 
 ```{code-cell} ipython3
-:tags: []
-
+---
+jupyter:
+  outputs_hidden: true
+tags: []
+---
 from pubdata import geography_cbsa
 geography_cbsa.test_all(redownload=False)
+```
+
+```{code-cell} ipython3
+---
+jupyter:
+  outputs_hidden: true
+tags: []
+---
+from pubdata import bea_io
+bea_io.test_all(redownload=False)
 ```
 
 # Build this module
