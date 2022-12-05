@@ -6,6 +6,7 @@ project:
     - geography.ipynb
     - geography_cbsa.ipynb
     - bea_io.ipynb
+    - io_for_dummies.Rmd
   post-render: touch _site/.nojekyll
 
 website:
@@ -25,6 +26,8 @@ website:
         menu:
           - text: Tables
             href: bea_io.ipynb
+          - text: For Dummies
+            href: io_for_dummies.Rmd
 
 format:
   html:
