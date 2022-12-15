@@ -187,6 +187,13 @@ from pubdata import bea_io
 bea_io.test_all(redownload=False)
 ```
 
+```{code-cell} ipython3
+:tags: []
+
+from pubdata import agcensus
+agcensus.test_all(redownload=False)
+```
+
 # Build this module
 
 ```{code-cell} ipython3

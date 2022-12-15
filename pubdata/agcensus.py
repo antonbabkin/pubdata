@@ -1,38 +1,5 @@
----
-jupytext:
-  formats: ipynb,md:myst
-  text_representation:
-    extension: .md
-    format_name: myst
-    format_version: 0.13
-    jupytext_version: 1.14.0
-kernelspec:
-  display_name: Python 3 (ipykernel)
-  language: python
-  name: python3
----
-
-```{raw-cell}
-
----
-title: "NASS - Census of Agriculture"
-format:
-  html:
-    code-fold: true
-    ipynb-filters:
-      - pubdata/reseng/nbd.py filter-docs
----
-```
-
-+++ {"tags": ["nbd-docs"]}
-
-The Census of Agriculture is a complete count of U.S. farms and ranches and the people who operate them.
-Census is conducted USDA NASS (National Agricultural Statistics Service) every 5 years, and the most recently available is 2017.
-
-[Ag Census homepage](https://www.nass.usda.gov/AgCensus/index.php)
-
-```{code-cell} ipython3
-:tags: [nbd-module]
+#!/usr/bin/env python
+# coding: utf-8
 
 import shutil
 
@@ -41,14 +8,11 @@ import pandas as pd
 import pyarrow.parquet
 import pyarrow.dataset
 
-from pubdata.reseng.util import download_file
-from pubdata.reseng.monitor import log_start_finish
-from pubdata.reseng.nbd import Nbd
+from .reseng.util import download_file
+from .reseng.monitor import log_start_finish
+from .reseng.nbd import Nbd
 nbd = Nbd('pubdata')
-```
 
-```{code-cell} ipython3
-:tags: [nbd-module]
 
 PATH = {
     'source': nbd.root / 'data/source/agcensus',
@@ -72,29 +36,7 @@ def cleanup(remove_downloaded=False):
         shutil.rmtree(PATH['source'], ignore_errors=True)
     print('Removing processed files...')
     shutil.rmtree(PATH['proc'], ignore_errors=True)
-```
 
-+++ {"tags": ["nbd-docs"]}
-
-# Source data
-
-Census tabulations are available in PDF format for [2017](https://www.nass.usda.gov/Publications/AgCensus/2017/index.php) and [all previous years](https://agcensus.library.cornell.edu/).
-
-QuickStats provides [browser interface](https://quickstats.nass.usda.gov/) and also [API or FTP](https://quickstats.nass.usda.gov/api/) for programmatic or bulk download of 2002, 2007, 2012 and 2017 data.
-
-```{code-cell} ipython3
-:tags: []
-
-# FTP server contents
-import ftplib
-with ftplib.FTP('ftp.nass.usda.gov') as ftp:
-    ftp.login()
-    ftp.cwd('quickstats')
-    print(*ftp.nlst(), sep='\n')
-```
-
-```{code-cell} ipython3
-:tags: [nbd-module]
 
 def _get_qs_src(year):
     init_dirs()
@@ -104,15 +46,7 @@ def _get_qs_src(year):
         print(f'File "{file}" not found, attempting download...')
         download_file(url, file.parent, file.name)
     return file
-```
 
-# Save as parquet
-
-Source files are big, e.g. 2017 CSV loaded as str type uses 20 GB of memory.
-All QuickStats Census tables have the same layout in each year, and in this module we retrieve and save them as a partitioned parquet dataset.
-
-```{code-cell} ipython3
-:tags: [nbd-module]
 
 @log_start_finish
 def _proc_qs_to_pq(year):
@@ -142,44 +76,8 @@ def _proc_qs_to_pq(year):
     path.parent.mkdir(parents=True, exist_ok=True)
     df.to_parquet(path, engine='pyarrow', index=False)
     print(f'Saved {len(df):,d} rows to parquet.')
-```
 
-+++ {"tags": ["nbd-docs"]}
 
-# Schema
-
-+++
-
-Layout of tables is on QuickStats API help page.
-Code below parses to prepare fields and their description in the `_fields` list.
-Parquet schema is made from this list and then used to load dataset partions correct datatypes.
-Some fields are all empty in some years, and this creates inconsistent datatypes when loadning multiple years.
-Manually providing schema fixes this.
-
-```{code-cell} ipython3
-:tags: []
-
-t = pd.read_html('https://quickstats.nass.usda.gov/api/', header=0)[0]
-t = t[t.iloc[:, 0] != t.iloc[:, 1]]
-schema = []
-for r in t.itertuples(False):
-    n, l, d = r
-    
-    if n == 'CV %':
-        n = 'CV_%'
-    elif n == 'reference_period_  desc (Period)':
-        n = 'REFERENCE_PERIOD_DESC'
-    else:
-        n = n.split(' ')[0].upper()
-    schema.append((n, l, d))
-```
-
-```{code-cell} ipython3
----
-jupyter:
-  source_hidden: true
-tags: [nbd-module]
----
 _fields = [
     ('SOURCE_DESC',
     '60',
@@ -275,10 +173,7 @@ _fields = [
     'Coefficient of variation. Available for the 2012 Census of Agriculture only. County-level CVs are generalized.'),
     ('CV_%_F', '3', 'CV_% flag: NUM, (H), (D) or (L)')
 ]
-```
 
-```{code-cell} ipython3
-:tags: [nbd-module]
 
 def get_schema():
     schema = []
@@ -296,39 +191,7 @@ def get_schema():
         schema.append(af)
     schema = pyarrow.schema(schema)
     return schema
-```
 
-+++ {"tags": ["nbd-docs"]}
-
-::: {.callout-note collapse=true}
-
-## list of dataset fields
-
-```{code-cell} ipython3
----
-jupyter:
-  outputs_hidden: true
-tags: [nbd-docs]
----
-for f in get_schema():
-    print('----')
-    print(f.name)
-    print(f.metadata[b'desc'].decode())
-```
-
-+++ {"tags": ["nbd-docs"]}
-
-:::
-
-+++ {"tags": ["nbd-docs"]}
-
-# Load dataset
-
-Use `get_df()` function to load dataset as pandas dataframe.
-`filters` argument should be used to create queries using list of filters formatted as documented for pyarrow filters [here](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.read_table.html).
-
-```{code-cell} ipython3
-:tags: [nbd-module]
 
 def get_df(years, cols=None, filters=None):
     for year in years:
@@ -351,139 +214,8 @@ def test_get_df(redownload=False):
     cleanup(redownload)
     d = get_df([2002, 2007, 2012, 2017], ['YEAR', 'SECTOR_DESC', 'VALUE'])
     assert len(d) > 0
-```
 
-```{code-cell} ipython3
-:tags: []
-
-test_get_df()
-```
-
-+++ {"tags": ["nbd-docs"]}
-
-# Example: hired and contract labor
-
-This example shows how usage of contract and hired labor, measured as percentage of farm expenses, changed over time in California and Wisconsin.
-
-```{code-cell} ipython3
-:tags: [nbd-docs]
-
-df = get_df(years=[2002, 2007, 2012, 2017], cols=['YEAR', 'STATE_NAME', 'SHORT_DESC',  'VALUE'],
-            filters=[('DOMAIN_DESC', '==', 'TOTAL'),
-                     ('SHORT_DESC', 'in', [
-                         'LABOR, HIRED - EXPENSE, MEASURED IN PCT OF OPERATING EXPENSES', 
-                         'LABOR, CONTRACT - EXPENSE, MEASURED IN PCT OF OPERATING EXPENSES']),
-                     ('STATE_FIPS_CODE', 'in', ['06', '55'])])
-df['LABOR_TYPE'] = df['SHORT_DESC'].str.split(expand=True)[1]
-df.set_index(['YEAR', 'STATE_NAME', 'LABOR_TYPE'])['VALUE'].unstack(['STATE_NAME', 'LABOR_TYPE'])
-```
-
-+++ {"tags": ["nbd-docs"]}
-
-# Example: commodity sales by state
-
-This more detailed example shows how to retrieve state-level values of farm sales by commodity type.
-In the map below color indicates commodity with the highest amount of sales.
-Hover over states to view full list of sales.
-
-```{code-cell} ipython3
-:tags: [nbd-docs]
-
-# load relevant subset of the dataset
-df = get_df(years=[2017], cols=['COMMODITY_DESC', 'SHORT_DESC', 'STATE_FIPS_CODE',  'VALUE'],
-            filters=[('DOMAIN_DESC', '==', 'TOTAL'),
-                     ('STATISTICCAT_DESC', '==', 'SALES'),
-                     ('UNIT_DESC', '==', '$'),
-                     ('AGG_LEVEL_DESC', '==', 'STATE')])
-
-# select sales items to report
-sales_items = [
-# 'COMMODITY TOTALS - SALES, MEASURED IN $',
-    # 'CROP TOTALS - SALES, MEASURED IN $',
-        # 'GRAIN - SALES, MEASURED IN $', 
-            'CORN - SALES, MEASURED IN $',
-            'WHEAT - SALES, MEASURED IN $',
-            'SOYBEANS - SALES, MEASURED IN $',
-            'SORGHUM - SALES, MEASURED IN $',
-            'BARLEY - SALES, MEASURED IN $',
-            'RICE - SALES, MEASURED IN $',
-            'GRAIN, OTHER - SALES, MEASURED IN $',
-        'TOBACCO - SALES, MEASURED IN $',
-        'COTTON, LINT & SEED - SALES, MEASURED IN $',
-        'VEGETABLE TOTALS, INCL SEEDS & TRANSPLANTS, IN THE OPEN - SALES, MEASURED IN $',
-        'FRUIT & TREE NUT TOTALS - SALES, MEASURED IN $',
-            # 'FRUIT & TREE NUT TOTALS, (EXCL BERRIES) - SALES, MEASURED IN $',
-            # 'BERRY TOTALS - SALES, MEASURED IN $',
-        'HORTICULTURE TOTALS, (EXCL CUT TREES & VEGETABLE SEEDS & TRANSPLANTS) - SALES, MEASURED IN $',
-        'CUT CHRISTMAS TREES & SHORT TERM WOODY CROPS - SALES, MEASURED IN $',
-            # 'CUT CHRISTMAS TREES - SALES, MEASURED IN $',
-            # 'SHORT TERM WOODY CROPS - SALES, MEASURED IN $',
-        'FIELD CROPS, OTHER, INCL HAY - SALES, MEASURED IN $',
-            # 'MAPLE SYRUP - SALES, MEASURED IN $',
-    # 'ANIMAL TOTALS, INCL PRODUCTS - SALES, MEASURED IN $',
-        'POULTRY TOTALS, INCL EGGS - SALES, MEASURED IN $',
-        'CATTLE, INCL CALVES - SALES, MEASURED IN $',
-        'MILK - SALES, MEASURED IN $', 
-        'HOGS - SALES, MEASURED IN $',
-        'SHEEP & GOATS TOTALS, INCL WOOL & MOHAIR & MILK - SALES, MEASURED IN $',
-        'EQUINE, (HORSES & PONIES) & (MULES & BURROS & DONKEYS) - SALES, MEASURED IN $',
-        'AQUACULTURE TOTALS - SALES & DISTRIBUTION, MEASURED IN $'
-        'SPECIALTY ANIMAL TOTALS, (EXCL EQUINE) - SALES, MEASURED IN $',
-]
-df = df.query('SHORT_DESC.isin(@sales_items)')
-
-df['COMMODITY_DESC'] = df['COMMODITY_DESC'].str.replace(' TOTALS', '')
-
-df_sales = df
-
-# state shapes for mapping
-from pubdata import geography
-df = geography.get_state_df(scale='20m')\
-    .query('CONTIGUOUS')\
-    .rename(columns={'CODE': 'STATE_FIPS_CODE', 'NAME': 'STATE'})\
-    [['STATE_FIPS_CODE', 'STATE', 'geometry']]
-
-# top sales commodity for coloring
-d = df_sales.sort_values('VALUE', ascending=False)\
-    .groupby('STATE_FIPS_CODE')\
-    .first()\
-    .rename(columns={'COMMODITY_DESC': 'TOP_SALES_COMMODITY'})\
-    .reset_index()\
-    [['STATE_FIPS_CODE', 'TOP_SALES_COMMODITY']]
-df = df.merge(d, how='left', on='STATE_FIPS_CODE')
-
-# commodity sales for popups
-d = df_sales.set_index(['STATE_FIPS_CODE', 'COMMODITY_DESC'])['VALUE']
-d /= 1000
-d = d.unstack().reset_index()
-df = df.merge(d, how='left', on='STATE_FIPS_CODE')
-
-# display interactive map
-df.explore(column='TOP_SALES_COMMODITY', tiles='CartoDB positron')
-```
-
-# Full test
-
-```{code-cell} ipython3
-:tags: [nbd-module]
 
 def test_all(redownload=False):
     test_get_df(redownload)
-```
 
-```{code-cell} ipython3
----
-jupyter:
-  outputs_hidden: true
-tags: []
----
-test_all(redownload=False)
-```
-
-# Build this module
-
-```{code-cell} ipython3
-:tags: []
-
-nbd.nb2mod('agcensus.ipynb')
-```

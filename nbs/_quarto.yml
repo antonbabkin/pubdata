@@ -5,6 +5,7 @@ project:
     - naics.ipynb
     - geography.ipynb
     - geography_cbsa.ipynb
+    - agcensus.ipynb
     - bea_io.ipynb
     - io_for_dummies.Rmd
   post-render: touch _site/.nojekyll
@@ -22,6 +23,8 @@ website:
           - geography.ipynb
           - text: CBSA
             href: geography_cbsa.ipynb
+      - text: Ag Census
+        href: agcensus.ipynb
       - text: Input-Output
         menu:
           - text: Tables
