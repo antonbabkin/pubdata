@@ -5,7 +5,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.14.0
+    jupytext_version: 1.14.4
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -192,6 +192,13 @@ bea_io.test_all(redownload=False)
 
 from pubdata import agcensus
 agcensus.test_all(redownload=False)
+```
+
+```{code-cell} ipython3
+:tags: []
+
+from pubdata import qcew
+qcew.test_all(redownload=False)
 ```
 
 # Build this module
