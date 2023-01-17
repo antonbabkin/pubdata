@@ -197,6 +197,13 @@ agcensus.test_all(redownload=False)
 ```{code-cell} ipython3
 :tags: []
 
+from pubdata import bea_nipa
+bea_nipa.test_all(redownload=False)
+```
+
+```{code-cell} ipython3
+:tags: []
+
 from pubdata import qcew
 qcew.test_all(redownload=False)
 ```
