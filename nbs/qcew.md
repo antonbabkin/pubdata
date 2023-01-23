@@ -32,7 +32,7 @@ The program is run by the US Bureau of Labor Statistics (BLS) of the US Departme
 import shutil
 
 import pandas as pd
-import pyarrow.parquet, pyarrow.dataset
+import pyarrow, pyarrow.parquet, pyarrow.dataset
 
 from pubdata.reseng.monitor import log_start_finish
 from pubdata.reseng.util import download_file
@@ -83,11 +83,8 @@ def _test_get_src(redownload=False):
 ```
 
 ```{code-cell} ipython3
----
-jupyter:
-  outputs_hidden: true
-tags: []
----
+:tags: []
+
 _test_get_src()
 ```
 
@@ -98,54 +95,54 @@ Save all years (1990-2021) as a single parquet dataset.
 ```{code-cell} ipython3
 :tags: [nbd-module]
 
+_schema_pandas = {
+    'area_fips': 'str',
+    'own_code': 'str',
+    'industry_code': 'str',
+    'agglvl_code': 'str',
+    'size_code': 'str',
+    'year': 'int16',
+    'qtr': 'str',
+    'disclosure_code': 'str',
+    'annual_avg_estabs': 'int64',
+    'annual_avg_emplvl': 'int64',
+    'total_annual_wages': 'int64',
+    'taxable_annual_wages': 'int64',
+    'annual_contributions': 'int64',
+    'annual_avg_wkly_wage': 'int64',
+    'avg_annual_pay': 'int64',
+    'lq_disclosure_code': 'str',
+    'lq_annual_avg_estabs': 'float64',
+    'lq_annual_avg_emplvl': 'float64',
+    'lq_total_annual_wages': 'float64',
+    'lq_taxable_annual_wages': 'float64',
+    'lq_annual_contributions': 'float64',
+    'lq_annual_avg_wkly_wage': 'float64',
+    'lq_avg_annual_pay': 'float64',
+    'oty_disclosure_code': 'str',
+    'oty_annual_avg_estabs_chg': 'int64',
+    'oty_annual_avg_estabs_pct_chg': 'float64',
+    'oty_annual_avg_emplvl_chg': 'int64',
+    'oty_annual_avg_emplvl_pct_chg': 'float64',
+    'oty_total_annual_wages_chg': 'int64',
+    'oty_total_annual_wages_pct_chg': 'float64',
+    'oty_taxable_annual_wages_chg': 'int64',
+    'oty_taxable_annual_wages_pct_chg': 'float64',
+    'oty_annual_contributions_chg': 'int64',
+    'oty_annual_contributions_pct_chg': 'float64',
+    'oty_annual_avg_wkly_wage_chg': 'int64',
+    'oty_annual_avg_wkly_wage_pct_chg': 'float64',
+    'oty_avg_annual_pay_chg': 'int64',
+    'oty_avg_annual_pay_pct_chg': 'float64',   
+}
+
 @log_start_finish
 def _build_pq(year):
     path = PATH['proc'] / f'{year}/part.pq'
     if path.exists(): return
 
     src = _get_src(year)
-
-    dt = {
-        'area_fips': 'str',
-        'own_code': 'str',
-        'industry_code': 'str',
-        'agglvl_code': 'str',
-        'size_code': 'str',
-        'year': 'int16',
-        'qtr': 'str',
-        'disclosure_code': 'str',
-        'annual_avg_estabs': 'int64',
-        'annual_avg_emplvl': 'int64',
-        'total_annual_wages': 'int64',
-        'taxable_annual_wages': 'int64',
-        'annual_contributions': 'int64',
-        'annual_avg_wkly_wage': 'int64',
-        'avg_annual_pay': 'int64',
-        'lq_disclosure_code': 'str',
-        'lq_annual_avg_estabs': 'float64',
-        'lq_annual_avg_emplvl': 'float64',
-        'lq_total_annual_wages': 'float64',
-        'lq_taxable_annual_wages': 'float64',
-        'lq_annual_contributions': 'float64',
-        'lq_annual_avg_wkly_wage': 'float64',
-        'lq_avg_annual_pay': 'float64',
-        'oty_disclosure_code': 'str',
-        'oty_annual_avg_estabs_chg': 'int64',
-        'oty_annual_avg_estabs_pct_chg': 'float64',
-        'oty_annual_avg_emplvl_chg': 'int64',
-        'oty_annual_avg_emplvl_pct_chg': 'float64',
-        'oty_total_annual_wages_chg': 'int64',
-        'oty_total_annual_wages_pct_chg': 'float64',
-        'oty_taxable_annual_wages_chg': 'int64',
-        'oty_taxable_annual_wages_pct_chg': 'float64',
-        'oty_annual_contributions_chg': 'int64',
-        'oty_annual_contributions_pct_chg': 'float64',
-        'oty_annual_avg_wkly_wage_chg': 'int64',
-        'oty_annual_avg_wkly_wage_pct_chg': 'float64',
-        'oty_avg_annual_pay_chg': 'int64',
-        'oty_avg_annual_pay_pct_chg': 'float64',   
-    }
-    df = pd.read_csv(src, dtype=dt)
+    df = pd.read_csv(src, dtype=_schema_pandas)
     assert (df['year'] == year).all()
     del df['year']
     
@@ -153,10 +150,24 @@ def _build_pq(year):
     df.to_parquet(path, engine='pyarrow', index=False)
 ```
 
++++ {"tags": []}
+
 # Load dataset
+
+`disclosure_code` column exists in all years, but is has values only beginning in 2001.
+Parquet dataset reader needs to receive explicit schema to always treat the column as string.
 
 ```{code-cell} ipython3
 :tags: [nbd-module]
+
+_dt_pd2pq = {
+    'str': pyarrow.string(),
+    'int16': pyarrow.int16(),
+    'int64': pyarrow.int64(),
+    'float64': pyarrow.float64()
+}
+
+_schema_parquet = pyarrow.schema([pyarrow.field(n, _dt_pd2pq[t]) for n, t in _schema_pandas.items()])
 
 def get_df(years, cols=None, filters=None):
     for year in years:
@@ -170,7 +181,8 @@ def get_df(years, cols=None, filters=None):
     filters = pyarrow.parquet._filters_to_expression(filters)
         
     ds = pyarrow.dataset.dataset(PATH['proc'], 
-                                 partitioning=pyarrow.dataset.partitioning(field_names=['year']))
+                                 partitioning=pyarrow.dataset.partitioning(field_names=['year']),
+                                 schema=_schema_parquet)
 
     df = ds.to_table(columns=cols, filter=filters).to_pandas()
     return df
@@ -178,7 +190,7 @@ def get_df(years, cols=None, filters=None):
 def _test_get_df(redownload=False):
     cleanup(redownload)
     d = get_df(range(1990, 2022), 
-               ['year', 'area_fips', 'annual_avg_estabs', 'oty_annual_avg_estabs_pct_chg'],
+               ['year', 'area_fips', 'annual_avg_estabs', 'oty_annual_avg_estabs_pct_chg', 'disclosure_code'],
                [('agglvl_code', '==', '70')])
     assert len(d) > 0
 ```
