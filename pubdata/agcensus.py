@@ -40,7 +40,7 @@ def cleanup(remove_downloaded=False):
 
 def _get_qs_src(year):
     init_dirs()
-    url = f'ftp://ftp.nass.usda.gov/quickstats/qs.census{year}.txt.gz'
+    url = f'https://www.nass.usda.gov/datasets/qs.census{year}.txt.gz'
     file = PATH['source'] / url.split('/')[-1]
     if not file.exists():
         print(f'File "{file}" not found, attempting download...')

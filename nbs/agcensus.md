@@ -5,7 +5,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.14.0
+    jupytext_version: 1.14.4
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -80,25 +80,14 @@ def cleanup(remove_downloaded=False):
 
 Census tabulations are available in PDF format for [2017](https://www.nass.usda.gov/Publications/AgCensus/2017/index.php) and [all previous years](https://agcensus.library.cornell.edu/).
 
-QuickStats provides [browser interface](https://quickstats.nass.usda.gov/) and also [API or FTP](https://quickstats.nass.usda.gov/api/) for programmatic or bulk download of 2002, 2007, 2012 and 2017 data.
-
-```{code-cell} ipython3
-:tags: []
-
-# FTP server contents
-import ftplib
-with ftplib.FTP('ftp.nass.usda.gov') as ftp:
-    ftp.login()
-    ftp.cwd('quickstats')
-    print(*ftp.nlst(), sep='\n')
-```
+QuickStats provides access to 2002, 2007, 2012 and 2017 data2002, 2007, 2012 and 2017 data via [browser interface](https://quickstats.nass.usda.gov/), [API](https://quickstats.nass.usda.gov/api/) and [bulk download](https://www.nass.usda.gov/datasets/https://www.nass.usda.gov/datasets/).
 
 ```{code-cell} ipython3
 :tags: [nbd-module]
 
 def _get_qs_src(year):
     init_dirs()
-    url = f'ftp://ftp.nass.usda.gov/quickstats/qs.census{year}.txt.gz'
+    url = f'https://www.nass.usda.gov/datasets/qs.census{year}.txt.gz'
     file = PATH['source'] / url.split('/')[-1]
     if not file.exists():
         print(f'File "{file}" not found, attempting download...')
