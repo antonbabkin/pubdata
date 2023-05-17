@@ -5,7 +5,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.13.7
+    jupytext_version: 1.14.4
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -19,12 +19,15 @@ kernelspec:
 [CSV datasets](https://www.census.gov/data/datasets/time-series/econ/bds/bds-datasets.html) |
 [API](https://www.census.gov/data/developers/data-sets/business-dynamics.html) |
 [Methodology](https://www.census.gov/programs-surveys/bds/documentation/methodology.html)  
-Release notes: [2019](https://www2.census.gov/programs-surveys/bds/updates/bds2019-release-note.pdf)
+Release notes:
+[2019](https://www2.census.gov/programs-surveys/bds/updates/bds2019-release-note.pdf)
+[2020](https://www2.census.gov/programs-surveys/bds/updates/bds2020-release-note.pdf)
 
 ```{code-cell} ipython3
 :tags: [nbd-module]
 
 import pathlib
+import shutil
 
 import pandas as pd
 
@@ -34,26 +37,38 @@ from pubdata.reseng.nbd import Nbd
 nbd = Nbd('pubdata')
 PATH = {
     'root': nbd.root,
-    'source': nbd.root/'data/source/bds/'
+    'src': nbd.root/'data/source/bds/'
 }
+
+def cleanup():
+    print(f'cleanup deleting {PATH["src"]}')
+    shutil.rmtree(PATH['src'], ignore_errors=True)
 ```
 
-## Source files
+# Source files
+
+Tables are accessed using their file name as key.
+For example, two-way county-by-sector table key is `"st_cty_sec"`.
+Lookup keys by inspecting table URLs at the [CSV datasets](https://www.census.gov/data/datasets/time-series/econ/bds/bds-datasets.html) page.
 
 ```{code-cell} ipython3
 :tags: [nbd-module]
 
-def get_source(key: str = ''):
-    if key != '': key = '_' + key
-    url = f'https://www2.census.gov/programs-surveys/bds/tables/time-series/bds2019{key}.csv'
-    file_path = PATH['source'] / pathlib.Path(url).name
-    if file_path.exists(): return file_path
-    return download_file(url, PATH['source'])
+def get_src(key: str = ''):
+    if key != '': 
+        key = '_' + key
+    url = f'https://www2.census.gov/programs-surveys/bds/tables/time-series/bds2020{key}.csv'
+    file_path = PATH['src'] / pathlib.Path(url).name
+    if file_path.exists():
+        return file_path
+    return download_file(url, PATH['src'])
 ```
 
 +++ {"tags": []}
 
 ## Dataframe
+
+Dataframes are not cached in parquet format, just read from source CSV.
 
 `metro`:
 - `M` metro
@@ -76,6 +91,8 @@ def get_df(key: str = ''):
         'cty': 'str',
         'metro': 'str',
         'sector': 'str',
+        'vcnaics3': 'str',
+        'vcnaics4': 'str',
         'eage': 'str',
         'eagecoarse': 'str',
         'esize': 'str',
@@ -83,11 +100,18 @@ def get_df(key: str = ''):
         # more columns to be added as needed
     }
 
-    f = get_source(key)
+    f = get_src(key)
     cols = pd.read_csv(f, nrows=0).columns
     dt = {c: dtypes[c] if c in dtypes else 'float64' for c in cols}
     df = pd.read_csv(f, dtype=dt, na_values=['(D)', '(S)', '(X)', '.'])
     return df
+```
+
+```{code-cell} ipython3
+:tags: []
+
+d = get_df('').set_index('year')
+d.query('year > 2006').emp.plot()
 ```
 
 ```{code-cell} ipython3
@@ -102,6 +126,16 @@ d[['estabs_entry_rate', 'estabs_exit_rate']].plot(ax=right, ylim=(0, 20))
 right.legend(loc='lower right')
 right.set_ylabel('rates, %')
 left.set_title('Establishments entry and exit rates, economy-wide');
+```
+
+```{code-cell} ipython3
+:tags: []
+
+d = get_df('sec')
+d = d.query('year.isin([1978, 2020])')
+d = d.set_index(['sector', 'year'])['emp'].unstack()
+d = d.apply(lambda x: x / x.sum())
+d.plot.barh(title='Employment share by sector');
 ```
 
 ## Build this module
