@@ -31,6 +31,51 @@ log.addHandler(logging.StreamHandler(sys.stdout))
 log.setLevel('DEBUG')
 
 
+import pathlib
+import pickle
+import functools
+import typing
+import json
+
+
+def cacher(dump, load):
+    """Caching function factory.
+    dump(obj, path) saves to disk. load(path) loads from disk.
+    """
+
+    def cache(path: typing.Union[str, pathlib.Path]):
+        """
+        Pickle function's returned value. Function returns pickled value if it exists.
+        If `path` is str, may use "{}" placeholders to be filled from function arguments.
+        Placeholders must be consistent with function call arguments ({} for args, {...} for kwargs).
+        """
+        def wrapper(func):
+            @functools.wraps(func)
+            def wrapped(*args, **kwargs):
+                p = path
+                if isinstance(p, str):
+                    p = pathlib.Path(p.format(*args, **kwargs))
+                if p.exists():
+                    res = load(p)
+                    log.debug(f'{func.__name__}() result loaded from cache "{p}"')
+                    return res
+                else:
+                    res = func(*args, **kwargs)
+                    p.parent.mkdir(parents=True, exist_ok=True)
+                    dump(res, p)
+                    log.debug(f'{func.__name__}() result saved to cache "{p}"')
+                    return res
+            return wrapped
+        return wrapper
+
+    return cache
+
+cache_pq = cacher(lambda o, p: pd.DataFrame.to_parquet(o, p, engine='pyarrow', index=False),
+                  lambda p: pd.read_parquet(p, engine='pyarrow'))
+
+cache_json = cacher(lambda o, p: json.dump(o, pathlib.Path(p).open('w')), lambda p: json.load(pathlib.Path(p).open('r')))
+
+
 def get_source_file(geo: typing.Literal['us', 'state', 'county'], year: int):
     ext = 'txt' if geo == 'us' and year < 2008 else 'zip'
     path = PATH['source']/f'{geo}/{year}.{ext}'
@@ -173,51 +218,6 @@ def get_parquet(geo, cols=None, filters=None):
     part = pyarrow.dataset.partitioning(field_names=['year'])
     return pd.read_parquet(path, 'pyarrow', columns=cols, filters=filters,
                            partitioning=part)
-
-
-import pathlib
-import pickle
-import functools
-import typing
-import json
-
-
-def cacher(dump, load):
-    """Caching function factory.
-    dump(obj, path) saves to disk. load(path) loads from disk.
-    """
-
-    def cache(path: typing.Union[str, pathlib.Path]):
-        """
-        Pickle function's returned value. Function returns pickled value if it exists.
-        If `path` is str, may use "{}" placeholders to be filled from function arguments.
-        Placeholders must be consistent with function call arguments ({} for args, {...} for kwargs).
-        """
-        def wrapper(func):
-            @functools.wraps(func)
-            def wrapped(*args, **kwargs):
-                p = path
-                if isinstance(p, str):
-                    p = pathlib.Path(p.format(*args, **kwargs))
-                if p.exists():
-                    res = load(p)
-                    log.debug(f'{func.__name__}() result loaded from cache "{p}"')
-                    return res
-                else:
-                    res = func(*args, **kwargs)
-                    p.parent.mkdir(parents=True, exist_ok=True)
-                    dump(res, p)
-                    log.debug(f'{func.__name__}() result saved to cache "{p}"')
-                    return res
-            return wrapped
-        return wrapper
-
-    return cache
-
-cache_pq = cacher(lambda o, p: pd.DataFrame.to_parquet(o, p, engine='pyarrow', index=False),
-                  lambda p: pd.read_parquet(p, engine='pyarrow'))
-
-cache_json = cacher(lambda o, p: json.dump(o, pathlib.Path(p).open('w')), lambda p: json.load(pathlib.Path(p).open('r')))
 
 
 @cache_pq(str(PATH['efsy'] / 'efsy_panel_{}.pq'))
