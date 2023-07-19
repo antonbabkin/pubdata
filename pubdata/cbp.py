@@ -6,18 +6,20 @@ import typing
 import zipfile
 from collections import defaultdict
 import logging
+import shutil
 
 import pandas as pd
 import pyarrow
 import pyarrow.dataset
 
+from . import naics
 from .reseng.util import download_file
 from .reseng.nbd import Nbd
 
 nbd = Nbd('pubdata')
 PATH = {
     'root': nbd.root,
-    'source': nbd.root / 'data/source/cbp/',
+    'src': nbd.root / 'data/cbp/src/',
     'parquet': nbd.root / 'data/cbp/parquet/',
     'cbp_raw': nbd.root / 'data/cbp/raw/',
     'cbp_panel': nbd.root / 'data/cbp/panel/',
@@ -30,13 +32,22 @@ log.handlers.clear()
 log.addHandler(logging.StreamHandler(sys.stdout))
 log.setLevel('DEBUG')
 
+def cleanup(remove_downloaded=False):
+    if remove_downloaded:
+        print('Removing downloaded files...')
+        shutil.rmtree(PATH['src'], ignore_errors=True)
+        shutil.rmtree(PATH['src_efsy'], ignore_errors=True)
+    print('Removing processed files...')
+    shutil.rmtree(PATH['parquet'], ignore_errors=True)
+    shutil.rmtree(PATH['cbp_panel'], ignore_errors=True)
+    shutil.rmtree(PATH['efsy'], ignore_errors=True)
+
 
 import pathlib
 import pickle
 import functools
 import typing
 import json
-
 
 def cacher(dump, load):
     """Caching function factory.
@@ -76,9 +87,16 @@ cache_pq = cacher(lambda o, p: pd.DataFrame.to_parquet(o, p, engine='pyarrow', i
 cache_json = cacher(lambda o, p: json.dump(o, pathlib.Path(p).open('w')), lambda p: json.load(pathlib.Path(p).open('r')))
 
 
-def get_source_file(geo: typing.Literal['us', 'state', 'county'], year: int):
+import pandas as pd
+
+def dispall(df):
+    with pd.option_context('display.max_columns', None, 'display.max_rows', None):
+        display(df)
+
+
+def _get_cbp_src(geo: typing.Literal['us', 'state', 'county'], year: int):
     ext = 'txt' if geo == 'us' and year < 2008 else 'zip'
-    path = PATH['source']/f'{geo}/{year}.{ext}'
+    path = PATH['src']/f'{geo}/{year}.{ext}'
     if path.exists(): return path
 
     yr = str(year)[2:]
@@ -92,6 +110,20 @@ def get_source_file(geo: typing.Literal['us', 'state', 'county'], year: int):
     download_file(url, path.parent, path.name)
     
     return path
+
+def naics_year(cbp_year):
+    # 1998-2002 - NAICS-1997, 2003-2007 - NAICS-2002, 2008-2011 - NAICS-2007, 2012-2016 - NAICS-2012, 2017-2021 - NAICS-2017
+    if 1998 <= cbp_year < 2003:
+        return 1997
+    elif 2003 <= cbp_year < 2008:
+        return 2002
+    elif 2008 <= cbp_year < 2012:
+        return 2007
+    elif 2012 <= cbp_year < 2017:
+        return 2012
+    elif 2017 <= cbp_year < 2022:
+        return 2017
+    raise
 
 
 @cache_pq(str(PATH['cbp_raw'] / '{}/{}.pq'))
@@ -116,9 +148,18 @@ def get_cbp_raw(geo: typing.Literal['us', 'state', 'county'], year: int):
     # numerical columns have "N" as N/A value
     na_values = {c: 'N' for c, t in dtype.items() if t == 'float64'}
 
-    df = pd.read_csv(get_source_file(geo, year), dtype=dtype, na_values=na_values)
+    df = pd.read_csv(_get_cbp_src(geo, year), dtype=dtype, na_values=na_values)
     df.columns = df.columns.str.lower()
     return df
+
+
+def get_cbp_raw_pq(geo: typing.Literal['us', 'state', 'county'], year: int):
+    """Return path to Parquet file, first creating the file if it does not exist."""
+    path = PATH['cbp_raw'] / f'{geo}/{year}.pq'
+    if not path.exists():
+        get_cbp_raw(geo, year)
+        assert path.exists()
+    return path
 
 def preproc_get_cbp_raw():
     for year in range(1986, 2022):
@@ -165,7 +206,7 @@ def get_df(geo: typing.Literal['us', 'state', 'county'], year: int):
     # numerical columns have "N" as N/A value
     na_val = {c: 'N' for c, t in dt.items() if t == float}
 
-    df = pd.read_csv(get_source_file(geo, year), usecols=dt.keys(), dtype=dt, na_values=na_val)
+    df = pd.read_csv(_get_cbp_src(geo, year), usecols=dt.keys(), dtype=dt, na_values=na_val)
     df.columns = df.columns.str.lower()
     
     if year >= 2017:
@@ -271,6 +312,136 @@ def get_efsy_year(year):
     return df
 
 
+# interface function
+def get_wage(geo: typing.Literal['us', 'state', 'county'], year: int):
+    if geo == 'us':
+        return _get_wage_us(year)
+    if geo == 'state':
+        return _get_wage_state(year)
+    if geo == 'county':
+        return _get_wage_county(year)
+
+
+def _get_wage_us(year):
+
+    if year < 2008:
+        df = pd.read_parquet(
+            get_cbp_raw_pq('us', year), engine='pyarrow', 
+            columns=['naics', 'emp', 'qp1']
+        )    
+    else:
+        df = pd.read_parquet(
+            get_cbp_raw_pq('us', year), engine='pyarrow',
+            columns=['lfo', 'naics', 'emp', 'qp1']
+        )
+        df = df.query('lfo == "-"').copy()
+
+    assert not df['naics'].duplicated().any()
+
+    df['wage'] = (df['qp1'] / df['emp'] * 4000).round()
+    df['wage_f'] = pd.Series(dtype=pd.CategoricalDtype(['county-industry', 'state-industry', 'nation-industry', 'nation-sector', 'nation']))
+    df['wage_f'] = 'nation-industry'
+
+    # national sector wage
+    df['CODE'] = df['naics'].str.replace('-', '').str.replace('/', '')
+    n = naics.get_df(naics_year(year), 'code')[['CODE', 'CODE_2', 'DIGITS']]
+    n.loc[n['DIGITS'] == 2, 'CODE'] = n['CODE'].str[:2]
+    n['CODE_2'] = n['CODE_2'].str[:2]
+    df = df.merge(n, 'left')
+
+    d = df.query('DIGITS == 2').rename(columns={'wage': 'sector_wage'})
+    df = df.merge(d[['CODE_2', 'sector_wage']], 'left')
+
+    bad_wage = ~df['wage'].between(0.1, 1e9)
+    df.loc[bad_wage, 'wage'] = df['sector_wage']
+    df.loc[bad_wage, 'wage_f'] = 'nation-sector'
+    
+    nat_wage = df.loc[df['naics'] == "------", 'wage'].values[0]
+    bad_wage = ~df['wage'].between(0.1, 1e9)
+    df.loc[bad_wage, 'wage'] = nat_wage
+    df.loc[bad_wage, 'wage_f'] = 'nation'
+
+    assert df['wage'].between(0.1, 1e9).all()
+    df['wage'] = df['wage'].astype('int32')
+
+    return df.reset_index()[['naics', 'wage', 'wage_f']]
+
+
+def _get_wage_state(year):
+
+    if year < 2010:
+        df = pd.read_parquet(
+            get_cbp_raw_pq('state', year), engine='pyarrow', 
+            columns=['fipstate', 'naics', 'emp', 'qp1']
+        )    
+    else:
+        df = pd.read_parquet(
+            get_cbp_raw_pq('state', year), engine='pyarrow',
+            columns=['fipstate', 'lfo', 'naics', 'emp', 'qp1']
+        )
+        df = df.query('lfo == "-"').copy()
+
+    assert not df.duplicated(['fipstate', 'naics']).any()
+
+    df['wage'] = (df['qp1'] / df['emp'] * 4000).round()
+    df['wage_f'] = pd.Series(dtype=pd.CategoricalDtype(['county-industry', 'state-industry', 'nation-industry', 'nation-sector', 'nation']))
+    df['wage_f'] = 'state-industry'
+
+    # national wages
+    d = _get_wage_us(year)
+    df = df.merge(d, 'left', 'naics', suffixes=('', '_nation'))
+    # state-to-nation ratio
+    d = df.query('naics == "------"').copy()
+    d['state/nation'] = d['wage'] / d['wage_nation']
+    d.loc[~d['wage'].between(0.1, 1e9), 'state/nation'] = 1
+    df = df.merge(d[['fipstate', 'state/nation']], 'left', 'fipstate')
+    # replace extreme state wages with nation
+    bad_wage = ~df['wage'].between(0.1, 1e9)
+    df.loc[bad_wage, 'wage'] = (df['wage_nation'] * df['state/nation']).round()
+    df.loc[bad_wage, 'wage_f'] = df['wage_f_nation']
+
+    assert df['wage'].between(0.1, 1e9).all()
+    df['wage'] = df['wage'].astype('int32')
+
+    return df[['fipstate', 'naics', 'wage', 'wage_f']]
+
+
+def _get_wage_county(year):
+
+    df = pd.read_parquet(
+        get_cbp_raw_pq('county', year), engine='pyarrow', 
+        columns=['fipstate', 'fipscty', 'naics', 'emp', 'qp1']
+    )
+    
+    if year == 1999:
+        # small number of duplicate records
+        df.drop_duplicates(['fipstate', 'fipscty', 'naics'], inplace=True)
+    
+    assert not df.duplicated(['fipstate', 'fipscty', 'naics']).any()
+
+    df['wage'] = (df['qp1'] / df['emp'] * 4000).round()
+    df['wage_f'] = pd.Series(dtype=pd.CategoricalDtype(['county-industry', 'state-industry', 'nation-industry', 'nation-sector', 'nation']))
+    df['wage_f'] = 'county-industry'
+
+    # state wage
+    d = _get_wage_state(year)
+    df = df.merge(d, 'left', ['fipstate', 'naics'], suffixes=('', '_state'))
+    # county-to-state ratio
+    d = df.query('naics == "------"').copy()
+    d['county/state'] = d['wage'] / d['wage_state']
+    d.loc[~d['wage'].between(0.1, 1e9), 'county/state'] = 1
+    df = df.merge(d[['fipstate', 'fipscty', 'county/state']], 'left', ['fipstate', 'fipscty'])
+    # replace extreme county wages with state
+    bad_wage = ~df['wage'].between(0.1, 1e9)
+    df.loc[bad_wage, 'wage'] = (df['wage_state'] * df['county/state']).round()
+    df.loc[bad_wage, 'wage_f'] = df['wage_f_state']
+
+    assert df['wage'].between(0.1, 1e9).all()
+    df['wage'] = df['wage'].astype('int32')
+
+    return df[['fipstate', 'fipscty', 'naics', 'wage', 'wage_f']]
+
+
 @cache_pq(str(PATH['cbp_panel'] / '{}.pq'))
 def get_cbp_year(year):
     ind_col = 'naics' if year > 1997 else 'sic'
@@ -282,6 +453,12 @@ def get_cbp_year(year):
     df['industry'] = df[ind_col].str.replace('-', '').str.replace('/', '')
     df['ind_digits'] = df['industry'].str.len()
     
+    # wage
+    d = get_wage('county', year)
+    df = df.merge(d, 'left', ['fipstate', 'fipscty', ind_col], indicator=True)
+    log.debug(f'wage merge {year}:\n {df["_merge"].value_counts()}')
+    del df['_merge']
+    
     # EFSY ends in 2016
     if year > 2016:
         return df
@@ -291,20 +468,9 @@ def get_cbp_year(year):
     if year < 1998:
         d.rename(columns={'naics': 'sic'}, inplace=True)
     d.rename(columns={'lb': 'efsy_lb', 'ub': 'efsy_ub'}, inplace=True)
-    d.head()
 
     df = df.merge(d, 'left', ['fipstate', 'fipscty', ind_col], indicator=True)
-    log.debug(f'{year}:\n {df["_merge"].value_counts()}')
-    del df['_merge']
-
-    # impute wage from state-industry
-    d = get_cbp_raw('state', year)
-    if year > 2009:
-        d = d.query('lfo == "-"').copy()
-    d['wage'] = d['qp1'] / d['emp'] * 4
-
-    df = df.merge(d[['fipstate', ind_col, 'wage']], 'left', ['fipstate', ind_col], indicator=True)
-    log.debug(f'{year}:\n {df["_merge"].value_counts()}')
+    log.debug(f'efsy merge {year}:\n {df["_merge"].value_counts()}')
     del df['_merge']
 
     # fill missing emp and ap in CBP
@@ -312,7 +478,21 @@ def get_cbp_year(year):
     df.loc[df['emp'] == 0, 'emp'] = (df['efsy_lb'] + df['efsy_ub']) / 2
 
     df['cbp_ap'] = df['ap']
-    df.loc[df['ap'] == 0, 'ap'] = df['emp'] * df['wage']
+    df.loc[df['ap'] == 0, 'ap'] = df['emp'] * df['wage'] / 1000
     
     return df
+
+
+def get_cbp_year_pq(year: int):
+    """Return path to Parquet file, first creating the file if it does not exist."""
+    path = PATH['cbp_panel'] / f'{year}.pq'
+    if not path.exists():
+        get_cbp_year(year)
+        assert path.exists()
+    return path
+
+def _cleanup_get_cbp_year():
+    p = PATH['cbp_panel']
+    log.info(f'Removing {p}...')
+    shutil.rmtree(p, ignore_errors=True)
 

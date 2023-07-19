@@ -93,6 +93,38 @@ Run initialization in the notebook.
 init()
 ```
 
+# CBP
+
+```{code-cell} ipython3
+:tags: []
+
+from pubdata import cbp
+```
+
+Raw CBP dataframe.
+
+```{code-cell} ipython3
+:tags: []
+
+cbp.get_cbp_raw('county', 2000).head()
+```
+
+Imputed EFSY - single year.
+
+```{code-cell} ipython3
+:tags: []
+
+cbp.get_efsy_year(2000).head()
+```
+
+CBP combined with EFSY.
+
+```{code-cell} ipython3
+:tags: []
+
+cbp.get_cbp_year(2000).head()
+```
+
 # Reproduction and testing
 
 ## Quick
@@ -202,8 +234,11 @@ bea_nipa.test_all(redownload=False)
 ```
 
 ```{code-cell} ipython3
-:tags: []
-
+---
+jupyter:
+  outputs_hidden: true
+tags: []
+---
 from pubdata import qcew
 qcew.test_all(redownload=False)
 ```
