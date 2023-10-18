@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+import sys
 import zipfile
 import typing
 import shutil
+import logging
 from contextlib import redirect_stdout
 
 import pandas as pd
@@ -15,256 +17,282 @@ from . import naics, cbp
 
 nbd = Nbd('pubdata')
 
-NAICS_REV = 2012
 
+log = logging.getLogger('pubdata.bea_io')
+log.handlers.clear()
+log.addHandler(logging.StreamHandler(sys.stdout))
+
+
+log.setLevel('INFO')
+cbp.log.setLevel('INFO')
 
 PATH = {
-    'source': nbd.root / 'data/source/bea_io/',
-    'proc': nbd.root / 'data/bea_io/',
-    'naics_codes': nbd.root / 'data/bea_io/naics_codes.csv'
+    'src': nbd.root / 'data/bea_io/src',
+    'proc': nbd.root / 'data/bea_io/'
 }
 
-def init_dirs():
-    """Create necessary directories."""
-    PATH['source'].mkdir(parents=True, exist_ok=True)
-    PATH['proc'].mkdir(parents=True, exist_ok=True)
+
+def _get_src(year):
+    if year == 2022:
+        url = 'https://apps.bea.gov/histdata/Releases/Industry/2022/GDP_by_Industry/Q2/Annual_September-29-2022/AllTablesSUP.zip'
+        fnm = 'AllTablesSUP_2022q2.zip'
+    elif year == 2023:
+        url = 'https://apps.bea.gov/industry/iTables%20Static%20Files/AllTablesSUP.zip'
+        fnm = 'AllTablesSUP_2023.zip'
+    path = PATH['src'] / fnm
+    if path.exists():
+        log.debug(f'Source file already exists: {path}')
+        return path
+    log.debug(f'File {fnm} not found, attempting download from {url}')
+    path.parent.mkdir(parents=True, exist_ok=True)
+    download_file(url, PATH['src'], fnm)
+    log.debug(f'File downloaded to {path}')
+    # tables are read directly from Zip archive, without explicitcly extracting all files
+    return path
+
+
+def _read_table(src, spreadsheet, sheet, level, labels, skip_head, skip_foot):
     
-def cleanup(remove_downloaded=False):
-    if remove_downloaded:
-        print('Removing downloaded files...')
-        shutil.rmtree(PATH['source'])
-    print('Removing processed files...')
-    shutil.rmtree(PATH['proc'])
-
-
-def get_source_files():
-    init_dirs()
-    src_dir = PATH['source'] / 'AllTablesSUP'
-    if src_dir.exists(): return
-
-    print('Downloading source files...')
-    url = 'https://apps.bea.gov/industry/iTables Static Files/AllTablesSUP.zip'
-    f = download_file(url, PATH['source'])
-    with zipfile.ZipFile(f) as z:
-        z.extractall(src_dir)
-    print('Source files downloaded and extracted.')
-
-
-def _read_table(file, sheet, level, labels, skip_head, skip_foot):
-    get_source_files()
+    log.debug(f'Reading table from {src.name}/{spreadsheet}/{sheet}')
     
-    src_file = PATH['source'] / 'AllTablesSUP' / file
-    
-    df = pd.read_excel(src_file, sheet, dtype=str, header=None, 
-                       skiprows=skip_head, skipfooter=skip_foot)
+    with zipfile.ZipFile(src) as z:
+        df = pd.read_excel(
+            z.open(spreadsheet),
+            sheet_name=sheet,
+            header=None,
+            dtype=str,
+            skiprows=skip_head,
+            skipfooter=skip_foot
+        )
     
     # swap code and label rows for consistency with sec and sum
     if level == 'det':
-        df.iloc[[0, 1], :] = df.iloc[[1, 0], :].values
-    if labels:
-        rows = df.iloc[2:, 1]
-        cols = df.iloc[1, 2:]
-    else:
-        rows = df.iloc[2:, 0]
-        cols = df.iloc[0, 2:]
+        df.iloc[[0, 1], :] = df.iloc[[1, 0], :].values    
 
-    df = pd.DataFrame(df.iloc[2:, 2:].values, index=rows, columns=cols)
+    row_names = df.iloc[2:, :2].values.tolist()
+    col_names = df.iloc[:2, 2:].values.T.tolist()
+    df.columns = df.iloc[1, :] if labels else df.iloc[0, :]
+    df.index = df.iloc[:, 1] if labels else df.iloc[:, 0]
+    df = df.iloc[2:, 2:]
     df = df.replace('...', None).astype('float64')
-
-    assert not df.index.duplicated().any()
-    assert not df.columns.duplicated().any()
-
-    return df
+    
+    return dict(table=df, row_names=row_names, col_names=col_names)
 
 
-def get_sup(year: int,
-            level: typing.Literal['sec', 'sum', 'det'],
-            labels: bool = False):
-    """Return dataframe from "Supply_*.xlsx" files.
-    `level` to choose industry classification from "sector", "summary" or "detail".
-    `labels=True` will set long labels as axes values, otherwise short codes.
+def get_sup(year, level, labels=False):
+    """Supply table (Supply-Use Framework) as a dataframe, along with row and column labels.
+    `level` can be "sec", "sum" or "det".
+    `year` can be 1997-2022 for "sec" and "sum"; 2007, 2012 or 2017 for "det".
+    `labels` True to use commodity/industry names instead of columns as row/column labels.
+    Returns dict with keys "table", "row_names" and "col_names".
     """
-    
-    get_source_files()
-    
-    if level == 'sec':
-        df = _read_table('Supply_Tables_1997-2021_SEC.xlsx', str(year), level, labels, 5, 0)
-    elif level == 'sum':
-        df = _read_table('Supply_Tables_1997-2021_SUM.xlsx', str(year), level, labels, 5, 0)
-    elif level == 'det':
-        df = _read_table('Supply_2007_2012_DET.xlsx', str(year), level, labels, 4, 2)
 
-    df.index.name = 'commodity'
-    df.columns.name = 'industry'
+    y = str(year)
+    if year < 2017:
+        src = _get_src(2022)
+        if level == 'sec':
+            x = _read_table(src, 'Supply_Tables_1997-2021_SEC.xlsx', y, level, labels, 5, 0)
+        elif level == 'sum':
+            x = _read_table(src, 'Supply_Tables_1997-2021_SUM.xlsx', y, level, labels, 5, 0)
+        elif level == 'det':
+            x = _read_table(src, 'Supply_2007_2012_DET.xlsx', y, level, labels, 4, 2)
+    else:
+        src = _get_src(2023)
+        if level == 'sec':
+            x = _read_table(src, 'Supply_Tables_2017-2022_Sector.xlsx', y, level, labels, 5, 0)
+        elif level == 'sum':
+            x = _read_table(src, 'Supply_Tables_2017-2022_Summary.xlsx', y, level, labels, 5, 0)
+        elif level == 'det':
+            x = _read_table(src, 'Supply_2017_DET.xlsx', y, level, labels, 4, 2)
+
+    x['table'].index.name = 'commodity'
+    x['table'].columns.name = 'industry'
     
-    return df
+    return x
 
 @log_start_finish
-def test_get_sup(redownload=False):
-    cleanup(redownload)
+def test_get_sup():
+    for year in range(1997, 2023):
+        for level in ['sec', 'sum', 'det']:
+            if level == 'det' and year not in [2007, 2012, 2017]:
+                continue
+            for labels in [False, True]:
+                x = get_sup(year, level, labels)
+                print(year, level, labels, x['table'].shape)
+                assert len(x['table']) > 0
+
+
+def get_use(year, level, labels=False):
+    """Use table (Supply-Use Framework) as a dataframe, along with row and column labels.
+    `level` can be "sec", "sum" or "det".
+    `year` can be 1997-2022 for "sec" and "sum"; 2007, 2012 or 2017 for "det".
+    `labels` True to use commodity/industry names instead of columns as row/column labels.
+    Returns dict with keys "table", "row_names" and "col_names".
+    """
+    
+    y = str(year)
+    if year < 2017:
+        src = _get_src(2022)
+        if level == 'sec':
+            x = _read_table(src, 'Use_SUT_Framework_1997-2021_SECT.xlsx', y, level, labels, 5, 0)
+        elif level == 'sum':
+            x = _read_table(src, 'Use_SUT_Framework_1997-2021_SUM.xlsx', y, level, labels, 5, 0)
+        elif level == 'det':
+            x = _read_table(src, 'Use_SUT_Framework_2007_2012_DET.xlsx', y, level, labels, 4, 2)
+    else:
+        src = _get_src(2023)
+        if level == 'sec':
+            x = _read_table(src, 'Use_Tables_Supply-Use_Framework_2017-2022_Sector.xlsx', y, level, labels, 5, 0)
+        elif level == 'sum':
+            x = _read_table(src, 'Use_Tables_Supply-Use_Framework_2017-2022_Summary.xlsx', y, level, labels, 5, 0)
+        elif level == 'det':
+            x = _read_table(src, 'Use_SUT_Framework_2017_DET.xlsx', y, level, labels, 4, 2)
+
+    x['table'].index.name = 'commodity'
+    x['table'].columns.name = 'industry'
+    
+    return x
+
+
+@log_start_finish
+def test_get_use():
+    for year in range(1997, 2022):
+        for level in ['sec', 'sum', 'det']:
+            if level == 'det' and year not in [2007, 2012, 2017]:
+                continue
+            for labels in [False, True]:
+                x = get_use(year, level, labels)
+                print(year, level, x['table'].shape)
+                assert len(x['table']) > 0
+
+
+def get_ixi(year, level, labels):
+    """Industry-by-industry Total requirements table (Supply-Use Framework) as a dataframe, along with row and column labels.
+    `level` can be "sec", "sum" or "det".
+    `year` can be 1997-2021 for "sec" and "sum"; 2007 or 2012 for "det".
+    `labels` True to use commodity/industry names instead of columns as row/column labels.
+    Returns dict with keys "table", "row_names" and "col_names".
+    """
+    
+    src = _get_src(2022)
+    y = str(year)
+    
+    if level == 'sec':
+        x = _read_table(src, 'IxI_TR_1997-2021_PRO_SEC.xlsx', y, level, labels, 5, 2)
+    elif level == 'sum':
+        x = _read_table(src, 'IxI_TR_1997-2021_PRO_SUM.xlsx', y, level, labels, 5, 2)
+    elif level == 'det':
+        x = _read_table(src, 'IxI_TR_2007_2012_PRO_DET.xlsx', y, level, labels, 3, 0)
+
+    x['table'].index.name = 'industry'
+    x['table'].columns.name = 'industry'
+    
+    return x
+
+@log_start_finish
+def test_get_ixi():
     for year in range(1997, 2022):
         for level in ['sec', 'sum', 'det']:
             if level == 'det' and year not in [2007, 2012]:
                 continue
             for labels in [False, True]:
-                print(year, level, labels)
-                d = get_sup(year, level, labels)
+                d = get_ixi(year, level, labels)['table']
+                print(year, level, labels, d.shape)
                 assert len(d) > 0
 
 
-def get_use(year: int,
-                level: typing.Literal['sec', 'sum', 'det'],
-                labels: bool = False):
-    """Return dataframe from "Use_SUT_Framework_*.xlsx" files.
-    `level` to choose industry classification from "sector", "summary" or "detail".
-    `labels=True` will set long labels as axes values, otherwise short codes.
+def get_ixc(year, level, labels):
+    """Industry-by-commodity Total requirements table (Supply-Use Framework) as a dataframe, along with row and column labels.
+    `level` can be "sec", "sum" or "det".
+    `year` can be 1997-2021 for "sec" and "sum"; 2007 or 2012 for "det".
+    `labels` True to use commodity/industry names instead of columns as row/column labels.
+    Returns dict with keys "table", "row_names" and "col_names".
     """
     
-    get_source_files()
+    src = _get_src(2022)
+    y = str(year)
     
     if level == 'sec':
-        df = _read_table('Use_SUT_Framework_1997-2021_SECT.xlsx', str(year), level, labels, 5, 0)
+        x = _read_table(src, 'IxC_TR_1997-2021_PRO_SEC.xlsx', y, level, labels, 5, 2)
     elif level == 'sum':
-        df = _read_table('Use_SUT_Framework_1997-2021_SUM.xlsx', str(year), level, labels, 5, 0)
+        x = _read_table(src, 'IxC_TR_1997-2021_PRO_SUM.xlsx', y, level, labels, 5, 2)
     elif level == 'det':
-        df = _read_table('Use_SUT_Framework_2007_2012_DET.xlsx', str(year), level, labels, 4, 2)
+        x = _read_table(src, 'IxC_TR_2007_2012_PRO_DET.xlsx', y, level, labels, 3, 0)
 
-    df.index.name = 'commodity'
-    df.columns.name = 'industry'
+    x['table'].index.name = 'industry'
+    x['table'].columns.name = 'commodity'
     
-    return df
-
+    return x
 
 @log_start_finish
-def test_get_use(redownload=False):
-    cleanup(redownload)
+def test_get_ixc():
     for year in range(1997, 2022):
         for level in ['sec', 'sum', 'det']:
             if level == 'det' and year not in [2007, 2012]:
                 continue
             for labels in [False, True]:
-                print(year, level, labels)
-                d = get_use(year, level, labels)
+                d = get_ixc(year, level, labels)['table']
+                print(year, level, labels, d.shape)
                 assert len(d) > 0
 
 
-def get_ixi(year: typing.Literal[2007, 2012],
-            level: typing.Literal['sec', 'sum', 'det'],
-            labels: bool = False):
-    """Return dataframe from "IxI_TR_*_PRO_*.xlsx" files.
-    `level` to choose industry classification from "sector", "summary" or "detail".
-    `labels=True` will set long labels as axes values, otherwise short codes.
+def get_cxc(year, level, labels):
+    """Commodity-by-commodity Total requirements table (Supply-Use Framework) as a dataframe, along with row and column labels.
+    `level` can be "sec", "sum" or "det".
+    `year` can be 1997-2021 for "sec" and "sum"; 2007 or 2012 for "det".
+    `labels` True to use commodity/industry names instead of columns as row/column labels.
+    Returns dict with keys "table", "row_names" and "col_names".
     """
     
-    get_source_files()
-
-    if level == 'sec':
-        df = _read_table('IxI_TR_1997-2021_PRO_SEC.xlsx', str(year), level, labels, 5, 2)
-    elif level == 'sum':
-        df = _read_table('IxI_TR_1997-2021_PRO_SUM.xlsx', str(year), level, labels, 5, 2)
-    elif level == 'det':
-        df = _read_table('IxI_TR_2007_2012_PRO_DET.xlsx', str(year), level, labels, 3, 0)
-
-    df.index.name = 'industry'
-    df.columns.name = 'industry'
+    src = _get_src(2022)
+    y = str(year)
     
-    return df
+    if level == 'sec':
+        x = _read_table(src, 'CxC_TR_1997-2021_PRO_SEC.xlsx', y, level, labels, 5, 2)
+    elif level == 'sum':
+        x = _read_table(src, 'CxC_TR_1997-2021_PRO_SUM.xlsx', y, level, labels, 5, 2)
+    elif level == 'det':
+        x = _read_table(src, 'CxC_TR_2007_2012_PRO_DET.xlsx', y, level, labels, 3, 0)
+
+    x['table'].index.name = 'commodity'
+    x['table'].columns.name = 'commodity'
+    
+    return x
 
 @log_start_finish
-def test_get_ixi(redownload=False):
-    cleanup(redownload)
+def test_get_cxc():
     for year in range(1997, 2022):
         for level in ['sec', 'sum', 'det']:
             if level == 'det' and year not in [2007, 2012]:
                 continue
             for labels in [False, True]:
-                print(year, level, labels)
-                d = get_ixi(year, level, labels)
+                d = get_cxc(year, level, labels)['table']
+                print(year, level, labels, d.shape)
                 assert len(d) > 0
 
 
-def get_ixc(year: typing.Literal[2007, 2012],
-            level: typing.Literal['sec', 'sum', 'det'],
-            labels: bool = False):
-    """Return dataframe from "IxC_TR_*_PRO_*.xlsx" files.
-    `level` to choose industry classification from "sector", "summary" or "detail".
-    `labels=True` will set long labels as axes values, otherwise short codes.
+def get_naics_concord(year):
+    """Return dataframe with BEA-NAICS concordance table.
+    `year` can be 2012 or 2017.
     """
     
-    get_source_files()
-
-    if level == 'sec':
-        df = _read_table('IxC_TR_1997-2021_PRO_SEC.xlsx', str(year), level, labels, 5, 2)
-    elif level == 'sum':
-        df = _read_table('IxC_TR_1997-2021_PRO_SUM.xlsx', str(year), level, labels, 5, 2)
-    elif level == 'det':
-        df = _read_table('IxC_TR_2007_2012_PRO_DET.xlsx', str(year), level, labels, 3, 0)
-
-    df.index.name = 'industry'
-    df.columns.name = 'commodity'
+    if year == 2012:
+        src = _get_src(2022)
+        spreadsheet = 'Use_SUT_Framework_2007_2012_DET.xlsx'
+    elif year == 2017:
+        src = _get_src(2023)
+        spreadsheet = 'Use_SUT_Framework_2017_DET.xlsx'
+    sheet = 'NAICS Codes'
+    log.debug(f'Reading table from {src.name}/{spreadsheet}/{sheet}')
     
-    return df    
-
-
-@log_start_finish
-def test_get_ixc(redownload=False):
-    cleanup(redownload)
-    for year in range(1997, 2022):
-        for level in ['sec', 'sum', 'det']:
-            if level == 'det' and year not in [2007, 2012]:
-                continue
-            for labels in [False, True]:
-                print(year, level, labels)
-                d = get_ixc(year, level, labels)
-                assert len(d) > 0
-
-
-def get_cxc(year: typing.Literal[2007, 2012],
-            level: typing.Literal['sec', 'sum', 'det'],
-            labels: bool = False):
-    """Return dataframe from "CxC_TR_*_PRO_*.xlsx" files.
-    `level` to choose industry classification from "sector", "summary" or "detail".
-    `labels=True` will set long labels as axes values, otherwise short codes.
-    """
-    
-    get_source_files()
-    
-    if level == 'sec':
-        df = _read_table('CxC_TR_1997-2021_PRO_SEC.xlsx', str(year), level, labels, 5, 2)
-    elif level == 'sum':
-        df = _read_table('CxC_TR_1997-2021_PRO_SUM.xlsx', str(year), level, labels, 5, 2)
-    elif level == 'det':
-        df = _read_table('CxC_TR_2007_2012_PRO_DET.xlsx', str(year), level, labels, 3, 0)
-
-    df.index.name = 'commodity'
-    df.columns.name = 'commodity'
-    
-    return df
-
-@log_start_finish
-def test_get_cxc(redownload=False):
-    cleanup(redownload)
-    for year in range(1997, 2022):
-        for level in ['sec', 'sum', 'det']:
-            if level == 'det' and year not in [2007, 2012]:
-                continue
-            for labels in [False, True]:
-                print(year, level, labels)
-                d = get_cxc(year, level, labels)
-                assert len(d) > 0
-
-
-def get_naics_df():
-    path = PATH['naics_codes']
-    if path.exists():
-        return pd.read_csv(path, dtype=str)
-    
-    get_source_files()
-    df = pd.read_excel(PATH['source']/'AllTablesSUP/Use_SUT_Framework_2007_2012_DET.xlsx',
-                       sheet_name='NAICS Codes',
-                       skiprows=4,
-                       skipfooter=6,
-                       dtype=str)
+    with zipfile.ZipFile(src) as z:
+        df = pd.read_excel(
+            z.open(spreadsheet),
+            sheet_name=sheet,
+            dtype=str,
+            skiprows=4,
+            skipfooter=6
+        )
 
     df.columns = ['sector', 'summary', 'u_summary', 'detail', 'description', 'notes', 'naics']
     df = df.drop(columns='notes')
@@ -279,27 +307,25 @@ def get_naics_df():
     df.loc[df['summary'].notna(), 'u_summary'] = None
     df.loc[df['u_summary'].notna(), 'detail'] = None
 
-    assert (df[['sector', 'summary', 'u_summary', 'detail']].notna().sum(1) == 1).all(),        'Code in more than one column'
+    assert (df[['sector', 'summary', 'u_summary', 'detail']].notna().sum(1) == 1).all(),\
+        'Code in more than one column'
     assert df['description'].notna().all()
 
     # pad higher level codes
     df['sector'] = df['sector'].fillna(method='ffill')
-    df['summary'] = df.groupby('sector')['summary'].fillna(method='ffill')
-    df['u_summary'] = df.groupby(['sector', 'summary'])['u_summary'].fillna(method='ffill')
+    df['summary'] = df.groupby('sector', sort=False)['summary'].fillna(method='ffill')
+    df['u_summary'] = df.groupby(['sector', 'summary'], sort=False)['u_summary'].fillna(method='ffill')
 
     df['naics'] = df['naics'].str.strip().apply(_split_codes)
     df = df.explode('naics', ignore_index=True)
     
     # drop non-existent NAICS codes, created from expanding ranges like "5174-9"
-    feasible_naics_codes = ['23*', 'n.a.'] + naics.get_df(NAICS_REV, 'code')['CODE'].to_list()
+    feasible_naics_codes = ['23*', 'n.a.'] + naics.get_df(year, 'code')['CODE'].to_list()
     df = df[df['naics'].isna() | df['naics'].isin(feasible_naics_codes)]
     
     df[df.isna()] = None
     df = df.reset_index(drop=True)
-    df = df.rename(columns=str.upper)
     
-    path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(path, index=False)
     return df
 
 def _split_codes(codes):
@@ -319,8 +345,7 @@ def _split_codes(codes):
     codes = sum((expand_dash(c) for c in codes), [])
     return codes
 
-def test_get_naics_df(redownload=False):
-    cleanup(redownload)
+def test_get_naics_concord():
     
     assert _split_codes('1') == ['1']
     assert _split_codes('1, 2') == ['1', '2']
@@ -328,16 +353,18 @@ def test_get_naics_df(redownload=False):
     assert _split_codes('1-3, 5') == ['1', '2', '3', '5']
     assert _split_codes('1-3, 5-7') == ['1', '2', '3', '5', '6', '7']
     
-    d = get_naics_df()
+    d = get_naics_concord(2012)
+    assert len(d) > 0
+    d = get_naics_concord(2017)
     assert len(d) > 0
 
 
 @log_start_finish
-def test_all(redownload=False):
-    test_get_sup(redownload)
-    test_get_use(redownload)
-    test_get_ixi(redownload)
-    test_get_ixc(redownload)
-    test_get_cxc(redownload)
-    test_get_naics_df(redownload)
+def test_all():
+    test_get_sup()
+    test_get_use()
+    test_get_ixi()
+    test_get_ixc()
+    test_get_cxc()
+    test_get_naics_concord()
 

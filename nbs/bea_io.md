@@ -5,7 +5,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.14.0
+    jupytext_version: 1.14.4
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -20,6 +20,9 @@ title: "Input-Output Accounts"
 format:
   html: 
     code-fold: true
+    toc: true
+    df-print: paged
+    embed-resources: true
     ipynb-filters:
       - pubdata/reseng/nbd.py filter-docs
 ---
@@ -32,14 +35,16 @@ A series of detailed tables showing how industries interact with each other and 
 **Use tables** show who uses these goods and services, including other industries.
 **Requirements tables** summarize the full supply chain, including direct and indirect inputs.
 
-[Data page](https://www.bea.gov/data/industries/input-output-accounts-data)
+[Home page](https://www.bea.gov/data/industries/input-output-accounts-data)
 
 ```{code-cell} ipython3
-:tags: [nbd-module]
+:tags: [nbd-module, nbd-docs]
 
+import sys
 import zipfile
 import typing
 import shutil
+import logging
 from contextlib import redirect_stdout
 
 import pandas as pd
@@ -51,101 +56,145 @@ from pubdata import naics, cbp
 
 nbd = Nbd('pubdata')
 
-NAICS_REV = 2012
-```
 
-```{code-cell} ipython3
-:tags: []
+log = logging.getLogger('pubdata.bea_io')
+log.handlers.clear()
+log.addHandler(logging.StreamHandler(sys.stdout))
 
-pd.options.display.max_rows = 40
-pd.options.display.max_columns = 40
-pd.options.display.max_colwidth = None
-```
 
-```{code-cell} ipython3
-:tags: [nbd-module]
+log.setLevel('INFO')
+cbp.log.setLevel('INFO')
 
 PATH = {
-    'source': nbd.root / 'data/source/bea_io/',
-    'proc': nbd.root / 'data/bea_io/',
-    'naics_codes': nbd.root / 'data/bea_io/naics_codes.csv'
+    'src': nbd.root / 'data/bea_io/src',
+    'proc': nbd.root / 'data/bea_io/'
 }
+```
 
-def init_dirs():
-    """Create necessary directories."""
-    PATH['source'].mkdir(parents=True, exist_ok=True)
-    PATH['proc'].mkdir(parents=True, exist_ok=True)
-    
-def cleanup(remove_downloaded=False):
-    if remove_downloaded:
-        print('Removing downloaded files...')
-        shutil.rmtree(PATH['source'])
-    print('Removing processed files...')
-    shutil.rmtree(PATH['proc'])
+```{code-cell} ipython3
+:tags: [nbd-docs]
+
+def dispall(df):
+    with pd.option_context('display.max_columns', None, 'display.max_rows', None, 'display.max_colwidth', None):
+        display(df)
+```
+
++++ {"tags": ["nbd-docs"]}
+
+# Synopsis
+
+```{code-cell} ipython3
+:tags: [nbd-docs]
+
+from IPython.display import Markdown
+
+def func_doc(f):
+    arg = ', '.join(f.__code__.co_varnames[:f.__code__.co_argcount])
+    sig = f'{f.__name__}({arg})'
+    doc = f.__doc__.replace('\n', '  \n')
+    return f'**{sig}**  \n{doc}'
+
+def funcs_doc(*fs):
+    return '\n\n'.join(func_doc(f) for f in fs)
+
+from pubdata import bea_io
+```
+
+```{code-cell} ipython3
+:tags: [nbd-docs]
+
+Markdown(funcs_doc(
+    bea_io.get_sup,
+    bea_io.get_use,
+    bea_io.get_ixi,
+    bea_io.get_ixc,
+    bea_io.get_cxc,
+    bea_io.get_naics_concord
+))
 ```
 
 +++ {"tags": ["nbd-docs"]}
 
 # Source files
 
-[Bulk download](https://apps.bea.gov/iTable/?isuri=1&reqid=151&step=1) of data underlying BEA's [Interactive Tables](https://www.bea.gov/itable/).
-Single archive `AllTablesSUP.zip` contains all tables in Excel format.
-This section downloads and unpacks the source tables.
+In this section, source files are identified and downloaded.
+
+Current I-O tables can be accessed as interactive [web-based tables](https://apps.bea.gov/iTable/?reqid=150&step=2&isuri=1&categories=Io), individual [Excel spreadsheets](https://www.bea.gov/industry/input-output-accounts-data) or a zipped [bulk download](https://apps.bea.gov/iTable/?isuri=1&reqid=151&step=1).
+
+Older tables are available in the [Data Archive](https://apps.bea.gov/histdata/histChildLevels.cfm?HMI=8).
+Tables get revised over time.
+For example, 2012 detail level tables were first published as 2018, Q2 Comprehensive vintage, but 2022, Q2 Annual vintage contains the more recent revision.
+When multiple revitions exist for the same data year, we use the most recent.
+
+Revisions used in this module:
+- current, Supply-Use: Detail tables 2017. Sector and summary tables 2017-2022.
+- 2022, Q2 (September-29-2022), Supply-Use: Detail tables 2007, 2012. Sector and summary tables 1997-2016.
+
+Detail tables for 2002 and earlier are available [here](https://www.bea.gov/industry/historical-benchmark-input-output-tables).
 
 ```{code-cell} ipython3
-:tags: [nbd-module]
+:tags: [nbd-module, nbd-docs]
 
-def get_source_files():
-    init_dirs()
-    src_dir = PATH['source'] / 'AllTablesSUP'
-    if src_dir.exists(): return
-
-    print('Downloading source files...')
-    url = 'https://apps.bea.gov/industry/iTables Static Files/AllTablesSUP.zip'
-    f = download_file(url, PATH['source'])
-    with zipfile.ZipFile(f) as z:
-        z.extractall(src_dir)
-    print('Source files downloaded and extracted.')
+def _get_src(year):
+    if year == 2022:
+        url = 'https://apps.bea.gov/histdata/Releases/Industry/2022/GDP_by_Industry/Q2/Annual_September-29-2022/AllTablesSUP.zip'
+        fnm = 'AllTablesSUP_2022q2.zip'
+    elif year == 2023:
+        url = 'https://apps.bea.gov/industry/iTables%20Static%20Files/AllTablesSUP.zip'
+        fnm = 'AllTablesSUP_2023.zip'
+    path = PATH['src'] / fnm
+    if path.exists():
+        log.debug(f'Source file already exists: {path}')
+        return path
+    log.debug(f'File {fnm} not found, attempting download from {url}')
+    path.parent.mkdir(parents=True, exist_ok=True)
+    download_file(url, PATH['src'], fnm)
+    log.debug(f'File downloaded to {path}')
+    # tables are read directly from Zip archive, without explicitcly extracting all files
+    return path
 ```
 
 ```{code-cell} ipython3
 :tags: []
 
-# test: data download
-cleanup(True)
-get_source_files()
+_get_src(2023)
 ```
+
++++ {"tags": ["nbd-docs"]}
+
+table reader
 
 All tables share similar layout, and `_read_table()` function is used to read a table from a spreadsheet.
 
 ```{code-cell} ipython3
-:tags: [nbd-module]
+:tags: [nbd-module, nbd-docs]
 
-def _read_table(file, sheet, level, labels, skip_head, skip_foot):
-    get_source_files()
+def _read_table(src, spreadsheet, sheet, level, labels, skip_head, skip_foot):
     
-    src_file = PATH['source'] / 'AllTablesSUP' / file
+    log.debug(f'Reading table from {src.name}/{spreadsheet}/{sheet}')
     
-    df = pd.read_excel(src_file, sheet, dtype=str, header=None, 
-                       skiprows=skip_head, skipfooter=skip_foot)
+    with zipfile.ZipFile(src) as z:
+        df = pd.read_excel(
+            z.open(spreadsheet),
+            sheet_name=sheet,
+            header=None,
+            dtype=str,
+            skiprows=skip_head,
+            skipfooter=skip_foot
+        )
     
     # swap code and label rows for consistency with sec and sum
     if level == 'det':
-        df.iloc[[0, 1], :] = df.iloc[[1, 0], :].values
-    if labels:
-        rows = df.iloc[2:, 1]
-        cols = df.iloc[1, 2:]
-    else:
-        rows = df.iloc[2:, 0]
-        cols = df.iloc[0, 2:]
+        df.iloc[[0, 1], :] = df.iloc[[1, 0], :].values    
 
-    df = pd.DataFrame(df.iloc[2:, 2:].values, index=rows, columns=cols)
+    row_names = df.iloc[2:, :2].values.tolist()
+    col_names = df.iloc[:2, 2:].values.T.tolist()
+    df.columns = df.iloc[1, :] if labels else df.iloc[0, :]
+    df.index = df.iloc[:, 1] if labels else df.iloc[:, 0]
+    df = df.iloc[2:, 2:]
     df = df.replace('...', None).astype('float64')
-
-    assert not df.index.duplicated().any()
-    assert not df.columns.duplicated().any()
-
-    return df
+    
+    return dict(table=df, row_names=row_names, col_names=col_names)
 ```
 
 +++ {"tags": ["nbd-docs"]}
@@ -155,48 +204,50 @@ def _read_table(file, sheet, level, labels, skip_head, skip_foot):
 The supply and make tables present the commodities that are produced by each industry.
 The **supply table** extends the framework, showing supply from domestic and foreign producers that are available for use in the domestic economy in both basic and purchasers’ prices.
 
-Function `get_sup()` provides dataframes read from "The Supply Tables":
-
-- `Supply_Tables_1997-2021_SEC.xlsx`: sector, 1997-2021
-- `Supply_Tables_1997-2021_SUM.xlsx`: summary, 1997-2021
-- `Supply_2007_2012_DET.xlsx`: detail, 2007 and 2021.
-
 ```{code-cell} ipython3
-:tags: [nbd-module]
+:tags: [nbd-module, nbd-docs]
 
-def get_sup(year: int,
-            level: typing.Literal['sec', 'sum', 'det'],
-            labels: bool = False):
-    """Return dataframe from "Supply_*.xlsx" files.
-    `level` to choose industry classification from "sector", "summary" or "detail".
-    `labels=True` will set long labels as axes values, otherwise short codes.
+def get_sup(year, level, labels=False):
+    """Supply table (Supply-Use Framework) as a dataframe, along with row and column labels.
+    `level` can be "sec", "sum" or "det".
+    `year` can be 1997-2022 for "sec" and "sum"; 2007, 2012 or 2017 for "det".
+    `labels` True to use commodity/industry names instead of columns as row/column labels.
+    Returns dict with keys "table", "row_names" and "col_names".
     """
-    
-    get_source_files()
-    
-    if level == 'sec':
-        df = _read_table('Supply_Tables_1997-2021_SEC.xlsx', str(year), level, labels, 5, 0)
-    elif level == 'sum':
-        df = _read_table('Supply_Tables_1997-2021_SUM.xlsx', str(year), level, labels, 5, 0)
-    elif level == 'det':
-        df = _read_table('Supply_2007_2012_DET.xlsx', str(year), level, labels, 4, 2)
 
-    df.index.name = 'commodity'
-    df.columns.name = 'industry'
+    y = str(year)
+    if year < 2017:
+        src = _get_src(2022)
+        if level == 'sec':
+            x = _read_table(src, 'Supply_Tables_1997-2021_SEC.xlsx', y, level, labels, 5, 0)
+        elif level == 'sum':
+            x = _read_table(src, 'Supply_Tables_1997-2021_SUM.xlsx', y, level, labels, 5, 0)
+        elif level == 'det':
+            x = _read_table(src, 'Supply_2007_2012_DET.xlsx', y, level, labels, 4, 2)
+    else:
+        src = _get_src(2023)
+        if level == 'sec':
+            x = _read_table(src, 'Supply_Tables_2017-2022_Sector.xlsx', y, level, labels, 5, 0)
+        elif level == 'sum':
+            x = _read_table(src, 'Supply_Tables_2017-2022_Summary.xlsx', y, level, labels, 5, 0)
+        elif level == 'det':
+            x = _read_table(src, 'Supply_2017_DET.xlsx', y, level, labels, 4, 2)
+
+    x['table'].index.name = 'commodity'
+    x['table'].columns.name = 'industry'
     
-    return df
+    return x
 
 @log_start_finish
-def test_get_sup(redownload=False):
-    cleanup(redownload)
-    for year in range(1997, 2022):
+def test_get_sup():
+    for year in range(1997, 2023):
         for level in ['sec', 'sum', 'det']:
-            if level == 'det' and year not in [2007, 2012]:
+            if level == 'det' and year not in [2007, 2012, 2017]:
                 continue
             for labels in [False, True]:
-                print(year, level, labels)
-                d = get_sup(year, level, labels)
-                assert len(d) > 0
+                x = get_sup(year, level, labels)
+                print(year, level, labels, x['table'].shape)
+                assert len(x['table']) > 0
 ```
 
 ```{code-cell} ipython3
@@ -213,14 +264,14 @@ test_get_sup()
 
 ::: {.callout-note appearance=minimal collapse=true}
 
-## 2021 Supply table, sector level
+## 2022 Supply table, sector level
 ```
 
 ```{code-cell} ipython3
 :tags: [nbd-docs]
 
 #| column: screen-inset
-get_sup(2021, 'sec', True).apply(lambda c: c.apply(lambda x: '{:,.0f}'.format(x) if pd.notna(x) else ''))
+dispall(get_sup(2022, 'sec', True)['table'].apply(lambda c: c.apply(lambda x: '{:,.0f}'.format(x) if pd.notna(x) else '')))
 ```
 
 ```{raw-cell}
@@ -235,51 +286,53 @@ get_sup(2021, 'sec', True).apply(lambda c: c.apply(lambda x: '{:,.0f}'.format(x)
 
 The supply and make tables present the commodities that are produced by each industry.
 The supply table extends the framework, showing supply from domestic and foreign producers that are available for use in the domestic economy in both basic and purchasers’ prices.
-The **use table** shows the use of this supply by domestic industries as intermediate inputs and by final users as well as value added by industry. 
-
-Function `get_use()` provides dataframes read from "The Use Table (Supply-Use Framework)" tables:
-
-- `Use_SUT_Framework_1997-2021_SECT.xlsx`: sector, 1997-2021
-- `Use_SUT_Framework_1997-2021_SUM.xlsx`: summary, 1997-2021
-- `Use_SUT_Framework_2007_2012_DET.xlsx`: detail, 2007 and 2021.
+The **use table** shows the use of this supply by domestic industries as intermediate inputs and by final users as well as value added by industry.
 
 ```{code-cell} ipython3
-:tags: [nbd-module]
+:tags: [nbd-module, nbd-docs]
 
-def get_use(year: int,
-                level: typing.Literal['sec', 'sum', 'det'],
-                labels: bool = False):
-    """Return dataframe from "Use_SUT_Framework_*.xlsx" files.
-    `level` to choose industry classification from "sector", "summary" or "detail".
-    `labels=True` will set long labels as axes values, otherwise short codes.
+def get_use(year, level, labels=False):
+    """Use table (Supply-Use Framework) as a dataframe, along with row and column labels.
+    `level` can be "sec", "sum" or "det".
+    `year` can be 1997-2022 for "sec" and "sum"; 2007, 2012 or 2017 for "det".
+    `labels` True to use commodity/industry names instead of columns as row/column labels.
+    Returns dict with keys "table", "row_names" and "col_names".
     """
     
-    get_source_files()
-    
-    if level == 'sec':
-        df = _read_table('Use_SUT_Framework_1997-2021_SECT.xlsx', str(year), level, labels, 5, 0)
-    elif level == 'sum':
-        df = _read_table('Use_SUT_Framework_1997-2021_SUM.xlsx', str(year), level, labels, 5, 0)
-    elif level == 'det':
-        df = _read_table('Use_SUT_Framework_2007_2012_DET.xlsx', str(year), level, labels, 4, 2)
+    y = str(year)
+    if year < 2017:
+        src = _get_src(2022)
+        if level == 'sec':
+            x = _read_table(src, 'Use_SUT_Framework_1997-2021_SECT.xlsx', y, level, labels, 5, 0)
+        elif level == 'sum':
+            x = _read_table(src, 'Use_SUT_Framework_1997-2021_SUM.xlsx', y, level, labels, 5, 0)
+        elif level == 'det':
+            x = _read_table(src, 'Use_SUT_Framework_2007_2012_DET.xlsx', y, level, labels, 4, 2)
+    else:
+        src = _get_src(2023)
+        if level == 'sec':
+            x = _read_table(src, 'Use_Tables_Supply-Use_Framework_2017-2022_Sector.xlsx', y, level, labels, 5, 0)
+        elif level == 'sum':
+            x = _read_table(src, 'Use_Tables_Supply-Use_Framework_2017-2022_Summary.xlsx', y, level, labels, 5, 0)
+        elif level == 'det':
+            x = _read_table(src, 'Use_SUT_Framework_2017_DET.xlsx', y, level, labels, 4, 2)
 
-    df.index.name = 'commodity'
-    df.columns.name = 'industry'
+    x['table'].index.name = 'commodity'
+    x['table'].columns.name = 'industry'
     
-    return df
+    return x
 
 
 @log_start_finish
-def test_get_use(redownload=False):
-    cleanup(redownload)
+def test_get_use():
     for year in range(1997, 2022):
         for level in ['sec', 'sum', 'det']:
-            if level == 'det' and year not in [2007, 2012]:
+            if level == 'det' and year not in [2007, 2012, 2017]:
                 continue
             for labels in [False, True]:
-                print(year, level, labels)
-                d = get_use(year, level, labels)
-                assert len(d) > 0
+                x = get_use(year, level, labels)
+                print(year, level, x['table'].shape)
+                assert len(x['table']) > 0
 ```
 
 ```{code-cell} ipython3
@@ -296,14 +349,18 @@ test_get_use()
 
 ::: {.callout-note appearance=minimal collapse=true}
 
-## 2021 Use table, sector level
+## 2022 Use table, sector level
 ```
 
 ```{code-cell} ipython3
-:tags: [nbd-docs]
-
+---
+jupyter:
+  outputs_hidden: true
+tags: [nbd-docs]
+---
 #| column: screen-inset
-get_use(2021, 'sec', True).apply(lambda c: c.apply(lambda x: '{:,.0f}'.format(x) if pd.notna(x) else ''))
+d = get_use(2022, 'sec', True)['table']
+dispall(d.apply(lambda c: c.apply(lambda x: '{:,.0f}'.format(x) if pd.notna(x) else '')))
 ```
 
 ```{raw-cell}
@@ -314,14 +371,18 @@ get_use(2021, 'sec', True).apply(lambda c: c.apply(lambda x: '{:,.0f}'.format(x)
 
 +++ {"tags": ["nbd-docs"]}
 
-Example: 2012 dollar value of top 10 detail level commodities used is inputs to Grain farming.
+Example: 2017 dollar value of top 10 detail level commodities used is inputs to Grain farming.
 
 ```{code-cell} ipython3
 :tags: [nbd-docs]
 
-get_use(2012, 'det', True)['Grain farming']\
-    .head(405).sort_values(ascending=False).head(10)\
-    .astype(int).to_frame()
+x = get_use(2017, 'det')
+x['table']\
+    .loc[:'S00900', ['1111B0']]\
+    .sort_values('1111B0', ascending=False)\
+    .head(10)\
+    .rename(index=dict(x['row_names']), columns=dict(x['col_names']))\
+    .astype(int)
 ```
 
 +++ {"tags": ["nbd-docs"]}
@@ -332,13 +393,16 @@ $$
 \text{Total industry output} = \text{Total Intermediate} + \text{Compensation of employees} + \text{Gross operating surplus} + \text{Net taxes}
 $$
 
-Table below shows percentage shares of total output by industry in 2021 at the sector level.
+Table below shows percentage shares of total output by industry in 2022 at the sector level.
 
 ```{code-cell} ipython3
-:tags: [nbd-docs]
-
+---
+jupyter:
+  outputs_hidden: true
+tags: [nbd-docs]
+---
 #| column: body-outset
-d = get_use(2021, 'sec', True)
+d = get_use(2022, 'sec', True)['table']
 
 d = d.loc[['Total Intermediate', 'Compensation of employees',
        'Other taxes on production', 'Less: Other subsidies on production',
@@ -356,12 +420,15 @@ d
 Labor share by industry over time, computed as $\frac{Compensation\ of\ employees}{Total\ industry\ output\ (basic\ prices)}$.
 
 ```{code-cell} ipython3
-:tags: [nbd-docs]
-
+---
+jupyter:
+  outputs_hidden: true
+tags: [nbd-docs]
+---
 #| column: body-outset
 t = {}
-for y in range(1997, 2022):
-    d = get_use(y, 'sec', True)
+for y in range(1997, 2023):
+    d = get_use(y, 'sec', True)['table']
     t[y] = d.loc['Compensation of employees', :][:15] / d.loc['Total industry output (basic prices)', :][:15]
 t = pd.concat(t, axis=1).T * 100
 
@@ -377,49 +444,43 @@ The four requirements tables are derived from the use and make tables.
 The direct requirements table shows the amount of a commodity that is required by an industry to produce a dollar of the industry's output.
 The three **Total Requirements** tables show the production that is required, directly and indirectly, from each industry and each commodity to deliver a dollar of a commodity to final users.
 
-## Industry-by-Industry 
-
-Function `get_ixi()` provides dataframes read from "Industry-by-Industry Total Requirements, After Redefinitions" tables:
-
-- `IxI_TR_1997-2021_PRO_SEC.xlsx`: sector, 1997-2021
-- `IxI_TR_1997-2021_PRO_SUM.xlsx`: summary, 1997-2021
-- `IxI_TR_2007_2012_PRO_DET.xlsx`: detail, 2007 and 2021.
+## Industry-by-Industry
 
 ```{code-cell} ipython3
-:tags: [nbd-module]
+:tags: [nbd-module, nbd-docs]
 
-def get_ixi(year: typing.Literal[2007, 2012],
-            level: typing.Literal['sec', 'sum', 'det'],
-            labels: bool = False):
-    """Return dataframe from "IxI_TR_*_PRO_*.xlsx" files.
-    `level` to choose industry classification from "sector", "summary" or "detail".
-    `labels=True` will set long labels as axes values, otherwise short codes.
+def get_ixi(year, level, labels):
+    """Industry-by-industry Total requirements table (Supply-Use Framework) as a dataframe, along with row and column labels.
+    `level` can be "sec", "sum" or "det".
+    `year` can be 1997-2021 for "sec" and "sum"; 2007 or 2012 for "det".
+    `labels` True to use commodity/industry names instead of columns as row/column labels.
+    Returns dict with keys "table", "row_names" and "col_names".
     """
     
-    get_source_files()
-
-    if level == 'sec':
-        df = _read_table('IxI_TR_1997-2021_PRO_SEC.xlsx', str(year), level, labels, 5, 2)
-    elif level == 'sum':
-        df = _read_table('IxI_TR_1997-2021_PRO_SUM.xlsx', str(year), level, labels, 5, 2)
-    elif level == 'det':
-        df = _read_table('IxI_TR_2007_2012_PRO_DET.xlsx', str(year), level, labels, 3, 0)
-
-    df.index.name = 'industry'
-    df.columns.name = 'industry'
+    src = _get_src(2022)
+    y = str(year)
     
-    return df
+    if level == 'sec':
+        x = _read_table(src, 'IxI_TR_1997-2021_PRO_SEC.xlsx', y, level, labels, 5, 2)
+    elif level == 'sum':
+        x = _read_table(src, 'IxI_TR_1997-2021_PRO_SUM.xlsx', y, level, labels, 5, 2)
+    elif level == 'det':
+        x = _read_table(src, 'IxI_TR_2007_2012_PRO_DET.xlsx', y, level, labels, 3, 0)
+
+    x['table'].index.name = 'industry'
+    x['table'].columns.name = 'industry'
+    
+    return x
 
 @log_start_finish
-def test_get_ixi(redownload=False):
-    cleanup(redownload)
+def test_get_ixi():
     for year in range(1997, 2022):
         for level in ['sec', 'sum', 'det']:
             if level == 'det' and year not in [2007, 2012]:
                 continue
             for labels in [False, True]:
-                print(year, level, labels)
-                d = get_ixi(year, level, labels)
+                d = get_ixi(year, level, labels)['table']
+                print(year, level, labels, d.shape)
                 assert len(d) > 0
 ```
 
@@ -444,7 +505,7 @@ test_get_ixi()
 :tags: [nbd-docs]
 
 #| column: screen-inset
-get_ixi(2021, 'sec', True).round(3)
+get_ixi(2021, 'sec', True)['table'].round(3)
 ```
 
 ```{raw-cell}
@@ -457,48 +518,41 @@ get_ixi(2021, 'sec', True).round(3)
 
 ## Industry-by-Commodity
 
-Function `get_ixc()` provides dataframes read from "Industry-by-Commodity Total Requirements, After Redefinitions" tables:
-
-- `IxC_TR_1997-2021_PRO_SEC.xlsx`: sector, 1997-2021
-- `IxC_TR_1997-2021_PRO_SUM.xlsx`: summary, 1997-2021
-- `IxC_TR_2007_2012_PRO_DET.xlsx`: detail, 2007 and 2021.
-
 ```{code-cell} ipython3
-:tags: [nbd-module]
+:tags: [nbd-module, nbd-docs]
 
-def get_ixc(year: typing.Literal[2007, 2012],
-            level: typing.Literal['sec', 'sum', 'det'],
-            labels: bool = False):
-    """Return dataframe from "IxC_TR_*_PRO_*.xlsx" files.
-    `level` to choose industry classification from "sector", "summary" or "detail".
-    `labels=True` will set long labels as axes values, otherwise short codes.
+def get_ixc(year, level, labels):
+    """Industry-by-commodity Total requirements table (Supply-Use Framework) as a dataframe, along with row and column labels.
+    `level` can be "sec", "sum" or "det".
+    `year` can be 1997-2021 for "sec" and "sum"; 2007 or 2012 for "det".
+    `labels` True to use commodity/industry names instead of columns as row/column labels.
+    Returns dict with keys "table", "row_names" and "col_names".
     """
     
-    get_source_files()
-
-    if level == 'sec':
-        df = _read_table('IxC_TR_1997-2021_PRO_SEC.xlsx', str(year), level, labels, 5, 2)
-    elif level == 'sum':
-        df = _read_table('IxC_TR_1997-2021_PRO_SUM.xlsx', str(year), level, labels, 5, 2)
-    elif level == 'det':
-        df = _read_table('IxC_TR_2007_2012_PRO_DET.xlsx', str(year), level, labels, 3, 0)
-
-    df.index.name = 'industry'
-    df.columns.name = 'commodity'
+    src = _get_src(2022)
+    y = str(year)
     
-    return df    
+    if level == 'sec':
+        x = _read_table(src, 'IxC_TR_1997-2021_PRO_SEC.xlsx', y, level, labels, 5, 2)
+    elif level == 'sum':
+        x = _read_table(src, 'IxC_TR_1997-2021_PRO_SUM.xlsx', y, level, labels, 5, 2)
+    elif level == 'det':
+        x = _read_table(src, 'IxC_TR_2007_2012_PRO_DET.xlsx', y, level, labels, 3, 0)
 
+    x['table'].index.name = 'industry'
+    x['table'].columns.name = 'commodity'
+    
+    return x
 
 @log_start_finish
-def test_get_ixc(redownload=False):
-    cleanup(redownload)
+def test_get_ixc():
     for year in range(1997, 2022):
         for level in ['sec', 'sum', 'det']:
             if level == 'det' and year not in [2007, 2012]:
                 continue
             for labels in [False, True]:
-                print(year, level, labels)
-                d = get_ixc(year, level, labels)
+                d = get_ixc(year, level, labels)['table']
+                print(year, level, labels, d.shape)
                 assert len(d) > 0
 ```
 
@@ -520,10 +574,13 @@ test_get_ixc()
 ```
 
 ```{code-cell} ipython3
-:tags: [nbd-docs]
-
+---
+jupyter:
+  outputs_hidden: true
+tags: [nbd-docs]
+---
 #| column: screen-inset
-get_ixc(2021, 'sec', True).round(3)
+get_ixc(2021, 'sec', True)['table'].round(3)
 ```
 
 ```{raw-cell}
@@ -536,47 +593,41 @@ get_ixc(2021, 'sec', True).round(3)
 
 ## Commodity-by-Commodity
 
-Function `get_cxc()` provides dataframes read from "Commodity-by-Commodity Total Requirements, After Redefinitions" tables:
-
-- `CxC_TR_1997-2021_PRO_SEC.xlsx`: sector, 1997-2021
-- `CxC_TR_1997-2021_PRO_SUM.xlsx`: summary, 1997-2021
-- `CxC_TR_2007_2012_PRO_DET.xlsx`: detail, 2007 and 2021.
-
 ```{code-cell} ipython3
-:tags: [nbd-module]
+:tags: [nbd-module, nbd-docs]
 
-def get_cxc(year: typing.Literal[2007, 2012],
-            level: typing.Literal['sec', 'sum', 'det'],
-            labels: bool = False):
-    """Return dataframe from "CxC_TR_*_PRO_*.xlsx" files.
-    `level` to choose industry classification from "sector", "summary" or "detail".
-    `labels=True` will set long labels as axes values, otherwise short codes.
+def get_cxc(year, level, labels):
+    """Commodity-by-commodity Total requirements table (Supply-Use Framework) as a dataframe, along with row and column labels.
+    `level` can be "sec", "sum" or "det".
+    `year` can be 1997-2021 for "sec" and "sum"; 2007 or 2012 for "det".
+    `labels` True to use commodity/industry names instead of columns as row/column labels.
+    Returns dict with keys "table", "row_names" and "col_names".
     """
     
-    get_source_files()
+    src = _get_src(2022)
+    y = str(year)
     
     if level == 'sec':
-        df = _read_table('CxC_TR_1997-2021_PRO_SEC.xlsx', str(year), level, labels, 5, 2)
+        x = _read_table(src, 'CxC_TR_1997-2021_PRO_SEC.xlsx', y, level, labels, 5, 2)
     elif level == 'sum':
-        df = _read_table('CxC_TR_1997-2021_PRO_SUM.xlsx', str(year), level, labels, 5, 2)
+        x = _read_table(src, 'CxC_TR_1997-2021_PRO_SUM.xlsx', y, level, labels, 5, 2)
     elif level == 'det':
-        df = _read_table('CxC_TR_2007_2012_PRO_DET.xlsx', str(year), level, labels, 3, 0)
+        x = _read_table(src, 'CxC_TR_2007_2012_PRO_DET.xlsx', y, level, labels, 3, 0)
 
-    df.index.name = 'commodity'
-    df.columns.name = 'commodity'
+    x['table'].index.name = 'commodity'
+    x['table'].columns.name = 'commodity'
     
-    return df
+    return x
 
 @log_start_finish
-def test_get_cxc(redownload=False):
-    cleanup(redownload)
+def test_get_cxc():
     for year in range(1997, 2022):
         for level in ['sec', 'sum', 'det']:
             if level == 'det' and year not in [2007, 2012]:
                 continue
             for labels in [False, True]:
-                print(year, level, labels)
-                d = get_cxc(year, level, labels)
+                d = get_cxc(year, level, labels)['table']
+                print(year, level, labels, d.shape)
                 assert len(d) > 0
 ```
 
@@ -598,10 +649,13 @@ test_get_cxc()
 ```
 
 ```{code-cell} ipython3
-:tags: [nbd-docs]
-
+---
+jupyter:
+  outputs_hidden: true
+tags: [nbd-docs]
+---
 #| column: screen-inset
-get_cxc(2021, 'sec', True).round(3)
+get_cxc(2021, 'sec', True)['table'].round(3)
 ```
 
 ```{raw-cell}
@@ -612,29 +666,39 @@ get_cxc(2021, 'sec', True).round(3)
 
 +++ {"tags": ["nbd-docs"]}
 
-# IO-NAICS concordance
+# BEA-NAICS concordance
 
 BEA uses industry classification that is different from NAICS.
 Crosswalk is provided in every detail level spreadsheet.
 "NAICS Codes" sheet is parsed so that at the lowest classification level ("detail") each row corresponds to a single NAICS code.
 Detail industries with multiple NAICS are split into multiple rows.
 Levels about "detail" have their separate rows.
-This resulting table is returned by `get_naics_df()` function.
 
 ```{code-cell} ipython3
-:tags: [nbd-module]
+:tags: [nbd-module, nbd-docs]
 
-def get_naics_df():
-    path = PATH['naics_codes']
-    if path.exists():
-        return pd.read_csv(path, dtype=str)
+def get_naics_concord(year):
+    """Return dataframe with BEA-NAICS concordance table.
+    `year` can be 2012 or 2017.
+    """
     
-    get_source_files()
-    df = pd.read_excel(PATH['source']/'AllTablesSUP/Use_SUT_Framework_2007_2012_DET.xlsx',
-                       sheet_name='NAICS Codes',
-                       skiprows=4,
-                       skipfooter=6,
-                       dtype=str)
+    if year == 2012:
+        src = _get_src(2022)
+        spreadsheet = 'Use_SUT_Framework_2007_2012_DET.xlsx'
+    elif year == 2017:
+        src = _get_src(2023)
+        spreadsheet = 'Use_SUT_Framework_2017_DET.xlsx'
+    sheet = 'NAICS Codes'
+    log.debug(f'Reading table from {src.name}/{spreadsheet}/{sheet}')
+    
+    with zipfile.ZipFile(src) as z:
+        df = pd.read_excel(
+            z.open(spreadsheet),
+            sheet_name=sheet,
+            dtype=str,
+            skiprows=4,
+            skipfooter=6
+        )
 
     df.columns = ['sector', 'summary', 'u_summary', 'detail', 'description', 'notes', 'naics']
     df = df.drop(columns='notes')
@@ -655,22 +719,19 @@ def get_naics_df():
 
     # pad higher level codes
     df['sector'] = df['sector'].fillna(method='ffill')
-    df['summary'] = df.groupby('sector')['summary'].fillna(method='ffill')
-    df['u_summary'] = df.groupby(['sector', 'summary'])['u_summary'].fillna(method='ffill')
+    df['summary'] = df.groupby('sector', sort=False)['summary'].fillna(method='ffill')
+    df['u_summary'] = df.groupby(['sector', 'summary'], sort=False)['u_summary'].fillna(method='ffill')
 
     df['naics'] = df['naics'].str.strip().apply(_split_codes)
     df = df.explode('naics', ignore_index=True)
     
     # drop non-existent NAICS codes, created from expanding ranges like "5174-9"
-    feasible_naics_codes = ['23*', 'n.a.'] + naics.get_df(NAICS_REV, 'code')['CODE'].to_list()
+    feasible_naics_codes = ['23*', 'n.a.'] + naics.get_df(year, 'code')['CODE'].to_list()
     df = df[df['naics'].isna() | df['naics'].isin(feasible_naics_codes)]
     
     df[df.isna()] = None
     df = df.reset_index(drop=True)
-    df = df.rename(columns=str.upper)
     
-    path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(path, index=False)
     return df
 
 def _split_codes(codes):
@@ -690,8 +751,7 @@ def _split_codes(codes):
     codes = sum((expand_dash(c) for c in codes), [])
     return codes
 
-def test_get_naics_df(redownload=False):
-    cleanup(redownload)
+def test_get_naics_concord():
     
     assert _split_codes('1') == ['1']
     assert _split_codes('1, 2') == ['1', '2']
@@ -699,14 +759,16 @@ def test_get_naics_df(redownload=False):
     assert _split_codes('1-3, 5') == ['1', '2', '3', '5']
     assert _split_codes('1-3, 5-7') == ['1', '2', '3', '5', '6', '7']
     
-    d = get_naics_df()
+    d = get_naics_concord(2012)
+    assert len(d) > 0
+    d = get_naics_concord(2017)
     assert len(d) > 0
 ```
 
 ```{code-cell} ipython3
 :tags: []
 
-test_get_naics_df()
+test_get_naics_concord()
 ```
 
 +++ {"tags": ["nbd-docs"]}
@@ -717,7 +779,7 @@ Example: all sector level industries.
 :tags: [nbd-docs]
 
 #| column: body-outset
-get_naics_df().query('SUMMARY.isna()')
+dispall(get_naics_concord(2017).query('summary.isna()'))
 ```
 
 +++ {"tags": ["nbd-docs"]}
@@ -728,8 +790,8 @@ Example: Information sector.
 :tags: [nbd-docs]
 
 #| column: body-outset
-d = naics.get_df(NAICS_REV, 'code').rename(columns={'CODE': 'NAICS', 'TITLE': 'NAICS_TITLE'})[['NAICS', 'NAICS_TITLE']]
-get_naics_df().query('SECTOR == "51"').merge(d, 'left').fillna('')
+d = naics.get_df(2017, 'code').rename(columns={'CODE': 'naics', 'TITLE': 'naics_title'})[['naics', 'naics_title']]
+dispall(get_naics_concord(2017).query('sector == "51"').merge(d, 'left').fillna(''))
 ```
 
 +++ {"tags": ["nbd-docs"]}
@@ -737,26 +799,28 @@ get_naics_df().query('SECTOR == "51"').merge(d, 'left').fillna('')
 ## Concordance properties
 
 No overlaps between branches of the SECTOR -> SUMMARY -> U_SUMMARY -> DETAIL hierarchy.
-  - No code in one branch exists in another branch.
-  - From a code in one level, can unambiguously go to upper levels.
+
+- No code in one branch exists in another branch.
+- From a code in one level, can unambiguously go to upper levels.
 
 ```{code-cell} ipython3
-:tags: []
+:tags: [nbd-docs]
 
-df = get_naics_df()\
-    .query('SUMMARY.notna()')\
-    .drop_duplicates(subset=['SECTOR', 'SUMMARY'])
-assert not df['SUMMARY'].duplicated().any()
+y = 2017
+df = get_naics_concord(y)\
+    .query('summary.notna()')\
+    .drop_duplicates(subset=['sector', 'summary'])
+assert not df['summary'].duplicated().any()
 
-df = get_naics_df()\
-    .query('U_SUMMARY.notna()')\
-    .drop_duplicates(subset=['SECTOR', 'SUMMARY', 'U_SUMMARY'])
-assert not df['U_SUMMARY'].duplicated().any()
+df = get_naics_concord(y)\
+    .query('u_summary.notna()')\
+    .drop_duplicates(subset=['sector', 'summary', 'u_summary'])
+assert not df['u_summary'].duplicated().any()
 
-df = get_naics_df()\
-    .query('DETAIL.notna()')\
-    .drop_duplicates(subset=['SECTOR', 'SUMMARY', 'U_SUMMARY', 'DETAIL'])
-assert not df['DETAIL'].duplicated().any()
+df = get_naics_concord(y)\
+    .query('detail.notna()')\
+    .drop_duplicates(subset=['sector', 'summary', 'u_summary', 'detail'])
+assert not df['detail'].duplicated().any()
 ```
 
 +++ {"tags": ["nbd-docs"]}
@@ -766,15 +830,12 @@ Construction (IO sector "23", NAICS sector "23") matches exactly on sector level
 > Construction data published by BEA at the detail level do not align with 2012 NAICS industries.  In NAICS, industries are classified based on their production processes, whereas BEA construction is classified by type of structure.  For example, activity by the 2012 NAICS Roofing contractors industry would be split among many BEA construction categories because roofs are built on many types of structures.
 
 ```{code-cell} ipython3
----
-jupyter:
-  outputs_hidden: true
-tags: []
----
-df = get_naics_df()
-assert list(df.loc[df['SECTOR'] == '23', 'NAICS'].dropna().unique()) == ['23*']
-assert list(df.loc[df['NAICS'].str[:2] == '23', 'SECTOR'].unique()) == ['23']
-df.query('SECTOR == "23"')
+:tags: [nbd-docs]
+
+df = get_naics_concord(2017)
+assert list(df.loc[df['sector'] == '23', 'naics'].dropna().unique()) == ['23*']
+assert list(df.loc[df['naics'].str[:2] == '23', 'sector'].unique()) == ['23']
+dispall(df.query('sector == "23"'))
 ```
 
 +++ {"tags": ["nbd-docs"]}
@@ -783,9 +844,9 @@ df.query('SECTOR == "23"')
 Most of them are in sector "G" (Goverment).
 
 ```{code-cell} ipython3
-:tags: []
+:tags: [nbd-docs]
 
-get_naics_df().query('NAICS == "n.a."')
+dispall(get_naics_concord(2017).query('naics == "n.a."'))
 ```
 
 +++ {"tags": ["nbd-docs"]}
@@ -793,13 +854,13 @@ get_naics_df().query('NAICS == "n.a."')
 An ambiguity exists in IO sector "53" (REAL ESTATE AND RENTAL AND LEASING). Two detail level industries ("531HST" and "531ORE") map into the same 3-digit NAICS "531" (Real Estate). There are no other NAICS duplicates.
 
 ```{code-cell} ipython3
-:tags: []
+:tags: [nbd-docs]
 
-df = get_naics_df()
-df = df.query('NAICS.notna() and NAICS != "n.a." and NAICS != "23*"')
-assert set(df.loc[df['NAICS'].duplicated(), 'NAICS']) == {'531'}
+df = get_naics_concord(2017)
+df = df.query('naics.notna() and naics != "n.a." and naics != "23*"')
+assert set(df.loc[df['naics'].duplicated(), 'naics']) == {'531'}
 
-get_naics_df().query('SECTOR == "53"')
+dispall(get_naics_concord(2017).query('sector == "53"'))
 ```
 
 +++ {"jp-MarkdownHeadingCollapsed": true, "tags": ["nbd-docs"]}
@@ -807,12 +868,11 @@ get_naics_df().query('SECTOR == "53"')
 With the exception of NAICS "23", "n.a." and "531" *relationship between IO DETAIL and NAICS is one-to-many*.
 
 ```{code-cell} ipython3
-:tags: []
+:tags: [nbd-docs]
 
-d = get_naics_df()\
-    [['DETAIL', 'NAICS']]\
-    .query('DETAIL.notna() and NAICS != "n.a." and NAICS != "23*" and NAICS != "531"')
-assert not d['NAICS'].duplicated().any()
+d = get_naics_concord(2017)[['detail', 'naics']]\
+    .query('detail.notna() and naics != "n.a." and naics != "23*" and naics != "531"')
+assert not d['naics'].duplicated().any()
 ```
 
 +++ {"tags": ["nbd-docs"]}
@@ -831,33 +891,11 @@ In sum, every industry in the NAICS is covered and no industry is covered more t
 Every NAICS code present in IO concordance is a valid code that exists in NAICS table.
 
 ```{code-cell} ipython3
-:tags: []
+:tags: [nbd-docs]
 
 dfna = naics.get_df(2012, 'code')
-dfio = get_naics_df()
-assert dfio.query('NAICS.notna() and NAICS != "n.a." and NAICS != "23*"')['NAICS'].isin(dfna['CODE']).all()
-```
-
-```{code-cell} ipython3
-:tags: []
-
-dfio = get_naics_df()\
-    [['DETAIL', 'NAICS']]\
-    .query('NAICS.notna() and NAICS != "n.a." and NAICS != "23*"')\
-    .drop_duplicates(subset=['NAICS']) # NAICS 531 dupe
-```
-
-```{code-cell} ipython3
-:tags: []
-
-df = naics.get_df(2012, 'code')
-for digit in [2, 3, 4, 5, 6]:
-    ind = f'MERGE_{digit}'
-    df = df.merge(dfio, 'left', left_on=f'CODE_{digit}', right_on='NAICS', indicator=ind)\
-        .drop(columns='NAICS')\
-        .rename(columns={'DETAIL': f'DETAIL_{digit}'})
-    df[ind] = df[ind].map({'both': 1, 'left_only': 0})
-df.loc[df['CODE_2'] == '23', 'MERGE_2'] = 1
+dfio = get_naics_concord(2012)
+assert dfio.query('naics.notna() and naics != "n.a." and naics != "23*"')['naics'].isin(dfna['CODE']).all()
 ```
 
 +++ {"tags": ["nbd-docs"]}
@@ -866,10 +904,23 @@ No NAICS code matches on more than one level.
 I.e. there is no situation when some lower NAICS level is covered more than once because it's parent is include someplace else.
 
 ```{code-cell} ipython3
-:tags: []
+:tags: [nbd-docs]
 
-df['MERGE_SUM'] = df[[f'MERGE_{d}' for d in [2,3,4,5,6]]].sum(1)
-assert df['MERGE_SUM'].isin([0, 1]).all()
+dfio = get_naics_concord(2012)[['detail', 'naics']]\
+    .query('naics.notna() and naics != "n.a." and naics != "23*"')\
+    .drop_duplicates(subset=['naics']) # NAICS 531 dupe
+
+df = naics.get_df(2012, 'code').rename(columns=str.lower)
+for digit in [2, 3, 4, 5, 6]:
+    ind = f'merge_{digit}'
+    df = df.merge(dfio, 'left', left_on=f'code_{digit}', right_on='naics', indicator=ind)\
+        .drop(columns='naics')\
+        .rename(columns={'detail': f'detail_{digit}'})
+    df[ind] = df[ind].map({'both': 1, 'left_only': 0})
+df.loc[df['code_2'] == '23', 'merge_2'] = 1
+
+df['merge_sum'] = df[[f'merge_{d}' for d in [2,3,4,5,6]]].sum(1)
+assert df['merge_sum'].isin([0, 1]).all()
 ```
 
 +++ {"tags": ["nbd-docs"]}
@@ -878,10 +929,10 @@ Every industry outside of sector "92" is covered.
 Nothing is covered in sector "92".
 
 ```{code-cell} ipython3
-:tags: []
+:tags: [nbd-docs]
 
-assert (df.query('CODE_2 != "92" and DIGITS == 6')['MERGE_SUM'] == 1).all()
-assert (df.query('CODE_2 == "92" and DIGITS == 6')['MERGE_SUM'] == 0).all()
+assert (df.query('code_2 != "92" and digits == 6')['merge_sum'] == 1).all()
+assert (df.query('code_2 == "92" and digits == 6')['merge_sum'] == 0).all()
 ```
 
 +++ {"tags": ["nbd-docs"]}
@@ -892,15 +943,15 @@ Although unlike "23", the crosswalk is not explicitly stating that NAICS "92" ca
 Maybe because of the "Postal service" industry (IO detail "491000", part of sector "G") that corresponds to NAICS subsector "491".
 
 ```{code-cell} ipython3
-:tags: []
+:tags: [nbd-docs]
 
-get_naics_df().query('SECTOR == "G" and SUMMARY.notna() and U_SUMMARY.isna()')[['SECTOR', 'SUMMARY', 'DESCRIPTION']]
+get_naics_concord(2012).query('sector == "G" and summary.notna() and u_summary.isna()')[['sector', 'summary', 'description']]
 ```
 
 ```{code-cell} ipython3
-:tags: []
+:tags: [nbd-docs]
 
-df.query('CODE_2 == "92" and DIGITS <= 3')[['CODE', 'TITLE']]
+dispall(df.query('code_2 == "92" and digits <= 3')[['code', 'title']])
 ```
 
 +++ {"tags": ["nbd-docs"]}
@@ -910,18 +961,18 @@ df.query('CODE_2 == "92" and DIGITS <= 3')[['CODE', 'TITLE']]
 BEA "summary" can be compared to NAICS "subsector". BEA->NAICS crosswalk is often one-to-many, which is not a problem when we convert NAICS-based data to match BEA. But BEA->NAICS is also many-to-one for three NAICS subsectors (336, 531, 541).
 
 ```{code-cell} ipython3
-:tags: []
+:tags: [nbd-docs]
 
-df = get_naics_df()
-df = df[['SUMMARY', 'DETAIL', 'NAICS']].dropna().query('NAICS != "n.a."')
-df['NAICS3'] = df['NAICS'].str[:3]
-df = df[['SUMMARY', 'NAICS3']].drop_duplicates()
-df['DUP_IO'] = df['SUMMARY'].duplicated(False)
-df['DUP_N3'] = df['NAICS3'].duplicated(False)
-df[df['DUP_N3']]
+df = get_naics_concord(2012)
+df = df[['summary', 'detail', 'naics']].dropna().query('naics != "n.a."')
+df['naics3'] = df['naics'].str[:3]
+df = df[['summary', 'naics3']].drop_duplicates()
+df['dup_io'] = df['summary'].duplicated(False)
+df['dup_n3'] = df['naics3'].duplicated(False)
+df[df['dup_n3']]
 ```
 
-+++ {"tags": []}
++++ {"tags": ["nbd-docs"]}
 
 # Example: merge CBP to IO
 
@@ -929,131 +980,98 @@ Because we know that IO-NAICS concordance fully covers NAICS with no double-coun
 Only need to take care of "23", "G" and "531".
 
 ```{code-cell} ipython3
-:tags: []
+:tags: [nbd-docs]
 
-df = get_naics_df()
-# ignore construction and government sectors for simplicity
-df = df.query('SECTOR != "23" and SECTOR != "G"')
+df = get_naics_concord(2012)
+# ignore government sector
+df = df.query('sector != "G"')
+# merge construction on sector level
+df = df.query('(sector != "23") or summary.isna()')
+df.loc[df['sector'] == '23', 'naics'] = '23'
 
-d = cbp.get_df('us', 2014)\
+d = cbp.get_cbp_df('us', 2012)\
     .query('lfo == "-"')\
-    [['industry', 'est', 'emp', 'ap']]\
-    .rename(columns={'industry': 'NAICS'})
+    [['naics', 'est', 'emp', 'ap']]
+d['naics'] = d['naics'].str.replace('-', '').str.replace('/', '')
 
-df = df.merge(d, 'left', 'NAICS', indicator=True)
+df = df.merge(d, 'left', 'naics', indicator=True)
 # split "531" between "531HST" and "531ORE" with equal weights
-df.loc[df['DETAIL'] == '531HST', ['est', 'emp', 'ap']] *= 0.5
-df.loc[df['DETAIL'] == '531ORE', ['est', 'emp', 'ap']] *= 0.5
+df.loc[df['detail'] == '531HST', ['est', 'emp', 'ap']] *= 0.5
+df.loc[df['detail'] == '531ORE', ['est', 'emp', 'ap']] *= 0.5
 ```
+
++++ {"tags": ["nbd-docs"]}
+
+Detail aggregates, example - U.Summary 3132: Beverage manufacturing.
 
 ```{code-cell} ipython3
-:tags: []
+:tags: [nbd-docs]
 
-df = get_naics_df()
-# ignore construction and government sectors for simplicity
-df = df.query('SECTOR != "23" and SECTOR != "G"')
-
-d = cbp.get_df('county', 2014)\
-    .query('fipstate == "01" and fipscty == "003"')\
-    [['industry', 'est', 'emp', 'ap']]\
-    .rename(columns={'industry': 'NAICS'})
-
-df = df.merge(d, 'left', 'NAICS', indicator=True)
-# split "531" between "531HST" and "531ORE" with equal weights
-df.loc[df['DETAIL'] == '531HST', ['est', 'emp', 'ap']] *= 0.5
-df.loc[df['DETAIL'] == '531ORE', ['est', 'emp', 'ap']] *= 0.5
+t = df.groupby(['sector', 'summary', 'u_summary', 'detail', 'description'])[['est', 'emp', 'ap']].sum().reset_index()
+t.query('u_summary == "3121"')
 ```
+
++++ {"tags": ["nbd-docs"]}
+
+Summary aggregates, example - Sector 31ND: Nondurable Goods.
 
 ```{code-cell} ipython3
-:tags: []
+:tags: [nbd-docs]
 
-df.head(10)
+t = df.groupby(['sector', 'summary'])[['est', 'emp', 'ap']].sum().reset_index()\
+    .merge(df.query('u_summary.isna()')[['summary', 'description']], 'left')
+t.query('sector == "31ND"')
 ```
+
++++ {"tags": ["nbd-docs"]}
+
+Sector aggregates.
 
 ```{code-cell} ipython3
-:tags: []
+:tags: [nbd-docs]
 
-d = df.loc[df['DETAIL'].notna(), ['DETAIL', 'ap']]
-d = d.groupby('DETAIL').sum()
-d_us = d
+dispall(df.groupby(['sector'])[['est', 'emp', 'ap']].sum().reset_index()\
+    .merge(df.query('summary.isna()')[['sector', 'description']], 'left'))
 ```
 
-```{code-cell} ipython3
-:tags: []
-
-d = df.loc[df['SUMMARY'].notna(), ['SUMMARY', 'ap']]
-d = d.groupby('SUMMARY').sum()
-d
-```
-
-```{code-cell} ipython3
-:tags: []
-
-d = df.loc[df['DETAIL'].notna(), ['DETAIL', 'ap']]
-d = d.groupby('DETAIL').sum()
-d_01001 = d
-```
-
-```{code-cell} ipython3
-:tags: []
-
-d = df.loc[df['DETAIL'].notna(), ['DETAIL', 'ap']]
-d = d.groupby('DETAIL').sum()
-d_01003 = d
-```
-
-```{code-cell} ipython3
-:tags: []
-
-pd.concat([d_us, d_01001, d_01003], axis=1)
-```
-
-```{code-cell} ipython3
-:tags: []
-
-df.query('DETAIL == "33329A"')
-```
-
-```{code-cell} ipython3
-:tags: []
-
-df.query('DETAIL == "33329A"').groupby('DETAIL')['ap'].sum()
-```
++++ {"tags": ["nbd-docs"]}
 
 Merged totals are almost equal to CBP totals.
 Small difference is likely due to CBP noise (in CBP itself total != sum of 6-digit rows).
 
 ```{code-cell} ipython3
----
-jupyter:
-  outputs_hidden: true
-tags: []
----
+:tags: [nbd-docs]
+
 t = {}
 t['merged'] = df[['est', 'emp', 'ap']].sum()
-t['total - 23'] = d.query('NAICS == "-"').iloc[0, 1:] - d.query('NAICS == "23"').iloc[0, 1:]
+t['total - 23'] = d.query('naics == ""').iloc[0, 1:] - d.query('naics == "23"').iloc[0, 1:]
 t['ratio'] = t['merged'] / t['total - 23']
 pd.concat(t, axis=1)
 ```
 
++++ {"tags": ["nbd-docs"]}
+
 IO industries that remain unmatched are "111" and "112" (farming, not covered by CBP), "482" (rail transportation) and "814" (Private households).
 
 ```{code-cell} ipython3
----
-jupyter:
-  outputs_hidden: true
-tags: []
----
-df.query('DETAIL.notna() and ap.isna()')
+:tags: [nbd-docs]
+
+dispall(
+    df.query('detail.notna() and (naics != "n.a.") and ap.isna()')\
+    .drop(columns=['est', 'emp', 'ap', '_merge'])\
+    .merge(naics.get_df(2012, 'code').rename(columns=str.lower)[['code', 'title']].rename(columns={'code': 'naics', 'title': 'naics_title'}), 'left')
+)
 ```
+
++++ {"tags": ["nbd-docs"]}
 
 Payroll distribution across IO sectors.
 
 ```{code-cell} ipython3
-:tags: []
+:tags: [nbd-docs]
 
-t = df.groupby('SECTOR')[['est', 'emp', 'ap']].sum()
-t['ap'].plot(figsize=(16, 4))
+t = df.groupby('sector')[['est', 'emp', 'ap']].sum()
+t['ap'].plot.bar(figsize=(16, 4));
 ```
 
 # Full test
@@ -1062,13 +1080,13 @@ t['ap'].plot(figsize=(16, 4))
 :tags: [nbd-module]
 
 @log_start_finish
-def test_all(redownload=False):
-    test_get_sup(redownload)
-    test_get_use(redownload)
-    test_get_ixi(redownload)
-    test_get_ixc(redownload)
-    test_get_cxc(redownload)
-    test_get_naics_df(redownload)
+def test_all():
+    test_get_sup()
+    test_get_use()
+    test_get_ixi()
+    test_get_ixc()
+    test_get_cxc()
+    test_get_naics_concord()
 ```
 
 ```{code-cell} ipython3
@@ -1077,7 +1095,7 @@ jupyter:
   outputs_hidden: true
 tags: []
 ---
-test_all(redownload=False)
+test_all()
 ```
 
 # Build this module
