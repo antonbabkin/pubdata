@@ -44,6 +44,7 @@ def get_cbsa_delin_src(year: int):
 
     base = 'https://www2.census.gov/programs-surveys/metro-micro/geographies/reference-files/'
     urls = {
+        2023: f'{base}2023/delineation-files/list1_2023.xlsx',
         2020: f'{base}2020/delineation-files/list1_2020.xls',
         2018: f'{base}2018/delineation-files/list1_Sep_2018.xls',
         # 2018-april: f'{base}2018/delineation-files/list1.xls',
@@ -79,7 +80,7 @@ def get_cbsa_delin_df(year: int):
         return _prep_cbsa_delin_df_1993(f)
     
     # number of rows to skip at top and bottom varies by year
-    if year in [2003, 2013, 2015, 2017, 2018, 2020]:
+    if year in [2003, 2013, 2015, 2017, 2018, 2020, 2023]:
         skip_head = 2
     elif year in [2005, 2006, 2007, 2008, 2009]:
         skip_head = 3
@@ -92,7 +93,7 @@ def get_cbsa_delin_df(year: int):
         skip_foot = 6
     elif year in [2006, 2007, 2008, 2009, 2015, 2017, 2018, 2020]:
         skip_foot = 4
-    elif year == 2013:
+    elif year in [2013, 2023]:
         skip_foot = 3
 
     df = pd.read_excel(f, dtype=str, skiprows=skip_head, skipfooter=skip_foot)
@@ -116,7 +117,7 @@ def get_cbsa_delin_df(year: int):
         }
         if year >= 2007:
             rename.update({'County Status': 'CENTRAL_OUTLYING'})
-    elif 2013 <= year <= 2020:
+    elif 2013 <= year <= 2023:
         rename = {
             'CBSA Code': 'CBSA_CODE',
             'CBSA Title': 'CBSA_TITLE',
@@ -134,7 +135,7 @@ def get_cbsa_delin_df(year: int):
             rename.update({'Metro Division Code': 'DIVISION_CODE'})
         else:
             rename.update({'Metropolitan Division Code': 'DIVISION_CODE'})
-    
+
     df = df.rename(columns=rename)
     
     assert df[['STATE_CODE', 'COUNTY_CODE']].notna().all().all()
@@ -181,7 +182,7 @@ def cleanup_delin(remove_downloaded=False):
 @log_start_finish
 def test_get_cbsa_delin_df(redownload=False):
     cleanup_delin(redownload)
-    for year in [1993, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2013, 2015, 2017, 2018, 2020]:
+    for year in [1993, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2013, 2015, 2017, 2018, 2020, 2023]:
         print(year)
         df = get_cbsa_delin_df(year)
         assert len(df) > 0

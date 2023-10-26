@@ -5,7 +5,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.14.0
+    jupytext_version: 1.14.4
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -66,6 +66,7 @@ The standards for delineating the areas are reviewed and revised once every ten 
 Generally, the areas are delineated using the most recent set of standards following each decennial census.
 Between censuses, the delineations are revised to reflect Census Bureau population estimates and--once each decade--updated commuting-to-work data. 
 Areas based on the 2010 standards and Census Bureau data were delineated in February of 2013, and updated in July of 2015, August of 2017, April of 2018, September of 2018, and March of 2020.
+Currently delineated metropolitan and micropolitan statistical areas are based on application of 2020 standards (which appeared in the Federal Register on July 16, 2021) to 2020 Census and 2016-2020 American Community Survey data, as well as Vintage 2021 Population Estimates Program data. Current metropolitan and micropolitan statistical area delineations were announced by OMB effective July 2023.
 
 Changes in the delineations of these statistical areas since the 1950 census have consisted chiefly of:
 - the recognition of new areas as they reached the minimum required urban area or city population, and
@@ -80,6 +81,7 @@ In some instances, formerly separate areas have been merged, components of an ar
 
 | Revision | Census |
 |----------|--------|
+| Jul 2023 | 2020   |
 | Mar 2020 | 2010   |
 | Sep 2018 | 2010   |
 | Apr 2018 | 2010   |
@@ -172,6 +174,7 @@ def get_cbsa_delin_src(year: int):
 
     base = 'https://www2.census.gov/programs-surveys/metro-micro/geographies/reference-files/'
     urls = {
+        2023: f'{base}2023/delineation-files/list1_2023.xlsx',
         2020: f'{base}2020/delineation-files/list1_2020.xls',
         2018: f'{base}2018/delineation-files/list1_Sep_2018.xls',
         # 2018-april: f'{base}2018/delineation-files/list1.xls',
@@ -207,7 +210,7 @@ def get_cbsa_delin_df(year: int):
         return _prep_cbsa_delin_df_1993(f)
     
     # number of rows to skip at top and bottom varies by year
-    if year in [2003, 2013, 2015, 2017, 2018, 2020]:
+    if year in [2003, 2013, 2015, 2017, 2018, 2020, 2023]:
         skip_head = 2
     elif year in [2005, 2006, 2007, 2008, 2009]:
         skip_head = 3
@@ -220,7 +223,7 @@ def get_cbsa_delin_df(year: int):
         skip_foot = 6
     elif year in [2006, 2007, 2008, 2009, 2015, 2017, 2018, 2020]:
         skip_foot = 4
-    elif year == 2013:
+    elif year in [2013, 2023]:
         skip_foot = 3
 
     df = pd.read_excel(f, dtype=str, skiprows=skip_head, skipfooter=skip_foot)
@@ -244,7 +247,7 @@ def get_cbsa_delin_df(year: int):
         }
         if year >= 2007:
             rename.update({'County Status': 'CENTRAL_OUTLYING'})
-    elif 2013 <= year <= 2020:
+    elif 2013 <= year <= 2023:
         rename = {
             'CBSA Code': 'CBSA_CODE',
             'CBSA Title': 'CBSA_TITLE',
@@ -262,7 +265,7 @@ def get_cbsa_delin_df(year: int):
             rename.update({'Metro Division Code': 'DIVISION_CODE'})
         else:
             rename.update({'Metropolitan Division Code': 'DIVISION_CODE'})
-    
+
     df = df.rename(columns=rename)
     
     assert df[['STATE_CODE', 'COUNTY_CODE']].notna().all().all()
@@ -323,7 +326,7 @@ def cleanup_delin(remove_downloaded=False):
 @log_start_finish
 def test_get_cbsa_delin_df(redownload=False):
     cleanup_delin(redownload)
-    for year in [1993, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2013, 2015, 2017, 2018, 2020]:
+    for year in [1993, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2013, 2015, 2017, 2018, 2020, 2023]:
         print(year)
         df = get_cbsa_delin_df(year)
         assert len(df) > 0
@@ -379,7 +382,7 @@ pd.concat([
 #| layout-nrow: 2
 t0 = {}
 t1 = {}
-for year in [1993, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2013, 2015, 2017, 2018, 2020]:
+for year in [1993, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2013, 2015, 2017, 2018, 2020, 2023]:
     df = get_cbsa_delin_df(year)
     if year == 1993:
         df = df.dropna(subset='COUNTY_CODE').drop_duplicates(['STATE_CODE', 'COUNTY_CODE'])
