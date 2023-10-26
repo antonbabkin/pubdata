@@ -23,7 +23,7 @@ def cleanup():
 def get_src(key: str = ''):
     if key != '': 
         key = '_' + key
-    url = f'https://www2.census.gov/programs-surveys/bds/tables/time-series/bds2020{key}.csv'
+    url = f'https://www2.census.gov/programs-surveys/bds/tables/time-series/2021/bds2021{key}.csv'
     file_path = PATH['src'] / pathlib.Path(url).name
     if file_path.exists():
         return file_path
@@ -49,6 +49,6 @@ def get_df(key: str = ''):
     f = get_src(key)
     cols = pd.read_csv(f, nrows=0).columns
     dt = {c: dtypes[c] if c in dtypes else 'float64' for c in cols}
-    df = pd.read_csv(f, dtype=dt, na_values=['(D)', '(S)', '(X)', '.'])
+    df = pd.read_csv(f, dtype=dt, na_values=['(D)', '(S)', 'S', '(X)', '.'])
     return df
 

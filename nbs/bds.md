@@ -22,6 +22,7 @@ kernelspec:
 Release notes:
 [2019](https://www2.census.gov/programs-surveys/bds/updates/bds2019-release-note.pdf)
 [2020](https://www2.census.gov/programs-surveys/bds/updates/bds2020-release-note.pdf)
+[2021](https://www2.census.gov/programs-surveys/bds/updates/bds2021-release-note.pdf)
 
 ```{code-cell} ipython3
 :tags: [nbd-module]
@@ -57,7 +58,7 @@ Lookup keys by inspecting table URLs at the [CSV datasets](https://www.census.go
 def get_src(key: str = ''):
     if key != '': 
         key = '_' + key
-    url = f'https://www2.census.gov/programs-surveys/bds/tables/time-series/bds2020{key}.csv'
+    url = f'https://www2.census.gov/programs-surveys/bds/tables/time-series/2021/bds2021{key}.csv'
     file_path = PATH['src'] / pathlib.Path(url).name
     if file_path.exists():
         return file_path
@@ -103,7 +104,7 @@ def get_df(key: str = ''):
     f = get_src(key)
     cols = pd.read_csv(f, nrows=0).columns
     dt = {c: dtypes[c] if c in dtypes else 'float64' for c in cols}
-    df = pd.read_csv(f, dtype=dt, na_values=['(D)', '(S)', '(X)', '.'])
+    df = pd.read_csv(f, dtype=dt, na_values=['(D)', '(S)', 'S', '(X)', '.'])
     return df
 ```
 
@@ -111,7 +112,7 @@ def get_df(key: str = ''):
 :tags: []
 
 d = get_df('').set_index('year')
-d.query('year > 2006').emp.plot()
+d.query('year > 2006').emp.plot(grid=True)
 ```
 
 ```{code-cell} ipython3
@@ -132,7 +133,7 @@ left.set_title('Establishments entry and exit rates, economy-wide');
 :tags: []
 
 d = get_df('sec')
-d = d.query('year.isin([1978, 2020])')
+d = d.query('year.isin([1978, 2021])')
 d = d.set_index(['sector', 'year'])['emp'].unstack()
 d = d.apply(lambda x: x / x.sum())
 d.plot.barh(title='Employment share by sector');
