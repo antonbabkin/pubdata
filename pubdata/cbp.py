@@ -23,8 +23,7 @@ PATH = {
     'cbp_src': nbd.root / 'data/cbp/cbp_src/',
     'cbp_pq': nbd.root / 'data/cbp/cbp_pq/',
     'efsy_src': nbd.root / 'data/cbp/efsy_src/',
-    'efsy_pq': nbd.root / 'data/cbp/efsy_pq/',
-    'icbp_pq': nbd.root / 'data/cbp/icbp_pq/'
+    'efsy_pq': nbd.root / 'data/cbp/efsy_pq/'
 }
 
 log = logging.getLogger('pubdata.cbp')
@@ -35,12 +34,11 @@ log.setLevel('DEBUG')
 def cleanup(remove_downloaded=False):
     if remove_downloaded:
         print('Removing downloaded files...')
-        shutil.rmtree(PATH['src'], ignore_errors=True)
-        shutil.rmtree(PATH['src_efsy'], ignore_errors=True)
+        shutil.rmtree(PATH['cbp_src'], ignore_errors=True)
+        shutil.rmtree(PATH['efsy_src'], ignore_errors=True)
     print('Removing processed files...')
-    shutil.rmtree(PATH['parquet'], ignore_errors=True)
-    shutil.rmtree(PATH['cbp_panel'], ignore_errors=True)
-    shutil.rmtree(PATH['efsy'], ignore_errors=True)
+    shutil.rmtree(PATH['cbp_pq'], ignore_errors=True)
+    shutil.rmtree(PATH['efsy_pq'], ignore_errors=True)
 
 
 import pathlib
@@ -158,20 +156,11 @@ def get_cbp_df(geo: typing.Literal['us', 'state', 'county'], year: int):
     return df
 
 
-def get_cbp_path(geo: typing.Literal['us', 'state', 'county'], year: int):
-    """Return path to Parquet file, first creating the file if it does not exist."""
-    path = PATH['cbp_pq'] / f'{geo}/{year}.pq'
-    if not path.exists():
-        get_cbp_df(geo, year)
-        assert path.exists()
-    return path
-
-
 def preproc_get_cbp_df():
     for year in range(1986, 2022):
         for geo in ['us', 'state', 'county']:
-            get_cbp_raw(geo, year)
-        log.info(f'preproc_get_cbp_raw year finished {year}')
+            get_cbp_df(geo, year)
+        print(year)
 
 
 @cache_pq(str(PATH['efsy_pq'] / 'years/{}.pq'))
@@ -191,14 +180,6 @@ def get_efsy_year_df(year):
     df['fipstate'] = df['fipstate'].str.zfill(2)
     df['fipscty'] = df['fipscty'].str.zfill(3)
     return df
-
-
-def get_efsy_year_path(year):
-    path = PATH['efsy_pq'] / f'years/{year}.pq'
-    if not path.exists():
-        get_efsy_year_df(year)
-        assert path.exists()
-    return path
 
 
 @cache_pq(str(PATH['efsy_pq'] / 'efsy_panel_{}.pq'))
@@ -229,173 +210,4 @@ def get_efsy_panel(industry: typing.Literal['native', 'naics'],
         if filters is None:
             return d
     return pd.read_parquet(path, engine='pyarrow', filters=filters)
-
-
-# interface function
-def get_wage(geo: typing.Literal['us', 'state', 'county'], year: int):
-    if geo == 'us':
-        return _get_wage_us(year)
-    if geo == 'state':
-        return _get_wage_state(year)
-    if geo == 'county':
-        return _get_wage_county(year)
-
-
-def _get_wage_us(year):
-    
-    path = get_cbp_path('us', year)
-    filters = [('lfo', '==', '-')] if year > 2007 else None
-    df = pd.read_parquet(path, engine='pyarrow', columns=['naics', 'emp', 'qp1'], filters=filters)    
-
-    assert not df['naics'].duplicated().any()
-
-    df['wage'] = (df['qp1'] / df['emp'] * 4000).round()
-    df['wage_f'] = pd.Series(dtype=pd.CategoricalDtype(['county-industry', 'state-industry', 'nation-industry', 'nation-sector', 'nation']))
-    df['wage_f'] = 'nation-industry'
-
-    # national sector wage
-    df['CODE'] = df['naics'].str.replace('-', '').str.replace('/', '')
-    n = naics.get_df(naics_year(year), 'code')[['CODE', 'CODE_2', 'DIGITS']]
-    n.loc[n['DIGITS'] == 2, 'CODE'] = n['CODE'].str[:2]
-    n['CODE_2'] = n['CODE_2'].str[:2]
-    df = df.merge(n, 'left')
-
-    d = df.query('DIGITS == 2').rename(columns={'wage': 'sector_wage'})
-    df = df.merge(d[['CODE_2', 'sector_wage']], 'left')
-
-    bad_wage = ~df['wage'].between(0.1, 1e9)
-    df.loc[bad_wage, 'wage'] = df['sector_wage']
-    df.loc[bad_wage, 'wage_f'] = 'nation-sector'
-    
-    nat_wage = df.loc[df['naics'] == "------", 'wage'].values[0]
-    bad_wage = ~df['wage'].between(0.1, 1e9)
-    df.loc[bad_wage, 'wage'] = nat_wage
-    df.loc[bad_wage, 'wage_f'] = 'nation'
-
-    assert df['wage'].between(0.1, 1e9).all()
-    df['wage'] = df['wage'].astype('int32')
-
-    return df.reset_index()[['naics', 'wage', 'wage_f']]
-
-
-def _get_wage_state(year):
-    
-    path = get_cbp_path('state', year)
-    filters = [('lfo', '==', '-')] if year > 2009 else None
-    df = pd.read_parquet(path, engine='pyarrow', columns=['fipstate', 'naics', 'emp', 'qp1'], filters=filters)
-
-    assert not df.duplicated(['fipstate', 'naics']).any()
-
-    df['wage'] = (df['qp1'] / df['emp'] * 4000).round()
-    df['wage_f'] = pd.Series(dtype=pd.CategoricalDtype(['county-industry', 'state-industry', 'nation-industry', 'nation-sector', 'nation']))
-    df['wage_f'] = 'state-industry'
-
-    # national wages
-    d = _get_wage_us(year)
-    df = df.merge(d, 'left', 'naics', suffixes=('', '_nation'))
-    # state-to-nation ratio
-    d = df.query('naics == "------"').copy()
-    d['state/nation'] = d['wage'] / d['wage_nation']
-    d.loc[~d['wage'].between(0.1, 1e9), 'state/nation'] = 1
-    df = df.merge(d[['fipstate', 'state/nation']], 'left', 'fipstate')
-    # replace extreme state wages with nation
-    bad_wage = ~df['wage'].between(0.1, 1e9)
-    df.loc[bad_wage, 'wage'] = (df['wage_nation'] * df['state/nation']).round()
-    df.loc[bad_wage, 'wage_f'] = df['wage_f_nation']
-
-    assert df['wage'].between(0.1, 1e9).all()
-    df['wage'] = df['wage'].astype('int32')
-
-    return df[['fipstate', 'naics', 'wage', 'wage_f', 'state/nation']]
-
-
-def _get_wage_county(year):
-
-    df = pd.read_parquet(
-        get_cbp_path('county', year), engine='pyarrow', 
-        columns=['fipstate', 'fipscty', 'naics', 'emp', 'qp1']
-    )
-    
-    if year == 1999:
-        # small number of duplicate records
-        df.drop_duplicates(['fipstate', 'fipscty', 'naics'], inplace=True)
-    
-    assert not df.duplicated(['fipstate', 'fipscty', 'naics']).any()
-
-    df['wage'] = (df['qp1'] / df['emp'] * 4000).round()
-    df['wage_f'] = pd.Series(dtype=pd.CategoricalDtype(['county-industry', 'state-industry', 'nation-industry', 'nation-sector', 'nation']))
-    df['wage_f'] = 'county-industry'
-
-    # state wage
-    d = _get_wage_state(year)
-    df = df.merge(d, 'left', ['fipstate', 'naics'], suffixes=('', '_state'))
-    # county-to-state ratio
-    d = df.query('naics == "------"').copy()
-    d['county/state'] = d['wage'] / d['wage_state']
-    d.loc[~d['wage'].between(0.1, 1e9), 'county/state'] = 1
-    df = df.merge(d[['fipstate', 'fipscty', 'county/state']], 'left', ['fipstate', 'fipscty'])
-    # replace extreme county wages with state
-    bad_wage = ~df['wage'].between(0.1, 1e9)
-    df.loc[bad_wage, 'wage'] = (df['wage_state'] * df['county/state']).round()
-    df.loc[bad_wage, 'wage_f'] = df['wage_f_state']
-
-    assert df['wage'].between(0.1, 1e9).all()
-    df['wage'] = df['wage'].astype('int32')
-
-    return df[['fipstate', 'fipscty', 'naics', 'wage', 'wage_f', 'county/state']]
-
-
-@cache_pq(str(PATH['icbp_pq'] / '{}.pq'))
-def get_icbp_df(year):
-    ind_col = 'naics' if year > 1997 else 'sic'
-    df = get_cbp_df('county', year)
-    # df = df[['fipstate', 'fipscty', ind_col, 'est', 'emp', 'qp1', 'ap']]
-    # rename applies before 2017
-    df.rename(columns={'n1_4': 'n<5'}, inplace=True)
-    
-    df['industry'] = df[ind_col].str.replace('-', '').str.replace('/', '')
-    df['ind_digits'] = df['industry'].str.len()
-    
-    # wage
-    d = get_wage('county', year)
-    df = df.merge(d, 'left', ['fipstate', 'fipscty', ind_col], indicator=True)
-    log.debug(f'wage merge {year}:\n {df["_merge"].value_counts()}')
-    del df['_merge']
-    
-    # EFSY ends in 2016
-    if year > 2016:
-        return df
-    
-    # add EFSY employment
-    d = get_efsy_year_df(year)
-    if year < 1998:
-        d.rename(columns={'naics': 'sic'}, inplace=True)
-    d.rename(columns={'lb': 'efsy_lb', 'ub': 'efsy_ub'}, inplace=True)
-
-    df = df.merge(d, 'left', ['fipstate', 'fipscty', ind_col], indicator=True)
-    log.debug(f'efsy merge {year}:\n {df["_merge"].value_counts()}')
-    del df['_merge']
-
-    # fill missing emp and ap in CBP
-    df['cbp_emp'] = df['emp']
-    df.loc[df['emp'] == 0, 'emp'] = (df['efsy_lb'] + df['efsy_ub']) / 2
-
-    df['cbp_ap'] = df['ap']
-    df.loc[df['ap'] == 0, 'ap'] = df['emp'] * df['wage'] / 1000
-    
-    return df
-
-
-def get_icbp_path(year: int):
-    """Return path to Parquet file, first creating the file if it does not exist."""
-    path = PATH['icbp_pq'] / f'{year}.pq'
-    if not path.exists():
-        get_icbp_df(year)
-        assert path.exists()
-    return path
-
-def _cleanup_get_icbp():
-    p = PATH['icbp_pq']
-    log.info(f'Removing {p}...')
-    shutil.rmtree(p, ignore_errors=True)
 
