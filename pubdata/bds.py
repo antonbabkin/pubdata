@@ -49,6 +49,6 @@ def get_df(key: str = ''):
     f = get_src(key)
     cols = pd.read_csv(f, nrows=0).columns
     dt = {c: dtypes[c] if c in dtypes else 'float64' for c in cols}
-    df = pd.read_csv(f, dtype=dt, na_values=['(D)', '(S)', 'S', '(X)', '.'])
+    df = pd.read_csv(f, dtype=dt, na_values=['(D)', 'D', '(S)', 'S', '(X)','N', '.'])
     return df
 

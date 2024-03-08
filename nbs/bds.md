@@ -5,7 +5,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.14.4
+    jupytext_version: 1.16.1
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -65,8 +65,6 @@ def get_src(key: str = ''):
     return download_file(url, PATH['src'])
 ```
 
-+++ {"tags": []}
-
 ## Dataframe
 
 Dataframes are not cached in parquet format, just read from source CSV.
@@ -104,20 +102,16 @@ def get_df(key: str = ''):
     f = get_src(key)
     cols = pd.read_csv(f, nrows=0).columns
     dt = {c: dtypes[c] if c in dtypes else 'float64' for c in cols}
-    df = pd.read_csv(f, dtype=dt, na_values=['(D)', '(S)', 'S', '(X)', '.'])
+    df = pd.read_csv(f, dtype=dt, na_values=['(D)', 'D', '(S)', 'S', '(X)','N', '.'])
     return df
 ```
 
 ```{code-cell} ipython3
-:tags: []
-
 d = get_df('').set_index('year')
 d.query('year > 2006').emp.plot(grid=True)
 ```
 
 ```{code-cell} ipython3
-:tags: []
-
 d = get_df('').set_index('year')[['estabs', 'estabs_entry_rate', 'estabs_exit_rate']]
 left = d['estabs'].plot(color='black', ylim=(0, 8e6), grid=True, figsize=(8, 6))
 left.legend(loc='lower left')
@@ -130,8 +124,6 @@ left.set_title('Establishments entry and exit rates, economy-wide');
 ```
 
 ```{code-cell} ipython3
-:tags: []
-
 d = get_df('sec')
 d = d.query('year.isin([1978, 2021])')
 d = d.set_index(['sector', 'year'])['emp'].unstack()
@@ -142,7 +134,5 @@ d.plot.barh(title='Employment share by sector');
 ## Build this module
 
 ```{code-cell} ipython3
-:tags: []
-
 nbd.nb2mod('bds.ipynb')
 ```
