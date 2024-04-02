@@ -1,0 +1,6 @@
+^renv$
+^renv\.lock$
+^environment\.yml$
+^pubdata\.Rproj$
+^\.Rproj\.user$
+^LICENSE\.md$

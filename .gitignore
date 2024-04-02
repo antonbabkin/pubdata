@@ -16,3 +16,10 @@ _site/
 nbs/pubdata
 pubdata/reseng
 
+# other
+.DS_Store
+.Rproj.user
+.Rhistory
+.Rdata
+.httr-oauth
+.quarto
