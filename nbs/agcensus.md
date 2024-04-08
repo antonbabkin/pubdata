@@ -5,7 +5,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.14.4
+    jupytext_version: 1.16.1
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -51,13 +51,14 @@ nbd = Nbd('pubdata')
 :tags: [nbd-module]
 
 PATH = {
-    'source': nbd.root / 'data/source/agcensus',
-    'proc': nbd.root / 'data/agcensus',
+    'source': nbd.root / 'data/agcensus/source',
+    'proc': nbd.root / 'data/agcensus/agcensus.parquet',
     'pq_part': {
-        2002: nbd.root / 'data/agcensus/2002/part.pq',
-        2007: nbd.root / 'data/agcensus/2007/part.pq',
-        2012: nbd.root / 'data/agcensus/2012/part.pq',
-        2017: nbd.root / 'data/agcensus/2017/part.pq'
+        2002: nbd.root / 'data/agcensus/agcensus.parquet/2002/part.pq',
+        2007: nbd.root / 'data/agcensus/agcensus.parquet/2007/part.pq',
+        2012: nbd.root / 'data/agcensus/agcensus.parquet/2012/part.pq',
+        2017: nbd.root / 'data/agcensus/agcensus.parquet/2017/part.pq',
+        2022: nbd.root / 'data/agcensus/agcensus.parquet/2022/part.pq'
     }
 }
 
@@ -80,7 +81,7 @@ def cleanup(remove_downloaded=False):
 
 Census tabulations are available in PDF format for [2017](https://www.nass.usda.gov/Publications/AgCensus/2017/index.php) and [all previous years](https://agcensus.library.cornell.edu/).
 
-QuickStats provides access to 2002, 2007, 2012 and 2017 data2002, 2007, 2012 and 2017 data via [browser interface](https://quickstats.nass.usda.gov/), [API](https://quickstats.nass.usda.gov/api/) and [bulk download](https://www.nass.usda.gov/datasets/https://www.nass.usda.gov/datasets/).
+QuickStats provides access to 2002, 2007, 2012 and 2017 data2002, 2007, 2012 and 2017 data via [browser interface](https://quickstats.nass.usda.gov/), [API](https://quickstats.nass.usda.gov/api/) and [bulk download](https://www.nass.usda.gov/datasets/).
 
 ```{code-cell} ipython3
 :tags: [nbd-module]
@@ -99,6 +100,28 @@ def _get_qs_src(year):
 
 Source files are big, e.g. 2017 CSV loaded as str type uses 20 GB of memory.
 All QuickStats Census tables have the same layout in each year, and in this module we retrieve and save them as a partitioned parquet dataset.
+
+Flags information from census methodology (2022):
+
+```
+The following abbreviations and symbols are used throughout the tables: 
+- 	Represents zero. 
+(D) 	Withheld to avoid disclosing data for individual farms. 
+(H) 	Coefficient of variation is greater than or equal to 99.95 percent or the 
+standard error is greater than or equal to 99.95 percent of mean. 
+(IC) 	Independent city. 
+(L) 	Coefficient of variation is less than 0.05 percent or the standard error 
+is less than 0.05 percent of the mean. 
+(NA) 	Not available. 
+(X) 	Not applicable. 
+(Z) 	Less than half of the unit shown.
+```
+
+The `VALUE` and `CV_%` columns mix numerical values and character flags.
+In the processed dataset `(D)`, `(H)`, `(X)` and `(L)` are replaced with NA, `(Z)` is replaced with zero, and the flag is preseved in an additional columns `VALUE_F` and `CV_%_F`.
+
+
+Disclosure suppression details are available in census [methodology](https://www.nass.usda.gov/Publications/AgCensus/2022/Full_Report/Volume_1,_Chapter_1_US/usappxa.pdf).
 
 ```{code-cell} ipython3
 :tags: [nbd-module]
@@ -119,9 +142,10 @@ def _proc_qs_to_pq(year):
     del df['YEAR']
 
     # VALUE: convert to numeric and create flag variable
-    df['VALUE_F'] = df['VALUE'].astype(pd.CategoricalDtype(['NUM', '(D)', '(Z)'])).fillna('NUM')
+    df['VALUE_F'] = df['VALUE'].astype(pd.CategoricalDtype(['NUM', '(D)', '(Z)', '(X)'])).fillna('NUM')
     df['VALUE'] = pd.to_numeric(df['VALUE'].str.replace(',', ''), 'coerce')
-    assert (df['VALUE'].notna() == (df['VALUE_F'] == 'NUM')).all()
+    df.loc[df['VALUE_F'] == '(Z)', 'VALUE'] = 0
+    assert (df['VALUE'].notna() == df['VALUE_F'].isin(['NUM', '(Z)'])).all()
 
     # CV_%: convert to numeric and create flag variable
     df['CV_%_F'] = df['CV_%'].astype(pd.CategoricalDtype(['NUM', '(H)', '(D)', '(L)']))
@@ -131,6 +155,15 @@ def _proc_qs_to_pq(year):
     path.parent.mkdir(parents=True, exist_ok=True)
     df.to_parquet(path, engine='pyarrow', index=False)
     print(f'Saved {len(df):,d} rows to parquet.')
+```
+
+```{code-cell} ipython3
+src_path = _get_qs_src(2022)
+df = pd.read_csv(src_path, sep='\t', dtype=str)
+```
+
+```{code-cell} ipython3
+_proc_qs_to_pq(2022)
 ```
 
 +++ {"tags": ["nbd-docs"]}
@@ -146,8 +179,6 @@ Some fields are all empty in some years, and this creates inconsistent datatypes
 Manually providing schema fixes this.
 
 ```{code-cell} ipython3
-:tags: []
-
 t = pd.read_html('https://quickstats.nass.usda.gov/api/', header=0)[0]
 t = t[t.iloc[:, 0] != t.iloc[:, 1]]
 schema = []
@@ -338,13 +369,11 @@ def get_df(years, cols=None, filters=None):
 
 def test_get_df(redownload=False):
     cleanup(redownload)
-    d = get_df([2002, 2007, 2012, 2017], ['YEAR', 'SECTOR_DESC', 'VALUE'])
+    d = get_df([2002, 2007, 2012, 2017, 2022], ['YEAR', 'SECTOR_DESC', 'VALUE'])
     assert len(d) > 0
 ```
 
 ```{code-cell} ipython3
-:tags: []
-
 test_get_df()
 ```
 
@@ -357,7 +386,7 @@ This example shows how usage of contract and hired labor, measured as percentage
 ```{code-cell} ipython3
 :tags: [nbd-docs]
 
-df = get_df(years=[2002, 2007, 2012, 2017], cols=['YEAR', 'STATE_NAME', 'SHORT_DESC',  'VALUE'],
+df = get_df(years=[2002, 2007, 2012, 2017, 2022], cols=['YEAR', 'STATE_NAME', 'SHORT_DESC',  'VALUE'],
             filters=[('DOMAIN_DESC', '==', 'TOTAL'),
                      ('SHORT_DESC', 'in', [
                          'LABOR, HIRED - EXPENSE, MEASURED IN PCT OF OPERATING EXPENSES', 
@@ -379,7 +408,7 @@ Hover over states to view full list of sales.
 :tags: [nbd-docs]
 
 # load relevant subset of the dataset
-df = get_df(years=[2017], cols=['COMMODITY_DESC', 'SHORT_DESC', 'STATE_FIPS_CODE',  'VALUE'],
+df = get_df(years=[2022], cols=['COMMODITY_DESC', 'SHORT_DESC', 'STATE_FIPS_CODE',  'VALUE'],
             filters=[('DOMAIN_DESC', '==', 'TOTAL'),
                      ('STATISTICCAT_DESC', '==', 'SALES'),
                      ('UNIT_DESC', '==', '$'),
@@ -464,7 +493,6 @@ def test_all(redownload=False):
 ---
 jupyter:
   outputs_hidden: true
-tags: []
 ---
 test_all(redownload=False)
 ```
@@ -472,7 +500,5 @@ test_all(redownload=False)
 # Build this module
 
 ```{code-cell} ipython3
-:tags: []
-
 nbd.nb2mod('agcensus.ipynb')
 ```
