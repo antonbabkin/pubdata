@@ -1,6 +1,9 @@
 data/
 tmp/
 
+# user settings
+.Renviron
+
 # quarto files
 *_files/
 *.html

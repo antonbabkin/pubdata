@@ -1,0 +1,43 @@
+---
+title: "I-O Tables"
+format: html
+---
+
+
+```{r}
+library(tidyverse)
+library(glue)
+```
+
+
+metadata
+
+```{r}
+bea_io_meta("current_use_sec_2022")
+```
+
+tidy table
+
+```{r}
+bea_io_get("current_use_sec_2022")
+```
+
+core matrix
+
+```{r}
+bea_io_get("current_use_sec_2022") %>%
+  bea_io_pivot_wider(core = TRUE, labels = "code")
+  
+```
+
+
+# tests
+
+```{r}
+x <- list()
+for (y in 2017:2022) {
+  x[[as.character(y)]] <- bea_io_get(glue("current_use_sec_{y}")) %>% dim()
+}
+x
+```
+

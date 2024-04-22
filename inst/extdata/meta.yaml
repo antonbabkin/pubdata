@@ -1,0 +1,55 @@
+dataset: bea_io
+description: Input-Output Tables, BEA
+urls:
+  "Home":
+    https://www.bea.gov/data/industries/input-output-accounts-data
+  "Current - Industry File Download":
+    https://apps.bea.gov/iTable/?isuri=1&reqid=151&step=1
+  "Historical Data Archive":
+    https://apps.bea.gov/histdatacore/
+  "Gross Domestic Product by Industry and Input-Output Statistics":
+    https://apps.bea.gov/histdatacore/histChildLevels.html?HMI=8&oldDiv=Industry%20Accounts
+
+data:
+  raw_current:
+    type: raw
+    path: raw/AllTablesSUP_current.zip
+    url: https://apps.bea.gov/industry/iTables%20Static%20Files/AllTablesSUP.zip
+  raw_2023:
+    type: raw
+    path: raw/AllTablesSUP_2023.zip
+    url: https://apps.bea.gov/HistDataCore/wwwroot/Releases/Industry/2023/GDP_by_Industry/Q2/Annual_September-28-2023/AllTablesSUP.zip
+  raw_2022:
+    type: raw
+    path: raw/AllTablesSUP_2022.zip
+    url: https://apps.bea.gov/HistDataCore/wwwroot/Releases/Industry/2022/GDP_by_Industry/Q2/Annual_September-29-2022/AllTablesSUP.zip
+  current_use_sec_2022: &current_use_sec
+    mask: "{revision}_{table}_{level}_{year}"
+    type: table
+    path: proc/{revision}/{table}/{level}/{year}
+    depends: raw_{revision}
+    read:
+      file: "AllTablesSUP/Use_Tables_Supply-Use_Framework_2017-2022_Sector.xlsx"
+      skip: 5
+      rows: 29
+      matrix: [18, 16] # dimensions of the core matrix
+  current_use_sec_2021: *current_use_sec
+  current_use_sec_2020: *current_use_sec
+  current_use_sec_2019: *current_use_sec
+  current_use_sec_2018: *current_use_sec
+  current_use_sec_2017: *current_use_sec
+  2023_use_sec_2022: &2023_use_sec
+    mask: "{revision}_{table}_{level}_{year}"
+    type: table
+    path: proc/{revision}/{table}/{level}/{year}
+    depends: raw_{revision}
+    read:
+      file: "AllTablesSUP/Use_Tables_Supply-Use_Framework_2017-2022_Sector.xlsx"
+      skip: 5
+      rows: 29
+  2023_use_sec_2021: *2023_use_sec
+  2023_use_sec_2020: *2023_use_sec
+  2023_use_sec_2019: *2023_use_sec
+  2023_use_sec_2018: *2023_use_sec
+  2023_use_sec_2017: *2023_use_sec
+
