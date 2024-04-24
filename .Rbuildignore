@@ -4,3 +4,10 @@
 ^pubdata\.Rproj$
 ^\.Rproj\.user$
 ^LICENSE\.md$
+
+^datacache$
+^tmp$
+^submodules$
+^nbs$
+^pubdata$
+^references\.bib$

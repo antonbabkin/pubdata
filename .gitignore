@@ -1,5 +1,7 @@
 data/
+datacache/
 tmp/
+man/
 
 # user settings
 .Renviron
