@@ -1,3 +1,18 @@
+#' List data keys in the BEA I-O collection
+#'
+#' @param pattern grep pattern to filter with
+#'
+#' @return Vector of keys that match pattern.
+#' @export
+#'
+#' @examples
+#' bea_io_ls("raw")
+bea_io_ls <- function(pattern = ".") {
+  meta_path <- system.file("extdata/bea_io/meta.yaml", package = "pubdata")
+  full_meta <- yaml::read_yaml(meta_path)
+  all_keys <- names(full_meta$data)
+  grep(pattern, all_keys, value = TRUE)
+}
 
 
 #' I-O Tables metadata
