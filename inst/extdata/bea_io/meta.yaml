@@ -23,6 +23,7 @@ data:
     type: raw
     path: raw/AllTablesSUP_2022.zip
     url: https://apps.bea.gov/HistDataCore/wwwroot/Releases/Industry/2022/GDP_by_Industry/Q2/Annual_September-29-2022/AllTablesSUP.zip
+
   curr_use_sec_2022: &curr_use_sec
     desc: Use table, year {year}, sector level, current revision
     mask: "{revision}_{table}_{level}_{year}"
@@ -33,12 +34,88 @@ data:
       file: "AllTablesSUP/Use_Tables_Supply-Use_Framework_2017-2022_Sector.xlsx"
       skip: 5
       rows: 29
-      matrix: [18, 16] # dimensions of the core matrix
+      matrix: [17, 15] # dimensions of the core matrix
   curr_use_sec_2021: *curr_use_sec
   curr_use_sec_2020: *curr_use_sec
   curr_use_sec_2019: *curr_use_sec
   curr_use_sec_2018: *curr_use_sec
   curr_use_sec_2017: *curr_use_sec
+
+  curr_use_sum_2022: &curr_use_sum
+    desc: Use table, year {year}, summary level, current revision
+    mask: "{revision}_{table}_{level}_{year}"
+    type: table
+    path: proc/{revision}/{table}/{level}/{year}
+    depends: raw_{revision}
+    read:
+      file: "AllTablesSUP/Use_Tables_Supply-Use_Framework_2017-2022_Summary.xlsx"
+      skip: 5
+      rows: 85
+      matrix: [73, 71] # dimensions of the core matrix
+  curr_use_sum_2021: *curr_use_sum
+  curr_use_sum_2020: *curr_use_sum
+  curr_use_sum_2019: *curr_use_sum
+  curr_use_sum_2018: *curr_use_sum
+  curr_use_sum_2017: *curr_use_sum
+
+  curr_use_det_2017:
+    desc: Use table, year {year}, detail level, current revision
+    mask: "{revision}_{table}_{level}_{year}"
+    type: table
+    path: proc/{revision}/{table}/{level}/{year}
+    depends: raw_{revision}
+    read:
+      file: "AllTablesSUP/Use_SUT_Framework_2017_DET.xlsx"
+      skip: 4
+      rows: 413
+      matrix: [402, 402] # dimensions of the core matrix
+
+  curr_sup_sec_2022: &curr_sup_sec
+    desc: Supply table, year {year}, sector level, current revision
+    mask: "{revision}_{table}_{level}_{year}"
+    type: table
+    path: proc/{revision}/{table}/{level}/{year}
+    depends: raw_{revision}
+    read:
+      file: "AllTablesSUP/Supply_Tables_2017-2022_Sector.xlsx"
+      skip: 5
+      rows: 20
+      matrix: [17, 15] # dimensions of the core matrix
+  curr_sup_sec_2021: *curr_sup_sec
+  curr_sup_sec_2020: *curr_sup_sec
+  curr_sup_sec_2019: *curr_sup_sec
+  curr_sup_sec_2018: *curr_sup_sec
+  curr_sup_sec_2017: *curr_sup_sec
+
+  curr_sup_sum_2022: &curr_sup_sum
+    desc: Supply table, year {year}, summary level, current revision
+    mask: "{revision}_{table}_{level}_{year}"
+    type: table
+    path: proc/{revision}/{table}/{level}/{year}
+    depends: raw_{revision}
+    read:
+      file: "AllTablesSUP/Supply_Tables_2017-2022_Summary.xlsx"
+      skip: 5
+      rows: 76
+      matrix: [73, 71] # dimensions of the core matrix
+  curr_sup_sum_2021: *curr_sup_sum
+  curr_sup_sum_2020: *curr_sup_sum
+  curr_sup_sum_2019: *curr_sup_sum
+  curr_sup_sum_2018: *curr_sup_sum
+  curr_sup_sum_2017: *curr_sup_sum
+
+  curr_sup_det_2017:
+    desc: Supply table, year {year}, detail level, current revision
+    mask: "{revision}_{table}_{level}_{year}"
+    type: table
+    path: proc/{revision}/{table}/{level}/{year}
+    depends: raw_{revision}
+    read:
+      file: "AllTablesSUP/Supply_2017_DET.xlsx"
+      skip: 4
+      rows: 405
+      matrix: [402, 402] # dimensions of the core matrix
+
   2023_use_sec_2022: &2023_use_sec
     desc: Use table, year {year}, sector level, 2023 revision
     mask: "{revision}_{table}_{level}_{year}"
@@ -49,7 +126,7 @@ data:
       file: "Use_Tables_Supply-Use_Framework_2017-2022_Sector.xlsx"
       skip: 5
       rows: 29
-      matrix: [18, 16] # dimensions of the core matrix
+      matrix: [17, 15] # dimensions of the core matrix
   2023_use_sec_2021: *2023_use_sec
   2023_use_sec_2020: *2023_use_sec
   2023_use_sec_2019: *2023_use_sec
