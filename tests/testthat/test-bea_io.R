@@ -17,7 +17,7 @@ test_that("get() calls produce no errors for all data keys", {
 })
 
 
-for (key in bea_io_ls("curr_sup*")) {
+for (key in bea_io_ls("_sup_")) {
   test_that(glue::glue("total supply equals total use in {key}"), {
     # supply table rows are all commodities + total
     total_supply <- bea_io_get(key) |>
@@ -30,6 +30,9 @@ for (key in bea_io_ls("curr_sup*")) {
       dplyr::pull(value) %>%
       `[`(1:length(total_supply)) |> # only keep commodities and total, ignore extras
       tidyr::replace_na(0)
-    expect_equal(total_supply, total_use, tolerance = 1e-7)
+    # absolute deviation less than small number - rounding error
+    expect_true(all(abs(total_supply - total_use) <= 2))
+    # expect_equal is more informative, but can not set absolute tolerance
+    # expect_equal(total_supply, total_use, tolerance = 1e-5)
   })
 }
