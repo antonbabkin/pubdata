@@ -8,48 +8,46 @@
 #' @examples
 #' bea_io_ls("raw")
 bea_io_ls <- function(pattern = ".") {
-  meta_path <- system.file("extdata/bea_io/meta.yaml", package = "pubdata")
+  meta_path <- system.file("extdata/bea_io/meta.yml", package = "pubdata")
   full_meta <- yaml::read_yaml(meta_path)
   all_keys <- names(full_meta$data)
   grep(pattern, all_keys, value = TRUE)
 }
 
 
-#' I-O Tables metadata
+#' BEA I-O Tables metadata for a data object
 #'
-#' @param key String key of the specific data object, leave NULL to get all metadata.
+#' @param key String key of the specific data object
 #'
-#' @return List of metadata.
+#' @return Metadata as a list.
 #' @export
-bea_io_meta <- function(key = NULL) {
-  meta_path <- system.file("extdata/bea_io/meta.yaml", package = "pubdata")
+#' @examples
+#' # use as a list
+#' bea_io_meta("2023_use_det_2017")
+#'
+#' # print in a compact format
+#' bea_io_meta("2023_use_det_2017") |>
+#'   yaml::as.yaml() |>
+#'   cat()
+#'
+bea_io_meta <- function(key) {
+  meta_path <- system.file("extdata/bea_io/meta.yml", package = "pubdata")
   full_meta <- yaml::read_yaml(meta_path)
-  if (is.null(key)) return(full_meta)
 
   if (!(key %in% names(full_meta$data))) {
     stop(key, " is not a valid data key")
   }
 
-  key_meta <- full_meta$data[[key]]
-  if (is.null(key_meta$mask)) return(key_meta)
-
-  keys <- unglue::unglue(key, key_meta$mask)[[1]]
-  for (x in names(key_meta)) {
-    if (x %in% c("mask", "read")) next
-    key_meta[[x]] <- glue::glue_data(keys, key_meta[[x]]) |>
-      as.character()
-  }
-  key_meta$keys <- as.list(keys)
-  key_meta
+  glue_meta(key, full_meta$data[[key]])
 }
 
 
 
-#' Title
+#' BEA I-O Tables data object
 #'
-#' @param key Table key.
+#' @param key Data object key.
 #'
-#' @return Tidy table.
+#' @return Tidy table or path to raw file.
 #' @export
 bea_io_get <- function(key) {
   meta <- bea_io_meta(key)
