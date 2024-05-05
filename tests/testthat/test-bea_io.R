@@ -17,6 +17,16 @@ test_that("get() calls produce no errors for all data keys", {
 })
 
 
+test_that("every table column is in schema", {
+  for (key in bea_io_ls()) {
+    m <- bea_io_meta(key)
+    if (m$type == "raw") next
+    t <- bea_io_get(key)
+    expect_equal(names(m$schema), names(t))
+  }
+})
+
+
 for (key in bea_io_ls("_sup_")) {
   test_that(glue::glue("total supply equals total use in {key}"), {
     # supply table rows are all commodities + total

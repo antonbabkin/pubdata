@@ -35,6 +35,25 @@ data:
       skip: 5
       rows: 29
       matrix: [17, 15]
+    schema: &schema_sec
+      row_code:
+        desc: Row code - sector level commodity.
+        type: string
+      row_name:
+        desc: Row description - sector level commodity.
+        type: string
+      col_code:
+        desc: Column code - sector level industry.
+        type: string
+      col_name:
+        desc: Column description - sector level industry.
+        type: string
+      value:
+        desc: Value at the intersection of row and column.
+        type: number
+      core_matrix:
+        desc: Whether value is part of the core commodity-industry matrix.
+        type: bool
   curr_use_sec_2021: *curr_use_sec
   curr_use_sec_2020: *curr_use_sec
   curr_use_sec_2019: *curr_use_sec
@@ -52,6 +71,25 @@ data:
       skip: 5
       rows: 85
       matrix: [73, 71]
+    schema: &schema_sum
+      row_code:
+        desc: Row code - summary level commodity.
+        type: string
+      row_name:
+        desc: Row description - summary level commodity.
+        type: string
+      col_code:
+        desc: Column code - summary level industry.
+        type: string
+      col_name:
+        desc: Column description - summary level industry.
+        type: string
+      value:
+        desc: Value at the intersection of row and column.
+        type: number
+      core_matrix:
+        desc: Whether value is part of the core commodity-industry matrix.
+        type: bool
   curr_use_sum_2021: *curr_use_sum
   curr_use_sum_2020: *curr_use_sum
   curr_use_sum_2019: *curr_use_sum
@@ -69,6 +107,25 @@ data:
       skip: 4
       rows: 413
       matrix: [402, 402]
+    schema: &schema_det
+      row_code:
+        desc: Row code - detail level commodity.
+        type: string
+      row_name:
+        desc: Row description - detail level commodity.
+        type: string
+      col_code:
+        desc: Column code - detail level industry.
+        type: string
+      col_name:
+        desc: Column description - detail level industry.
+        type: string
+      value:
+        desc: Value at the intersection of row and column.
+        type: number
+      core_matrix:
+        desc: Whether value is part of the core commodity-industry matrix.
+        type: bool
 
   curr_sup_sec_2022: &curr_sup_sec
     desc: Supply table, year {year}, sector level, current revision
@@ -81,6 +138,7 @@ data:
       skip: 5
       rows: 20
       matrix: [17, 15]
+    schema: *schema_sec
   curr_sup_sec_2021: *curr_sup_sec
   curr_sup_sec_2020: *curr_sup_sec
   curr_sup_sec_2019: *curr_sup_sec
@@ -98,6 +156,7 @@ data:
       skip: 5
       rows: 76
       matrix: [73, 71]
+    schema: *schema_sum
   curr_sup_sum_2021: *curr_sup_sum
   curr_sup_sum_2020: *curr_sup_sum
   curr_sup_sum_2019: *curr_sup_sum
@@ -115,6 +174,7 @@ data:
       skip: 4
       rows: 405
       matrix: [402, 402]
+    schema: *schema_det
 
   2023_use_sec_2022: &2023_use_sec
     desc: Use table, year {year}, sector level, 2023 revision
@@ -127,6 +187,7 @@ data:
       skip: 5
       rows: 29
       matrix: [17, 15]
+    schema: *schema_sec
   2023_use_sec_2021: *2023_use_sec
   2023_use_sec_2020: *2023_use_sec
   2023_use_sec_2019: *2023_use_sec
@@ -144,6 +205,7 @@ data:
       skip: 5
       rows: 85
       matrix: [73, 71]
+    schema: *schema_sum
   2023_use_sum_2021: *2023_use_sum
   2023_use_sum_2020: *2023_use_sum
   2023_use_sum_2019: *2023_use_sum
@@ -161,6 +223,7 @@ data:
       skip: 4
       rows: 413
       matrix: [402, 402]
+    schema: *schema_det
 
   2023_sup_sec_2022: &2023_sup_sec
     desc: Supply table, year {year}, sector level, 2023 revision
@@ -173,6 +236,7 @@ data:
       skip: 5
       rows: 20
       matrix: [17, 15]
+    schema: *schema_sec
   2023_sup_sec_2021: *2023_sup_sec
   2023_sup_sec_2020: *2023_sup_sec
   2023_sup_sec_2019: *2023_sup_sec
@@ -190,6 +254,7 @@ data:
       skip: 5
       rows: 76
       matrix: [73, 71]
+    schema: *schema_sum
   2023_sup_sum_2021: *2023_sup_sum
   2023_sup_sum_2020: *2023_sup_sum
   2023_sup_sum_2019: *2023_sup_sum
@@ -207,6 +272,7 @@ data:
       skip: 4
       rows: 405
       matrix: [402, 402]
+    schema: *schema_det
 
   2022_use_sec_2021: &2022_use_sec
     desc: Use table, year {year}, sector level, 2022 revision
@@ -219,6 +285,7 @@ data:
       skip: 5
       rows: 29
       matrix: [17, 15]
+    schema: *schema_sec
   2022_use_sec_2020: *2022_use_sec
   2022_use_sec_2019: *2022_use_sec
   2022_use_sec_2018: *2022_use_sec
@@ -255,6 +322,7 @@ data:
       skip: 5
       rows: 85
       matrix: [73, 71]
+    schema: *schema_sum
   2022_use_sum_2020: *2022_use_sum
   2022_use_sum_2019: *2022_use_sum
   2022_use_sum_2018: *2022_use_sum
@@ -291,6 +359,7 @@ data:
       skip: 4
       rows: 416
       matrix: [405, 405]
+    schema: *schema_det
   2022_use_det_2007: *2022_use_det
 
   2022_sup_sec_2021: &2022_sup_sec
@@ -304,6 +373,7 @@ data:
       skip: 5
       rows: 20
       matrix: [17, 15]
+    schema: *schema_sec
   2022_sup_sec_2020: *2022_sup_sec
   2022_sup_sec_2019: *2022_sup_sec
   2022_sup_sec_2018: *2022_sup_sec
@@ -340,6 +410,7 @@ data:
       skip: 5
       rows: 76
       matrix: [73, 71]
+    schema: *schema_sum
   2022_sup_sum_2020: *2022_sup_sum
   2022_sup_sum_2019: *2022_sup_sum
   2022_sup_sum_2018: *2022_sup_sum
@@ -376,4 +447,5 @@ data:
       skip: 4
       rows: 408
       matrix: [405, 402]
+    schema: *schema_det
   2022_sup_det_2007: *2022_sup_det
