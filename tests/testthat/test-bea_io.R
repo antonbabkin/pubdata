@@ -46,3 +46,25 @@ for (key in bea_io_ls("_sup_")) {
     # expect_equal(total_supply, total_use, tolerance = 1e-5)
   })
 }
+
+
+test_that("naics lists expand correctly", {
+  input <- c("1111", "1111, 1112", "1111-5", "1111-3, 211-4")
+  output <- lapply(input, expand_naics_lists) |>
+    as.character()
+  expected <- c("1111", "1111,1112", "1111,1112,1113,1114,1115", "1111,1112,1113,211,212,213,214")
+  expect_equal(output, expected)
+})
+
+
+for (key in bea_io_ls("_naics")) {
+  test_that(glue::glue("naics tables pass basic tests in {key}"), {
+    d <- bea_io_get(key)
+    # title never missing
+    expect_equal(is.na(d$title), rep(FALSE, nrow(d)))
+    # no naics code for non-detail rows
+    x <- d[is.na(d$detail), ]$naics
+    expect_equal(is.na(x), rep(TRUE, length(x)))
+  })
+}
+

@@ -71,10 +71,15 @@ bea_io_get <- function(key) {
   unzipped_spreadsheet <- utils::unzip(raw, meta$read$file, exdir = tempdir())
   on.exit(unlink(unzipped_spreadsheet))
   logger::log_debug("unzipped to {unzipped_spreadsheet}")
-  bea_io_read_table(unzipped_spreadsheet, meta)
+  if (grepl("_(sup|use)_(sec|sum|det)_", key)) {
+    return(bea_io_read_table(unzipped_spreadsheet, meta))
+  } else if (grepl("_naics", key)) {
+    return(bea_io_read_naics(unzipped_spreadsheet, meta))
+  }
+
 }
 
-#' Read and tidy single table
+#' Read and tidy supply/use table
 #' @param path Path to unzipped spreadsheet
 #' @param meta Metadata list as returned by bea_io_meta("key")
 bea_io_read_table <- function(path, meta) {
@@ -142,4 +147,87 @@ bea_io_pivot_wider <- function(data, core = FALSE, labels = c("code", "name")) {
   }
   data
 }
+
+
+
+
+#' Read and tidy NAICS crosswalk
+#' @param path Path to unzipped spreadsheet
+#' @param meta Metadata list as returned by bea_io_meta("key")
+bea_io_read_naics <- function(path, meta) {
+
+  # read data section of sheet as text
+  d <- readxl::read_excel(
+    path,
+    sheet = "NAICS Codes",
+    col_names = c("sector", "summary", "u_summary", "detail", "title", "notes", "naics"),
+    col_types = "text",
+    skip = meta$read$skip,
+    n_max = meta$read$rows,
+    .name_repair = "unique_quiet")
+
+
+  d <- d |>
+    dplyr::filter(dplyr::if_any(dplyr::everything(), \(x) !is.na(x))) |>
+    dplyr::mutate( # move titles to single column
+      title = dplyr::coalesce(title, detail, u_summary, summary, sector),
+      summary = dplyr::if_else(is.na(sector), summary, NA),
+      u_summary = dplyr::if_else(is.na(summary), u_summary, NA),
+      detail = dplyr::if_else(is.na(u_summary), detail, NA))
+
+  # at this stage, every row must have exactly one code in either of the four levels
+  codes_per_row <- d |>
+    dplyr::select(sector, summary, u_summary, detail) %>%
+    {!is.na(.)} |>
+    rowSums()
+  if (any(codes_per_row != 1)) {
+    stop("Some rows have more than one code.")
+  }
+
+  # forward-fill codes within higher level group
+  d <- d |>
+    tidyr::fill(sector) |>
+    dplyr::group_by(sector) |> tidyr::fill(summary) |>
+    dplyr::group_by(summary) |> tidyr::fill(u_summary) |>
+    dplyr::ungroup()
+
+  # handle "n.a." and "23*"
+  d <- d |>
+    dplyr::mutate(naics = dplyr::case_match(naics, "23*" ~ "23", "n.a." ~ NA, .default = naics))
+
+  # expand naics lists and create separate row for each naics code
+  d <- d |>
+    dplyr::rowwise() |>
+    dplyr::mutate(naics = expand_naics_lists(naics)) |>
+    tidyr::separate_longer_delim(naics, delim = ",")
+
+  dplyr::select(d, !notes)
+}
+
+
+
+# expand "111-3, 116" into "111,112,113,116"
+expand_naics_lists <- function(x) {
+  if (is.na(x)) return(x)
+
+  stringr::str_split_1(x, ", ") |>
+    lapply(expand_naics_dash) |>
+    as.character() |>
+    stringr::str_flatten(collapse = ",")
+
+}
+
+# expand "111-3" into "111,112,113"
+expand_naics_dash <- function(x) {
+  fromto <- stringr::str_split_1(x, "-")
+  if (length(fromto) == 1) return(x)
+  from <- fromto[1]
+  to <- fromto[2]
+  stopifnot(stringr::str_length(to) == 1)
+  to <- paste0(stringr::str_sub(from, end = -2), to)
+  seq(as.integer(from), as.integer(to)) |>
+    as.character() |>
+    stringr::str_flatten(collapse = ",")
+}
+
 

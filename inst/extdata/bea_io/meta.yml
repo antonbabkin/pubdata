@@ -449,3 +449,57 @@ data:
       matrix: [405, 402]
     schema: *schema_det
   2022_sup_det_2007: *2022_sup_det
+
+  curr_naics:
+    desc: I-O to NAICS-2017 crosswalk, current revision
+    mask: "{revision}_naics"
+    type: table
+    path: proc/{revision}/naics.pq
+    depends: raw_{revision}
+    read:
+      file: "AllTablesSUP/Supply_2017_DET.xlsx"
+      skip: 5
+      rows: 1017
+    schema: &schema_naics
+      sector:
+        desc: I-O sector level code
+        type: string
+      summary:
+        desc: I-O summary level code
+        type: string
+      u_summary:
+        desc: I-O underlying summary level code
+        type: string
+      detail:
+        desc: I-O detail level code
+        type: string
+      title:
+        desc: I-O industry title
+        type: string
+      naics:
+        desc: NAICS code
+        type: string
+
+  2023_naics:
+    desc: I-O to NAICS-2017 crosswalk, 2023 revision
+    mask: "{revision}_naics"
+    type: table
+    path: proc/{revision}/naics.pq
+    depends: raw_{revision}
+    read:
+      file: "Supply_2017_DET.xlsx"
+      skip: 5
+      rows: 1017
+    schema: *schema_naics
+
+  2022_naics:
+    desc: I-O to NAICS-2012 crosswalk, 2022 revision
+    mask: "{revision}_naics"
+    type: table
+    path: proc/{revision}/naics.pq
+    depends: raw_{revision}
+    read:
+      file: "Supply_2007_2012_DET.xlsx"
+      skip: 5
+      rows: 1020
+    schema: *schema_naics
