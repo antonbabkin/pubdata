@@ -191,11 +191,15 @@ bea_io_read_naics <- function(path, meta) {
     dplyr::group_by(summary) |> tidyr::fill(u_summary) |>
     dplyr::ungroup()
 
-  # handle "n.a." and "23*"
+  # handle "n.a." and "23*", trailing whitespace
   d <- d |>
-    dplyr::mutate(naics = dplyr::case_match(naics, "23*" ~ "23", "n.a." ~ NA, .default = naics))
+    dplyr::mutate(
+      naics = stringr::str_trim(naics),
+      naics = dplyr::case_match(naics, "23*" ~ "23", "n.a." ~ NA, .default = naics)
+    )
 
   # expand naics lists and create separate row for each naics code
+  # TODO: remove invalid NAICS codes that are created, e.g. 32192-9 must be only 32192 and 32199
   d <- d |>
     dplyr::rowwise() |>
     dplyr::mutate(naics = expand_naics_lists(naics)) |>

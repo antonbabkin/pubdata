@@ -1,3 +1,13 @@
+
+#' Test if two vectors are approximately equal
+#' Absolute and relative tolerance explicitly separated, unlike testthat::expect_equal()
+#' Downside: will not report specific values that fail
+expect_close <- function(x, y, rel_tol = 0.001, abs_tol = Inf) {
+  abs_dif <- abs(x - y)
+  rel_dif <- ifelse(x == 0, 0, abs_dif / abs((x + y) / 2))
+  expect_equal(abs_dif <= abs_tol & rel_dif < rel_tol, rep(TRUE, length(x)))
+}
+
 test_that("invalid data key stops with error", {
   expect_error(bea_io_meta("invalid_data_key"), "invalid_data_key is not a valid data key")
 })
@@ -41,9 +51,40 @@ for (key in bea_io_ls("_sup_")) {
       `[`(1:length(total_supply)) |> # only keep commodities and total, ignore extras
       tidyr::replace_na(0)
     # absolute deviation less than small number - rounding error
-    expect_true(all(abs(total_supply - total_use) <= 2))
+    expect_close(total_supply, total_use, abs_tol = 2, rel_tol = Inf)
     # expect_equal is more informative, but can not set absolute tolerance
     # expect_equal(total_supply, total_use, tolerance = 1e-5)
+  })
+}
+
+
+for (key in bea_io_ls("_sup_")) {
+  test_that(glue::glue("core matrix row and column sums equal respective table totals in {key}"), {
+    tab <- bea_io_get(key)
+
+    # commodity (row) totals
+    com_tot <- tab |>
+      dplyr::filter(col_name == "Total Commodity Output") |>
+      dplyr::select(row_code, tot = value)
+    com <- tab |>
+      dplyr::filter(core_matrix) |>
+      dplyr::summarize(sum = sum(value, na.rm = TRUE), .by = "row_code") |>
+      dplyr::left_join(com_tot, by = "row_code") |>
+      tidyr::replace_na(list(tot = 0, sum = 0))
+    # x <- dplyr::mutate(com, abs_dif = abs(sum - tot), rel_dif = ifelse(tot == 0, 0, abs_dif / tot))
+    expect_close(com$sum, com$tot, abs_tol = 12, rel_tol = Inf)
+
+    # industry (column) totals
+    ind_tot <- tab |>
+      dplyr::filter(row_name == "Total industry supply") |>
+      dplyr::select(col_code, tot = value)
+    ind <- tab |>
+      dplyr::filter(core_matrix) |>
+      dplyr::summarize(sum = sum(value, na.rm = TRUE), .by = "col_code") |>
+      dplyr::left_join(ind_tot, by = "col_code") |>
+      tidyr::replace_na(list(tot = 0, sum = 0))
+    # x <- dplyr::mutate(ind, abs_dif = abs(sum - tot), rel_dif = ifelse(tot == 0, 0, abs_dif / tot))
+    expect_close(ind$sum, ind$tot, abs_tol = 10, rel_tol = Inf)
   })
 }
 

@@ -446,7 +446,7 @@ data:
       file: "Supply_2007_2012_DET.xlsx"
       skip: 4
       rows: 408
-      matrix: [405, 402]
+      matrix: [405, 405]
     schema: *schema_det
   2022_sup_det_2007: *2022_sup_det
 
