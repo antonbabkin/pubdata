@@ -23,6 +23,10 @@ data:
     type: raw
     path: raw/AllTablesSUP_2022.zip
     url: https://apps.bea.gov/HistDataCore/wwwroot/Releases/Industry/2022/GDP_by_Industry/Q2/Annual_September-29-2022/AllTablesSUP.zip
+  raw_2022_supplement:
+    type: raw
+    path: raw/IoSupplemental_2022q2.zip
+    url: https://apps.bea.gov/HistDataCore/wwwroot/Releases/Industry/2022/GDP_by_Industry/Q2/Annual_September-29-2022/IoSupplemental.zip
 
   curr_use_sec_2022: &curr_use_sec
     desc: Use table, year {year}, sector level, current revision
@@ -449,6 +453,57 @@ data:
       matrix: [405, 405]
     schema: *schema_det
   2022_sup_det_2007: *2022_sup_det
+
+  2022_imp_sum_2021: &2022_imp_sum
+    desc: Import Matrix, Before Redefinitions, year {year}, summary level, 2022 revision
+    mask: "{revision}_{table}_{level}_{year}"
+    type: table
+    path: proc/{revision}/{table}/{level}/{year}
+    depends: raw_{revision}_supplement
+    read:
+      file: "ImportMatrices/ImportMatrices_Before_Redefinitions_SUM_1997-2021.xlsx"
+      skip: 5
+      rows: 75
+      matrix: [73, 71]
+    schema: *schema_sum
+  2022_imp_sum_2020: *2022_imp_sum
+  2022_imp_sum_2019: *2022_imp_sum
+  2022_imp_sum_2018: *2022_imp_sum
+  2022_imp_sum_2017: *2022_imp_sum
+  2022_imp_sum_2016: *2022_imp_sum
+  2022_imp_sum_2015: *2022_imp_sum
+  2022_imp_sum_2014: *2022_imp_sum
+  2022_imp_sum_2013: *2022_imp_sum
+  2022_imp_sum_2012: *2022_imp_sum
+  2022_imp_sum_2011: *2022_imp_sum
+  2022_imp_sum_2010: *2022_imp_sum
+  2022_imp_sum_2009: *2022_imp_sum
+  2022_imp_sum_2008: *2022_imp_sum
+  2022_imp_sum_2007: *2022_imp_sum
+  2022_imp_sum_2006: *2022_imp_sum
+  2022_imp_sum_2005: *2022_imp_sum
+  2022_imp_sum_2004: *2022_imp_sum
+  2022_imp_sum_2003: *2022_imp_sum
+  2022_imp_sum_2002: *2022_imp_sum
+  2022_imp_sum_2001: *2022_imp_sum
+  2022_imp_sum_2000: *2022_imp_sum
+  2022_imp_sum_1999: *2022_imp_sum
+  2022_imp_sum_1998: *2022_imp_sum
+  2022_imp_sum_1997: *2022_imp_sum
+
+  2022_imp_det_2012: &2022_imp_det
+    desc: Import Matrix, Before Redefinitions, year {year}, detail level, 2022 revision
+    mask: "{revision}_{table}_{level}_{year}"
+    type: table
+    path: proc/{revision}/{table}/{level}/{year}
+    depends: raw_{revision}_supplement
+    read:
+      file: "ImportMatrices/ImportMatrices_Before_Redefinitions_DET_2007_2012.xlsx"
+      skip: 4
+      rows: 407
+      matrix: [405, 405]
+    schema: *schema_det
+  2022_imp_det_2007: *2022_imp_det
 
   curr_naics:
     desc: I-O to NAICS-2017 crosswalk, current revision
