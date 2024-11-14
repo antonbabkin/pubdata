@@ -71,7 +71,7 @@ bea_io_get <- function(key) {
   unzipped_spreadsheet <- utils::unzip(raw, meta$read$file, exdir = tempdir())
   on.exit(unlink(unzipped_spreadsheet))
   logger::log_debug("unzipped to {unzipped_spreadsheet}")
-  if (grepl("_(sup|use|imp)_(sec|sum|det)_", key)) {
+  if (grepl("_(sup|use|impbef|impaft)_(sec|sum|det)_", key)) {
     return(bea_io_read_table(unzipped_spreadsheet, meta))
   } else if (grepl("_naics", key)) {
     return(bea_io_read_naics(unzipped_spreadsheet, meta))

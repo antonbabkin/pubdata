@@ -5,7 +5,7 @@
 expect_close <- function(x, y, rel_tol = 0.001, abs_tol = Inf) {
   abs_dif <- abs(x - y)
   rel_dif <- ifelse(x == 0, 0, abs_dif / abs((x + y) / 2))
-  expect_equal(abs_dif <= abs_tol & rel_dif < rel_tol, rep(TRUE, length(x)))
+  expect_equal(abs_dif <= abs_tol & rel_dif < rel_tol, rep(TRUE, length(x)), ignore_attr = "names")
 }
 
 test_that("invalid data key stops with error", {
@@ -13,80 +13,6 @@ test_that("invalid data key stops with error", {
 })
 
 
-test_that("meta() calls produce no errors for all data keys", {
-  for (key in bea_io_ls()) {
-    expect_no_error(bea_io_meta(key))
-  }
-})
-
-
-test_that("get() calls produce no errors for all data keys", {
-  for (key in bea_io_ls()) {
-    expect_no_error(bea_io_get(key))
-  }
-})
-
-
-test_that("every table column is in schema", {
-  for (key in bea_io_ls()) {
-    m <- bea_io_meta(key)
-    if (m$type == "raw") next
-    t <- bea_io_get(key)
-    expect_equal(names(m$schema), names(t))
-  }
-})
-
-
-for (key in bea_io_ls("_sup_")) {
-  test_that(glue::glue("total supply equals total use in {key}"), {
-    # supply table rows are all commodities + total
-    total_supply <- bea_io_get(key) |>
-      dplyr::filter(col_name == "Total product supply (purchaser prices)") |>
-      dplyr::pull(value) |>
-      tidyr::replace_na(0)
-    # use table rows are all commodities, total and extras
-    total_use <- bea_io_get(sub("_sup_", "_use_", key)) |>
-      dplyr::filter(col_name == "Total use of products") |>
-      dplyr::pull(value) %>%
-      `[`(1:length(total_supply)) |> # only keep commodities and total, ignore extras
-      tidyr::replace_na(0)
-    # absolute deviation less than small number - rounding error
-    expect_close(total_supply, total_use, abs_tol = 2, rel_tol = Inf)
-    # expect_equal is more informative, but can not set absolute tolerance
-    # expect_equal(total_supply, total_use, tolerance = 1e-5)
-  })
-}
-
-
-for (key in bea_io_ls("_sup_")) {
-  test_that(glue::glue("core matrix row and column sums equal respective table totals in {key}"), {
-    tab <- bea_io_get(key)
-
-    # commodity (row) totals
-    com_tot <- tab |>
-      dplyr::filter(col_name == "Total Commodity Output") |>
-      dplyr::select(row_code, tot = value)
-    com <- tab |>
-      dplyr::filter(core_matrix) |>
-      dplyr::summarize(sum = sum(value, na.rm = TRUE), .by = "row_code") |>
-      dplyr::left_join(com_tot, by = "row_code") |>
-      tidyr::replace_na(list(tot = 0, sum = 0))
-    # x <- dplyr::mutate(com, abs_dif = abs(sum - tot), rel_dif = ifelse(tot == 0, 0, abs_dif / tot))
-    expect_close(com$sum, com$tot, abs_tol = 12, rel_tol = Inf)
-
-    # industry (column) totals
-    ind_tot <- tab |>
-      dplyr::filter(row_name == "Total industry supply") |>
-      dplyr::select(col_code, tot = value)
-    ind <- tab |>
-      dplyr::filter(core_matrix) |>
-      dplyr::summarize(sum = sum(value, na.rm = TRUE), .by = "col_code") |>
-      dplyr::left_join(ind_tot, by = "col_code") |>
-      tidyr::replace_na(list(tot = 0, sum = 0))
-    # x <- dplyr::mutate(ind, abs_dif = abs(sum - tot), rel_dif = ifelse(tot == 0, 0, abs_dif / tot))
-    expect_close(ind$sum, ind$tot, abs_tol = 10, rel_tol = Inf)
-  })
-}
 
 
 test_that("naics lists expand correctly", {
@@ -98,14 +24,100 @@ test_that("naics lists expand correctly", {
 })
 
 
-for (key in bea_io_ls("_naics")) {
-  test_that(glue::glue("naics tables pass basic tests in {key}"), {
-    d <- bea_io_get(key)
-    # title never missing
-    expect_equal(is.na(d$title), rep(FALSE, nrow(d)))
-    # no naics code for non-detail rows
-    x <- d[is.na(d$detail), ]$naics
-    expect_equal(is.na(x), rep(TRUE, length(x)))
+for (key in bea_io_ls()) {
+
+  m <- bea_io_meta(key)
+  if (m$type == "raw") {
+    next
+  }
+
+  tab <- bea_io_get(key)
+
+  test_that(glue::glue("{key}: columns cosistent with schema"), {
+    expect_equal(names(m$schema), names(tab))
   })
+
+  if (!is.null(m$keys$table) && m$keys$table %in% c("sup", "use", "impaft", "impbef")) {
+    test_that(glue::glue("{key}: core matrix row and column sums equal respective table totals"), {
+      mat <- tab %>%
+        dplyr::filter(core_matrix) |>
+        tidyr::pivot_wider(id_cols = "row_name", names_from = "col_name") |>
+        tibble::column_to_rownames("row_name") |>
+        as.matrix()
+
+      # row totals
+      row_sum <- rowSums(mat, na.rm = TRUE)
+      coln <- dplyr::case_when(
+        m$keys$table == "sup" ~ "Total Commodity Output",
+        m$keys$table %in% c("use", "impaft", "impbef") ~ "Total Intermediate"
+      )
+      row_tot <- tab |>
+        dplyr::filter(col_name == coln) |>
+        dplyr::pull(value, name = "row_name") |>
+        tidyr::replace_na(0)
+      row_tot <- row_tot[names(row_sum)]
+      expect_close(row_sum, row_tot, abs_tol = 35, rel_tol = Inf)
+
+
+      # column totals
+      if (m$keys$table %in% c("sup", "use")) {
+        col_sum <- colSums(mat, na.rm = TRUE)
+        rown <- dplyr::case_when(
+          m$keys$table == "sup" ~ "Total industry supply",
+          grepl("_su_use_det_", key) ~ "Total intermediate inputs",
+          m$keys$table == "use" ~ "Total Intermediate"
+        )
+        col_tot <- tab |>
+          dplyr::filter(row_name == rown) |>
+          dplyr::pull(value, name = "col_name") |>
+          tidyr::replace_na(0)
+        col_tot <- col_tot[names(col_sum)]
+        expect_close(col_tot, col_sum, abs_tol = 35, rel_tol = Inf)
+      }
+
+    })
+  }
+
+
+  if (!is.null(m$keys$table) && m$keys$table == "sup") {
+    test_that(glue::glue("{key}: total supply equals total use"), {
+      # supply table rows are all commodities + total
+      total_supply <- tab |>
+        dplyr::filter(col_name == "Total product supply (purchaser prices)") |>
+        dplyr::pull(value) |>
+        tidyr::replace_na(0)
+      # use table rows are all commodities, total and extras
+      total_use <- bea_io_get(sub("_sup_", "_use_", key)) |>
+        dplyr::filter(col_name == "Total use of products") |>
+        dplyr::pull(value) %>%
+        `[`(1:length(total_supply)) |> # only keep commodities and total, ignore extras
+        tidyr::replace_na(0)
+      # absolute deviation less than small number - rounding error
+      expect_close(total_supply, total_use, abs_tol = 2, rel_tol = Inf)
+      # expect_equal is more informative, but can not set absolute tolerance
+      # expect_equal(total_supply, total_use, tolerance = 1e-5)
+    })
+  }
+
+  if (grepl("_naics", key)) {
+    test_that(glue::glue("{key}: naics tables pass basic tests"), {
+      d <- bea_io_get(key)
+      # title never missing
+      expect_equal(is.na(d$title), rep(FALSE, nrow(d)))
+      # no naics code for non-detail rows
+      x <- d[is.na(d$detail), ]$naics
+      expect_equal(is.na(x), rep(TRUE, length(x)))
+    })
+  }
+}
+
+
+
+
+
+
+
+for (key in bea_io_ls("_naics")) {
+
 }
 

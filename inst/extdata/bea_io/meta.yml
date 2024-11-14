@@ -11,35 +11,40 @@ urls:
     https://apps.bea.gov/histdatacore/histChildLevels.html?HMI=8&oldDiv=Industry%20Accounts
 
 data:
-  raw_curr:
+  raw_2023_su:
+    desc: Supply-Use framework tables, 2023 Q2
     type: raw
-    path: raw/AllTablesSUP_curr.zip
-    url: https://apps.bea.gov/industry/iTables%20Static%20Files/AllTablesSUP.zip
-  raw_2023:
-    type: raw
-    path: raw/AllTablesSUP_2023.zip
+    path: raw/AllTablesSUP_2023q2.zip
     url: https://apps.bea.gov/HistDataCore/wwwroot/Releases/Industry/2023/GDP_by_Industry/Q2/Annual_September-28-2023/AllTablesSUP.zip
-  raw_2022:
+  raw_2022_mu:
+    desc: Make-Use framework tables, 2022 Q2
     type: raw
-    path: raw/AllTablesSUP_2022.zip
+    path: raw/AllTablesIO_2022q2.zip
+    url: https://apps.bea.gov/HistDataCore/wwwroot/Releases/Industry/2022/GDP_by_Industry/Q2/Annual_September-29-2022/AllTablesIO.zip
+  raw_2022_su:
+    desc: Supply-Use framework tables, 2022 Q2
+    type: raw
+    path: raw/AllTablesSUP_2022q2.zip
     url: https://apps.bea.gov/HistDataCore/wwwroot/Releases/Industry/2022/GDP_by_Industry/Q2/Annual_September-29-2022/AllTablesSUP.zip
-  raw_2022_supplement:
+  raw_2022_supplem:
+    desc: Supplemental estimate tables, 2022 Q2
     type: raw
     path: raw/IoSupplemental_2022q2.zip
     url: https://apps.bea.gov/HistDataCore/wwwroot/Releases/Industry/2022/GDP_by_Industry/Q2/Annual_September-29-2022/IoSupplemental.zip
 
-  curr_use_sec_2022: &curr_use_sec
-    desc: Use table, year {year}, sector level, current revision
-    mask: "{revision}_{table}_{level}_{year}"
+
+  2023_su_use_sec_2022: &2023_su_use_sec
+    mask: "{revision}_su_{table}_{level}_{year}"
+    desc: Supply-Use framework, Use table, {year}, sector level, 2023 revision
     type: table
-    path: proc/{revision}/{table}/{level}/{year}
-    depends: raw_{revision}
+    path: proc/{revision}/su/{table}/{level}/{year}.pq
+    depends: raw_{revision}_su
     read:
-      file: "AllTablesSUP/Use_Tables_Supply-Use_Framework_2017-2022_Sector.xlsx"
+      file: "Use_Tables_Supply-Use_Framework_1997-2022_Sector.xlsx"
       skip: 5
       rows: 29
       matrix: [17, 15]
-    schema: &schema_sec
+    schema: &schema_su_sec
       row_code:
         desc: Row code - sector level commodity.
         type: string
@@ -58,24 +63,44 @@ data:
       core_matrix:
         desc: Whether value is part of the core commodity-industry matrix.
         type: bool
-  curr_use_sec_2021: *curr_use_sec
-  curr_use_sec_2020: *curr_use_sec
-  curr_use_sec_2019: *curr_use_sec
-  curr_use_sec_2018: *curr_use_sec
-  curr_use_sec_2017: *curr_use_sec
+  2023_su_use_sec_2021: *2023_su_use_sec
+  2023_su_use_sec_2020: *2023_su_use_sec
+  2023_su_use_sec_2019: *2023_su_use_sec
+  2023_su_use_sec_2018: *2023_su_use_sec
+  2023_su_use_sec_2017: *2023_su_use_sec
+  2023_su_use_sec_2016: *2023_su_use_sec
+  2023_su_use_sec_2015: *2023_su_use_sec
+  2023_su_use_sec_2014: *2023_su_use_sec
+  2023_su_use_sec_2013: *2023_su_use_sec
+  2023_su_use_sec_2012: *2023_su_use_sec
+  2023_su_use_sec_2011: *2023_su_use_sec
+  2023_su_use_sec_2010: *2023_su_use_sec
+  2023_su_use_sec_2009: *2023_su_use_sec
+  2023_su_use_sec_2008: *2023_su_use_sec
+  2023_su_use_sec_2007: *2023_su_use_sec
+  2023_su_use_sec_2006: *2023_su_use_sec
+  2023_su_use_sec_2005: *2023_su_use_sec
+  2023_su_use_sec_2004: *2023_su_use_sec
+  2023_su_use_sec_2003: *2023_su_use_sec
+  2023_su_use_sec_2002: *2023_su_use_sec
+  2023_su_use_sec_2001: *2023_su_use_sec
+  2023_su_use_sec_2000: *2023_su_use_sec
+  2023_su_use_sec_1999: *2023_su_use_sec
+  2023_su_use_sec_1998: *2023_su_use_sec
+  2023_su_use_sec_1997: *2023_su_use_sec
 
-  curr_use_sum_2022: &curr_use_sum
-    desc: Use table, year {year}, summary level, current revision
-    mask: "{revision}_{table}_{level}_{year}"
+  2023_su_use_sum_2022: &2023_su_use_sum
+    mask: "{revision}_su_{table}_{level}_{year}"
+    desc: Supply-Use framework, Use table, {year}, summary level, 2023 revision
     type: table
-    path: proc/{revision}/{table}/{level}/{year}
-    depends: raw_{revision}
+    path: proc/{revision}/su/{table}/{level}/{year}.pq
+    depends: raw_{revision}_su
     read:
-      file: "AllTablesSUP/Use_Tables_Supply-Use_Framework_2017-2022_Summary.xlsx"
+      file: "Use_Tables_Supply-Use_Framework_1997-2022_Summary.xlsx"
       skip: 5
       rows: 85
       matrix: [73, 71]
-    schema: &schema_sum
+    schema: &schema_su_sum
       row_code:
         desc: Row code - summary level commodity.
         type: string
@@ -94,24 +119,44 @@ data:
       core_matrix:
         desc: Whether value is part of the core commodity-industry matrix.
         type: bool
-  curr_use_sum_2021: *curr_use_sum
-  curr_use_sum_2020: *curr_use_sum
-  curr_use_sum_2019: *curr_use_sum
-  curr_use_sum_2018: *curr_use_sum
-  curr_use_sum_2017: *curr_use_sum
+  2023_su_use_sum_2021: *2023_su_use_sum
+  2023_su_use_sum_2020: *2023_su_use_sum
+  2023_su_use_sum_2019: *2023_su_use_sum
+  2023_su_use_sum_2018: *2023_su_use_sum
+  2023_su_use_sum_2017: *2023_su_use_sum
+  2023_su_use_sum_2016: *2023_su_use_sum
+  2023_su_use_sum_2015: *2023_su_use_sum
+  2023_su_use_sum_2014: *2023_su_use_sum
+  2023_su_use_sum_2013: *2023_su_use_sum
+  2023_su_use_sum_2012: *2023_su_use_sum
+  2023_su_use_sum_2011: *2023_su_use_sum
+  2023_su_use_sum_2010: *2023_su_use_sum
+  2023_su_use_sum_2009: *2023_su_use_sum
+  2023_su_use_sum_2008: *2023_su_use_sum
+  2023_su_use_sum_2007: *2023_su_use_sum
+  2023_su_use_sum_2006: *2023_su_use_sum
+  2023_su_use_sum_2005: *2023_su_use_sum
+  2023_su_use_sum_2004: *2023_su_use_sum
+  2023_su_use_sum_2003: *2023_su_use_sum
+  2023_su_use_sum_2002: *2023_su_use_sum
+  2023_su_use_sum_2001: *2023_su_use_sum
+  2023_su_use_sum_2000: *2023_su_use_sum
+  2023_su_use_sum_1999: *2023_su_use_sum
+  2023_su_use_sum_1998: *2023_su_use_sum
+  2023_su_use_sum_1997: *2023_su_use_sum
 
-  curr_use_det_2017:
-    desc: Use table, year {year}, detail level, current revision
-    mask: "{revision}_{table}_{level}_{year}"
+  2023_su_use_det_2017: &2023_su_use_det
+    mask: "{revision}_su_{table}_{level}_{year}"
+    desc: Supply-Use framework, Use table, {year}, detail level, 2023 revision
     type: table
-    path: proc/{revision}/{table}/{level}/{year}
-    depends: raw_{revision}
+    path: proc/{revision}/su/{table}/{level}/{year}.pq
+    depends: raw_{revision}_su
     read:
-      file: "AllTablesSUP/Use_SUT_Framework_2017_DET.xlsx"
+      file: "Use_SUT_Framework_2017_DET.xlsx"
       skip: 4
       rows: 413
       matrix: [402, 402]
-    schema: &schema_det
+    schema: &schema_su_det
       row_code:
         desc: Row code - detail level commodity.
         type: string
@@ -130,389 +175,388 @@ data:
       core_matrix:
         desc: Whether value is part of the core commodity-industry matrix.
         type: bool
+  2023_su_use_det_2012: *2023_su_use_det
+  2023_su_use_det_2007: *2023_su_use_det
 
-  curr_sup_sec_2022: &curr_sup_sec
-    desc: Supply table, year {year}, sector level, current revision
-    mask: "{revision}_{table}_{level}_{year}"
+  2023_su_sup_sec_2022: &2023_su_sup_sec
+    mask: "{revision}_su_{table}_{level}_{year}"
+    desc: Supply-Use framework, Supply table, {year}, sector level, 2023 revision
     type: table
-    path: proc/{revision}/{table}/{level}/{year}
-    depends: raw_{revision}
+    path: proc/{revision}/su/{table}/{level}/{year}.pq
+    depends: raw_{revision}_su
     read:
-      file: "AllTablesSUP/Supply_Tables_2017-2022_Sector.xlsx"
+      file: "Supply_Tables_1997-2022_Sector.xlsx"
       skip: 5
       rows: 20
       matrix: [17, 15]
-    schema: *schema_sec
-  curr_sup_sec_2021: *curr_sup_sec
-  curr_sup_sec_2020: *curr_sup_sec
-  curr_sup_sec_2019: *curr_sup_sec
-  curr_sup_sec_2018: *curr_sup_sec
-  curr_sup_sec_2017: *curr_sup_sec
+    schema: *schema_su_sec
+  2023_su_sup_sec_2021: *2023_su_sup_sec
+  2023_su_sup_sec_2020: *2023_su_sup_sec
+  2023_su_sup_sec_2019: *2023_su_sup_sec
+  2023_su_sup_sec_2018: *2023_su_sup_sec
+  2023_su_sup_sec_2017: *2023_su_sup_sec
+  2023_su_sup_sec_2016: *2023_su_sup_sec
+  2023_su_sup_sec_2015: *2023_su_sup_sec
+  2023_su_sup_sec_2014: *2023_su_sup_sec
+  2023_su_sup_sec_2013: *2023_su_sup_sec
+  2023_su_sup_sec_2012: *2023_su_sup_sec
+  2023_su_sup_sec_2011: *2023_su_sup_sec
+  2023_su_sup_sec_2010: *2023_su_sup_sec
+  2023_su_sup_sec_2009: *2023_su_sup_sec
+  2023_su_sup_sec_2008: *2023_su_sup_sec
+  2023_su_sup_sec_2007: *2023_su_sup_sec
+  2023_su_sup_sec_2006: *2023_su_sup_sec
+  2023_su_sup_sec_2005: *2023_su_sup_sec
+  2023_su_sup_sec_2004: *2023_su_sup_sec
+  2023_su_sup_sec_2003: *2023_su_sup_sec
+  2023_su_sup_sec_2002: *2023_su_sup_sec
+  2023_su_sup_sec_2001: *2023_su_sup_sec
+  2023_su_sup_sec_2000: *2023_su_sup_sec
+  2023_su_sup_sec_1999: *2023_su_sup_sec
+  2023_su_sup_sec_1998: *2023_su_sup_sec
+  2023_su_sup_sec_1997: *2023_su_sup_sec
 
-  curr_sup_sum_2022: &curr_sup_sum
-    desc: Supply table, year {year}, summary level, current revision
-    mask: "{revision}_{table}_{level}_{year}"
+  2023_su_sup_sum_2022: &2023_su_sup_sum
+    mask: "{revision}_su_{table}_{level}_{year}"
+    desc: Supply-Use framework, Supply table, {year}, summary level, 2023 revision
     type: table
-    path: proc/{revision}/{table}/{level}/{year}
-    depends: raw_{revision}
+    path: proc/{revision}/su/{table}/{level}/{year}.pq
+    depends: raw_{revision}_su
     read:
-      file: "AllTablesSUP/Supply_Tables_2017-2022_Summary.xlsx"
+      file: "Supply_Tables_1997-2022_Summary.xlsx"
       skip: 5
       rows: 76
       matrix: [73, 71]
-    schema: *schema_sum
-  curr_sup_sum_2021: *curr_sup_sum
-  curr_sup_sum_2020: *curr_sup_sum
-  curr_sup_sum_2019: *curr_sup_sum
-  curr_sup_sum_2018: *curr_sup_sum
-  curr_sup_sum_2017: *curr_sup_sum
+    schema: *schema_su_sum
+  2023_su_sup_sum_2021: *2023_su_sup_sum
+  2023_su_sup_sum_2020: *2023_su_sup_sum
+  2023_su_sup_sum_2019: *2023_su_sup_sum
+  2023_su_sup_sum_2018: *2023_su_sup_sum
+  2023_su_sup_sum_2017: *2023_su_sup_sum
+  2023_su_sup_sum_2016: *2023_su_sup_sum
+  2023_su_sup_sum_2015: *2023_su_sup_sum
+  2023_su_sup_sum_2014: *2023_su_sup_sum
+  2023_su_sup_sum_2013: *2023_su_sup_sum
+  2023_su_sup_sum_2012: *2023_su_sup_sum
+  2023_su_sup_sum_2011: *2023_su_sup_sum
+  2023_su_sup_sum_2010: *2023_su_sup_sum
+  2023_su_sup_sum_2009: *2023_su_sup_sum
+  2023_su_sup_sum_2008: *2023_su_sup_sum
+  2023_su_sup_sum_2007: *2023_su_sup_sum
+  2023_su_sup_sum_2006: *2023_su_sup_sum
+  2023_su_sup_sum_2005: *2023_su_sup_sum
+  2023_su_sup_sum_2004: *2023_su_sup_sum
+  2023_su_sup_sum_2003: *2023_su_sup_sum
+  2023_su_sup_sum_2002: *2023_su_sup_sum
+  2023_su_sup_sum_2001: *2023_su_sup_sum
+  2023_su_sup_sum_2000: *2023_su_sup_sum
+  2023_su_sup_sum_1999: *2023_su_sup_sum
+  2023_su_sup_sum_1998: *2023_su_sup_sum
+  2023_su_sup_sum_1997: *2023_su_sup_sum
 
-  curr_sup_det_2017:
-    desc: Supply table, year {year}, detail level, current revision
-    mask: "{revision}_{table}_{level}_{year}"
+  2023_su_sup_det_2017: &2023_su_sup_det
+    mask: "{revision}_su_{table}_{level}_{year}"
+    desc: Supply-Use framework, Supply table, {year}, detail level, 2023 revision
     type: table
-    path: proc/{revision}/{table}/{level}/{year}
-    depends: raw_{revision}
-    read:
-      file: "AllTablesSUP/Supply_2017_DET.xlsx"
-      skip: 4
-      rows: 405
-      matrix: [402, 402]
-    schema: *schema_det
-
-  2023_use_sec_2022: &2023_use_sec
-    desc: Use table, year {year}, sector level, 2023 revision
-    mask: "{revision}_{table}_{level}_{year}"
-    type: table
-    path: proc/{revision}/{table}/{level}/{year}
-    depends: raw_{revision}
-    read:
-      file: "Use_Tables_Supply-Use_Framework_2017-2022_Sector.xlsx"
-      skip: 5
-      rows: 29
-      matrix: [17, 15]
-    schema: *schema_sec
-  2023_use_sec_2021: *2023_use_sec
-  2023_use_sec_2020: *2023_use_sec
-  2023_use_sec_2019: *2023_use_sec
-  2023_use_sec_2018: *2023_use_sec
-  2023_use_sec_2017: *2023_use_sec
-
-  2023_use_sum_2022: &2023_use_sum
-    desc: Use table, year {year}, summary level, 2023 revision
-    mask: "{revision}_{table}_{level}_{year}"
-    type: table
-    path: proc/{revision}/{table}/{level}/{year}
-    depends: raw_{revision}
-    read:
-      file: "Use_Tables_Supply-Use_Framework_2017-2022_Summary.xlsx"
-      skip: 5
-      rows: 85
-      matrix: [73, 71]
-    schema: *schema_sum
-  2023_use_sum_2021: *2023_use_sum
-  2023_use_sum_2020: *2023_use_sum
-  2023_use_sum_2019: *2023_use_sum
-  2023_use_sum_2018: *2023_use_sum
-  2023_use_sum_2017: *2023_use_sum
-
-  2023_use_det_2017:
-    desc: Use table, year {year}, detail level, 2023 revision
-    mask: "{revision}_{table}_{level}_{year}"
-    type: table
-    path: proc/{revision}/{table}/{level}/{year}
-    depends: raw_{revision}
-    read:
-      file: "Use_SUT_Framework_2017_DET.xlsx"
-      skip: 4
-      rows: 413
-      matrix: [402, 402]
-    schema: *schema_det
-
-  2023_sup_sec_2022: &2023_sup_sec
-    desc: Supply table, year {year}, sector level, 2023 revision
-    mask: "{revision}_{table}_{level}_{year}"
-    type: table
-    path: proc/{revision}/{table}/{level}/{year}
-    depends: raw_{revision}
-    read:
-      file: "Supply_Tables_2017-2022_Sector.xlsx"
-      skip: 5
-      rows: 20
-      matrix: [17, 15]
-    schema: *schema_sec
-  2023_sup_sec_2021: *2023_sup_sec
-  2023_sup_sec_2020: *2023_sup_sec
-  2023_sup_sec_2019: *2023_sup_sec
-  2023_sup_sec_2018: *2023_sup_sec
-  2023_sup_sec_2017: *2023_sup_sec
-
-  2023_sup_sum_2022: &2023_sup_sum
-    desc: Supply table, year {year}, summary level, 2023 revision
-    mask: "{revision}_{table}_{level}_{year}"
-    type: table
-    path: proc/{revision}/{table}/{level}/{year}
-    depends: raw_{revision}
-    read:
-      file: "Supply_Tables_2017-2022_Summary.xlsx"
-      skip: 5
-      rows: 76
-      matrix: [73, 71]
-    schema: *schema_sum
-  2023_sup_sum_2021: *2023_sup_sum
-  2023_sup_sum_2020: *2023_sup_sum
-  2023_sup_sum_2019: *2023_sup_sum
-  2023_sup_sum_2018: *2023_sup_sum
-  2023_sup_sum_2017: *2023_sup_sum
-
-  2023_sup_det_2017:
-    desc: Supply table, year {year}, detail level, 2023 revision
-    mask: "{revision}_{table}_{level}_{year}"
-    type: table
-    path: proc/{revision}/{table}/{level}/{year}
-    depends: raw_{revision}
+    path: proc/{revision}/{table}/{level}/{year}.pq
+    depends: raw_{revision}_su
     read:
       file: "Supply_2017_DET.xlsx"
       skip: 4
       rows: 405
       matrix: [402, 402]
-    schema: *schema_det
+    schema: *schema_su_det
+  2023_su_sup_det_2012: *2023_su_sup_det
+  2023_su_sup_det_2007: *2023_su_sup_det
 
-  2022_use_sec_2021: &2022_use_sec
-    desc: Use table, year {year}, sector level, 2022 revision
-    mask: "{revision}_{table}_{level}_{year}"
+  2022_su_use_sec_2021: &2022_su_use_sec
+    mask: "{revision}_su_{table}_{level}_{year}"
+    desc: Supply-Use framework, Use table, {year}, sector level, 2022 revision
     type: table
-    path: proc/{revision}/{table}/{level}/{year}
-    depends: raw_{revision}
+    path: proc/{revision}/su/{table}/{level}/{year}.pq
+    depends: raw_{revision}_su
     read:
       file: "Use_SUT_Framework_1997-2021_SECT.xlsx"
       skip: 5
       rows: 29
       matrix: [17, 15]
-    schema: *schema_sec
-  2022_use_sec_2020: *2022_use_sec
-  2022_use_sec_2019: *2022_use_sec
-  2022_use_sec_2018: *2022_use_sec
-  2022_use_sec_2017: *2022_use_sec
-  2022_use_sec_2016: *2022_use_sec
-  2022_use_sec_2015: *2022_use_sec
-  2022_use_sec_2014: *2022_use_sec
-  2022_use_sec_2013: *2022_use_sec
-  2022_use_sec_2012: *2022_use_sec
-  2022_use_sec_2011: *2022_use_sec
-  2022_use_sec_2010: *2022_use_sec
-  2022_use_sec_2009: *2022_use_sec
-  2022_use_sec_2008: *2022_use_sec
-  2022_use_sec_2007: *2022_use_sec
-  2022_use_sec_2006: *2022_use_sec
-  2022_use_sec_2005: *2022_use_sec
-  2022_use_sec_2004: *2022_use_sec
-  2022_use_sec_2003: *2022_use_sec
-  2022_use_sec_2002: *2022_use_sec
-  2022_use_sec_2001: *2022_use_sec
-  2022_use_sec_2000: *2022_use_sec
-  2022_use_sec_1999: *2022_use_sec
-  2022_use_sec_1998: *2022_use_sec
-  2022_use_sec_1997: *2022_use_sec
+    schema: *schema_su_sec
+  2022_su_use_sec_2020: *2022_su_use_sec
+  2022_su_use_sec_2019: *2022_su_use_sec
+  2022_su_use_sec_2018: *2022_su_use_sec
+  2022_su_use_sec_2017: *2022_su_use_sec
+  2022_su_use_sec_2016: *2022_su_use_sec
+  2022_su_use_sec_2015: *2022_su_use_sec
+  2022_su_use_sec_2014: *2022_su_use_sec
+  2022_su_use_sec_2013: *2022_su_use_sec
+  2022_su_use_sec_2012: *2022_su_use_sec
+  2022_su_use_sec_2011: *2022_su_use_sec
+  2022_su_use_sec_2010: *2022_su_use_sec
+  2022_su_use_sec_2009: *2022_su_use_sec
+  2022_su_use_sec_2008: *2022_su_use_sec
+  2022_su_use_sec_2007: *2022_su_use_sec
+  2022_su_use_sec_2006: *2022_su_use_sec
+  2022_su_use_sec_2005: *2022_su_use_sec
+  2022_su_use_sec_2004: *2022_su_use_sec
+  2022_su_use_sec_2003: *2022_su_use_sec
+  2022_su_use_sec_2002: *2022_su_use_sec
+  2022_su_use_sec_2001: *2022_su_use_sec
+  2022_su_use_sec_2000: *2022_su_use_sec
+  2022_su_use_sec_1999: *2022_su_use_sec
+  2022_su_use_sec_1998: *2022_su_use_sec
+  2022_su_use_sec_1997: *2022_su_use_sec
 
-  2022_use_sum_2021: &2022_use_sum
-    desc: Use table, year {year}, summary level, 2022 revision
-    mask: "{revision}_{table}_{level}_{year}"
+  2022_su_use_sum_2021: &2022_su_use_sum
+    mask: "{revision}_su_{table}_{level}_{year}"
+    desc: Supply-Use framework, Use table, {year}, summary level, 2022 revision
     type: table
-    path: proc/{revision}/{table}/{level}/{year}
-    depends: raw_{revision}
+    path: proc/{revision}/su/{table}/{level}/{year}.pq
+    depends: raw_{revision}_su
     read:
       file: "Use_SUT_Framework_1997-2021_SUM.xlsx"
       skip: 5
       rows: 85
       matrix: [73, 71]
-    schema: *schema_sum
-  2022_use_sum_2020: *2022_use_sum
-  2022_use_sum_2019: *2022_use_sum
-  2022_use_sum_2018: *2022_use_sum
-  2022_use_sum_2017: *2022_use_sum
-  2022_use_sum_2016: *2022_use_sum
-  2022_use_sum_2015: *2022_use_sum
-  2022_use_sum_2014: *2022_use_sum
-  2022_use_sum_2013: *2022_use_sum
-  2022_use_sum_2012: *2022_use_sum
-  2022_use_sum_2011: *2022_use_sum
-  2022_use_sum_2010: *2022_use_sum
-  2022_use_sum_2009: *2022_use_sum
-  2022_use_sum_2008: *2022_use_sum
-  2022_use_sum_2007: *2022_use_sum
-  2022_use_sum_2006: *2022_use_sum
-  2022_use_sum_2005: *2022_use_sum
-  2022_use_sum_2004: *2022_use_sum
-  2022_use_sum_2003: *2022_use_sum
-  2022_use_sum_2002: *2022_use_sum
-  2022_use_sum_2001: *2022_use_sum
-  2022_use_sum_2000: *2022_use_sum
-  2022_use_sum_1999: *2022_use_sum
-  2022_use_sum_1998: *2022_use_sum
-  2022_use_sum_1997: *2022_use_sum
+    schema: *schema_su_sum
+  2022_su_use_sum_2020: *2022_su_use_sum
+  2022_su_use_sum_2019: *2022_su_use_sum
+  2022_su_use_sum_2018: *2022_su_use_sum
+  2022_su_use_sum_2017: *2022_su_use_sum
+  2022_su_use_sum_2016: *2022_su_use_sum
+  2022_su_use_sum_2015: *2022_su_use_sum
+  2022_su_use_sum_2014: *2022_su_use_sum
+  2022_su_use_sum_2013: *2022_su_use_sum
+  2022_su_use_sum_2012: *2022_su_use_sum
+  2022_su_use_sum_2011: *2022_su_use_sum
+  2022_su_use_sum_2010: *2022_su_use_sum
+  2022_su_use_sum_2009: *2022_su_use_sum
+  2022_su_use_sum_2008: *2022_su_use_sum
+  2022_su_use_sum_2007: *2022_su_use_sum
+  2022_su_use_sum_2006: *2022_su_use_sum
+  2022_su_use_sum_2005: *2022_su_use_sum
+  2022_su_use_sum_2004: *2022_su_use_sum
+  2022_su_use_sum_2003: *2022_su_use_sum
+  2022_su_use_sum_2002: *2022_su_use_sum
+  2022_su_use_sum_2001: *2022_su_use_sum
+  2022_su_use_sum_2000: *2022_su_use_sum
+  2022_su_use_sum_1999: *2022_su_use_sum
+  2022_su_use_sum_1998: *2022_su_use_sum
+  2022_su_use_sum_1997: *2022_su_use_sum
 
-  2022_use_det_2012: &2022_use_det
-    desc: Use table, year {year}, detail level, 2022 revision
-    mask: "{revision}_{table}_{level}_{year}"
+  2022_su_use_det_2012: &2022_su_use_det
+    mask: "{revision}_su_{table}_{level}_{year}"
+    desc: Supply-Use framework, Use table, {year}, detail level, 2022 revision
     type: table
-    path: proc/{revision}/{table}/{level}/{year}
-    depends: raw_{revision}
+    path: proc/{revision}/su/{table}/{level}/{year}.pq
+    depends: raw_{revision}_su
     read:
       file: "Use_SUT_Framework_2007_2012_DET.xlsx"
       skip: 4
       rows: 416
       matrix: [405, 405]
-    schema: *schema_det
-  2022_use_det_2007: *2022_use_det
+    schema: *schema_su_det
+  2022_su_use_det_2007: *2022_su_use_det
 
-  2022_sup_sec_2021: &2022_sup_sec
-    desc: Supply table, year {year}, sector level, 2022 revision
-    mask: "{revision}_{table}_{level}_{year}"
+  2022_su_sup_sec_2021: &2022_su_sup_sec
+    mask: "{revision}_su_{table}_{level}_{year}"
+    desc: Supply-Use framework, Supply table, {year}, sector level, 2022 revision
     type: table
-    path: proc/{revision}/{table}/{level}/{year}
-    depends: raw_{revision}
+    path: proc/{revision}/su/{table}/{level}/{year}.pq
+    depends: raw_{revision}_su
     read:
       file: "Supply_Tables_1997-2021_SEC.xlsx"
       skip: 5
       rows: 20
       matrix: [17, 15]
-    schema: *schema_sec
-  2022_sup_sec_2020: *2022_sup_sec
-  2022_sup_sec_2019: *2022_sup_sec
-  2022_sup_sec_2018: *2022_sup_sec
-  2022_sup_sec_2017: *2022_sup_sec
-  2022_sup_sec_2016: *2022_sup_sec
-  2022_sup_sec_2015: *2022_sup_sec
-  2022_sup_sec_2014: *2022_sup_sec
-  2022_sup_sec_2013: *2022_sup_sec
-  2022_sup_sec_2012: *2022_sup_sec
-  2022_sup_sec_2011: *2022_sup_sec
-  2022_sup_sec_2010: *2022_sup_sec
-  2022_sup_sec_2009: *2022_sup_sec
-  2022_sup_sec_2008: *2022_sup_sec
-  2022_sup_sec_2007: *2022_sup_sec
-  2022_sup_sec_2006: *2022_sup_sec
-  2022_sup_sec_2005: *2022_sup_sec
-  2022_sup_sec_2004: *2022_sup_sec
-  2022_sup_sec_2003: *2022_sup_sec
-  2022_sup_sec_2002: *2022_sup_sec
-  2022_sup_sec_2001: *2022_sup_sec
-  2022_sup_sec_2000: *2022_sup_sec
-  2022_sup_sec_1999: *2022_sup_sec
-  2022_sup_sec_1998: *2022_sup_sec
-  2022_sup_sec_1997: *2022_sup_sec
+    schema: *schema_su_sec
+  2022_su_sup_sec_2020: *2022_su_sup_sec
+  2022_su_sup_sec_2019: *2022_su_sup_sec
+  2022_su_sup_sec_2018: *2022_su_sup_sec
+  2022_su_sup_sec_2017: *2022_su_sup_sec
+  2022_su_sup_sec_2016: *2022_su_sup_sec
+  2022_su_sup_sec_2015: *2022_su_sup_sec
+  2022_su_sup_sec_2014: *2022_su_sup_sec
+  2022_su_sup_sec_2013: *2022_su_sup_sec
+  2022_su_sup_sec_2012: *2022_su_sup_sec
+  2022_su_sup_sec_2011: *2022_su_sup_sec
+  2022_su_sup_sec_2010: *2022_su_sup_sec
+  2022_su_sup_sec_2009: *2022_su_sup_sec
+  2022_su_sup_sec_2008: *2022_su_sup_sec
+  2022_su_sup_sec_2007: *2022_su_sup_sec
+  2022_su_sup_sec_2006: *2022_su_sup_sec
+  2022_su_sup_sec_2005: *2022_su_sup_sec
+  2022_su_sup_sec_2004: *2022_su_sup_sec
+  2022_su_sup_sec_2003: *2022_su_sup_sec
+  2022_su_sup_sec_2002: *2022_su_sup_sec
+  2022_su_sup_sec_2001: *2022_su_sup_sec
+  2022_su_sup_sec_2000: *2022_su_sup_sec
+  2022_su_sup_sec_1999: *2022_su_sup_sec
+  2022_su_sup_sec_1998: *2022_su_sup_sec
+  2022_su_sup_sec_1997: *2022_su_sup_sec
 
-  2022_sup_sum_2021: &2022_sup_sum
-    desc: Supply table, year {year}, summary level, 2022 revision
-    mask: "{revision}_{table}_{level}_{year}"
+  2022_su_sup_sum_2021: &2022_su_sup_sum
+    mask: "{revision}_su_{table}_{level}_{year}"
+    desc: Supply-Use framework, Supply table, {year}, summary level, 2022 revision
     type: table
-    path: proc/{revision}/{table}/{level}/{year}
-    depends: raw_{revision}
+    path: proc/{revision}/su/{table}/{level}/{year}.pq
+    depends: raw_{revision}_su
     read:
       file: "Supply_Tables_1997-2021_SUM.xlsx"
       skip: 5
       rows: 76
       matrix: [73, 71]
-    schema: *schema_sum
-  2022_sup_sum_2020: *2022_sup_sum
-  2022_sup_sum_2019: *2022_sup_sum
-  2022_sup_sum_2018: *2022_sup_sum
-  2022_sup_sum_2017: *2022_sup_sum
-  2022_sup_sum_2016: *2022_sup_sum
-  2022_sup_sum_2015: *2022_sup_sum
-  2022_sup_sum_2014: *2022_sup_sum
-  2022_sup_sum_2013: *2022_sup_sum
-  2022_sup_sum_2012: *2022_sup_sum
-  2022_sup_sum_2011: *2022_sup_sum
-  2022_sup_sum_2010: *2022_sup_sum
-  2022_sup_sum_2009: *2022_sup_sum
-  2022_sup_sum_2008: *2022_sup_sum
-  2022_sup_sum_2007: *2022_sup_sum
-  2022_sup_sum_2006: *2022_sup_sum
-  2022_sup_sum_2005: *2022_sup_sum
-  2022_sup_sum_2004: *2022_sup_sum
-  2022_sup_sum_2003: *2022_sup_sum
-  2022_sup_sum_2002: *2022_sup_sum
-  2022_sup_sum_2001: *2022_sup_sum
-  2022_sup_sum_2000: *2022_sup_sum
-  2022_sup_sum_1999: *2022_sup_sum
-  2022_sup_sum_1998: *2022_sup_sum
-  2022_sup_sum_1997: *2022_sup_sum
+    schema: *schema_su_sum
+  2022_su_sup_sum_2020: *2022_su_sup_sum
+  2022_su_sup_sum_2019: *2022_su_sup_sum
+  2022_su_sup_sum_2018: *2022_su_sup_sum
+  2022_su_sup_sum_2017: *2022_su_sup_sum
+  2022_su_sup_sum_2016: *2022_su_sup_sum
+  2022_su_sup_sum_2015: *2022_su_sup_sum
+  2022_su_sup_sum_2014: *2022_su_sup_sum
+  2022_su_sup_sum_2013: *2022_su_sup_sum
+  2022_su_sup_sum_2012: *2022_su_sup_sum
+  2022_su_sup_sum_2011: *2022_su_sup_sum
+  2022_su_sup_sum_2010: *2022_su_sup_sum
+  2022_su_sup_sum_2009: *2022_su_sup_sum
+  2022_su_sup_sum_2008: *2022_su_sup_sum
+  2022_su_sup_sum_2007: *2022_su_sup_sum
+  2022_su_sup_sum_2006: *2022_su_sup_sum
+  2022_su_sup_sum_2005: *2022_su_sup_sum
+  2022_su_sup_sum_2004: *2022_su_sup_sum
+  2022_su_sup_sum_2003: *2022_su_sup_sum
+  2022_su_sup_sum_2002: *2022_su_sup_sum
+  2022_su_sup_sum_2001: *2022_su_sup_sum
+  2022_su_sup_sum_2000: *2022_su_sup_sum
+  2022_su_sup_sum_1999: *2022_su_sup_sum
+  2022_su_sup_sum_1998: *2022_su_sup_sum
+  2022_su_sup_sum_1997: *2022_su_sup_sum
 
-  2022_sup_det_2012: &2022_sup_det
-    desc: Supply table, year {year}, detail level, 2022 revision
-    mask: "{revision}_{table}_{level}_{year}"
+  2022_su_sup_det_2012: &2022_su_sup_det
+    mask: "{revision}_su_{table}_{level}_{year}"
+    desc: Supply-Use framework, Supply table, {year}, detail level, 2022 revision
     type: table
-    path: proc/{revision}/{table}/{level}/{year}
-    depends: raw_{revision}
+    path: proc/{revision}/su/{table}/{level}/{year}.pq
+    depends: raw_{revision}_su
     read:
       file: "Supply_2007_2012_DET.xlsx"
       skip: 4
       rows: 408
       matrix: [405, 405]
-    schema: *schema_det
-  2022_sup_det_2007: *2022_sup_det
+    schema: *schema_su_det
+  2022_su_sup_det_2007: *2022_su_sup_det
 
-  2022_imp_sum_2021: &2022_imp_sum
-    desc: Import Matrix, Before Redefinitions, year {year}, summary level, 2022 revision
+  2022_impbef_sum_2021: &2022_impbef_sum
     mask: "{revision}_{table}_{level}_{year}"
+    desc: Import Matrix, Before Redefinitions, {year}, summary level, 2022 revision
     type: table
-    path: proc/{revision}/{table}/{level}/{year}
-    depends: raw_{revision}_supplement
+    path: proc/{revision}/supplem/{table}/{level}/{year}.pq
+    depends: raw_2022_supplem
     read:
       file: "ImportMatrices/ImportMatrices_Before_Redefinitions_SUM_1997-2021.xlsx"
       skip: 5
       rows: 75
       matrix: [73, 71]
-    schema: *schema_sum
-  2022_imp_sum_2020: *2022_imp_sum
-  2022_imp_sum_2019: *2022_imp_sum
-  2022_imp_sum_2018: *2022_imp_sum
-  2022_imp_sum_2017: *2022_imp_sum
-  2022_imp_sum_2016: *2022_imp_sum
-  2022_imp_sum_2015: *2022_imp_sum
-  2022_imp_sum_2014: *2022_imp_sum
-  2022_imp_sum_2013: *2022_imp_sum
-  2022_imp_sum_2012: *2022_imp_sum
-  2022_imp_sum_2011: *2022_imp_sum
-  2022_imp_sum_2010: *2022_imp_sum
-  2022_imp_sum_2009: *2022_imp_sum
-  2022_imp_sum_2008: *2022_imp_sum
-  2022_imp_sum_2007: *2022_imp_sum
-  2022_imp_sum_2006: *2022_imp_sum
-  2022_imp_sum_2005: *2022_imp_sum
-  2022_imp_sum_2004: *2022_imp_sum
-  2022_imp_sum_2003: *2022_imp_sum
-  2022_imp_sum_2002: *2022_imp_sum
-  2022_imp_sum_2001: *2022_imp_sum
-  2022_imp_sum_2000: *2022_imp_sum
-  2022_imp_sum_1999: *2022_imp_sum
-  2022_imp_sum_1998: *2022_imp_sum
-  2022_imp_sum_1997: *2022_imp_sum
+    schema: *schema_su_sum
+  2022_impbef_sum_2020: *2022_impbef_sum
+  2022_impbef_sum_2019: *2022_impbef_sum
+  2022_impbef_sum_2018: *2022_impbef_sum
+  2022_impbef_sum_2017: *2022_impbef_sum
+  2022_impbef_sum_2016: *2022_impbef_sum
+  2022_impbef_sum_2015: *2022_impbef_sum
+  2022_impbef_sum_2014: *2022_impbef_sum
+  2022_impbef_sum_2013: *2022_impbef_sum
+  2022_impbef_sum_2012: *2022_impbef_sum
+  2022_impbef_sum_2011: *2022_impbef_sum
+  2022_impbef_sum_2010: *2022_impbef_sum
+  2022_impbef_sum_2009: *2022_impbef_sum
+  2022_impbef_sum_2008: *2022_impbef_sum
+  2022_impbef_sum_2007: *2022_impbef_sum
+  2022_impbef_sum_2006: *2022_impbef_sum
+  2022_impbef_sum_2005: *2022_impbef_sum
+  2022_impbef_sum_2004: *2022_impbef_sum
+  2022_impbef_sum_2003: *2022_impbef_sum
+  2022_impbef_sum_2002: *2022_impbef_sum
+  2022_impbef_sum_2001: *2022_impbef_sum
+  2022_impbef_sum_2000: *2022_impbef_sum
+  2022_impbef_sum_1999: *2022_impbef_sum
+  2022_impbef_sum_1998: *2022_impbef_sum
+  2022_impbef_sum_1997: *2022_impbef_sum
 
-  2022_imp_det_2012: &2022_imp_det
-    desc: Import Matrix, Before Redefinitions, year {year}, detail level, 2022 revision
+  2022_impaft_sum_2021: &2022_impaft_sum
     mask: "{revision}_{table}_{level}_{year}"
+    desc: Import Matrix, After Redefinitions, {year}, summary level, 2022 revision
     type: table
-    path: proc/{revision}/{table}/{level}/{year}
-    depends: raw_{revision}_supplement
+    path: proc/{revision}/supplem/{table}/{level}/{year}.pq
+    depends: raw_2022_supplem
+    read:
+      file: "ImportMatrices/ImportMatrices_After_Redefinitions_SUM_1997-2021.xlsx"
+      skip: 5
+      rows: 75
+      matrix: [73, 71]
+    schema: *schema_su_sum
+  2022_impaft_sum_2020: *2022_impaft_sum
+  2022_impaft_sum_2019: *2022_impaft_sum
+  2022_impaft_sum_2018: *2022_impaft_sum
+  2022_impaft_sum_2017: *2022_impaft_sum
+  2022_impaft_sum_2016: *2022_impaft_sum
+  2022_impaft_sum_2015: *2022_impaft_sum
+  2022_impaft_sum_2014: *2022_impaft_sum
+  2022_impaft_sum_2013: *2022_impaft_sum
+  2022_impaft_sum_2012: *2022_impaft_sum
+  2022_impaft_sum_2011: *2022_impaft_sum
+  2022_impaft_sum_2010: *2022_impaft_sum
+  2022_impaft_sum_2009: *2022_impaft_sum
+  2022_impaft_sum_2008: *2022_impaft_sum
+  2022_impaft_sum_2007: *2022_impaft_sum
+  2022_impaft_sum_2006: *2022_impaft_sum
+  2022_impaft_sum_2005: *2022_impaft_sum
+  2022_impaft_sum_2004: *2022_impaft_sum
+  2022_impaft_sum_2003: *2022_impaft_sum
+  2022_impaft_sum_2002: *2022_impaft_sum
+  2022_impaft_sum_2001: *2022_impaft_sum
+  2022_impaft_sum_2000: *2022_impaft_sum
+  2022_impaft_sum_1999: *2022_impaft_sum
+  2022_impaft_sum_1998: *2022_impaft_sum
+  2022_impaft_sum_1997: *2022_impaft_sum
+
+
+  2022_impbef_det_2012: &2022_impbef_det
+    mask: "{revision}_{table}_{level}_{year}"
+    desc: Import Matrix, Before Redefinitions, {year}, detail level, 2022 revision
+    type: table
+    path: proc/{revision}/supplem/{table}/{level}/{year}.pq
+    depends: raw_{revision}_supplem
     read:
       file: "ImportMatrices/ImportMatrices_Before_Redefinitions_DET_2007_2012.xlsx"
       skip: 4
       rows: 407
       matrix: [405, 405]
-    schema: *schema_det
-  2022_imp_det_2007: *2022_imp_det
+    schema: *schema_su_det
+  2022_impbef_det_2007: *2022_impbef_det
 
-  curr_naics:
-    desc: I-O to NAICS-2017 crosswalk, current revision
+  2022_impaft_det_2012: &2022_impaft_det
+    mask: "{revision}_{table}_{level}_{year}"
+    desc: Import Matrix, After Redefinitions, {year}, detail level, 2022 revision
+    type: table
+    path: proc/{revision}/supplem/{table}/{level}/{year}.pq
+    depends: raw_{revision}_supplem
+    read:
+      file: "ImportMatrices/ImportMatrices_After_Redefinitions_DET_2007_2012.xlsx"
+      skip: 4
+      rows: 407
+      matrix: [405, 405]
+    schema: *schema_su_det
+  2022_impaft_det_2007: *2022_impaft_det
+
+
+  2023_naics:
+    desc: I-O to NAICS-2017 crosswalk, 2023 revision
     mask: "{revision}_naics"
     type: table
     path: proc/{revision}/naics.pq
-    depends: raw_{revision}
+    depends: raw_{revision}_su
     read:
-      file: "AllTablesSUP/Supply_2017_DET.xlsx"
+      file: "Supply_2017_DET.xlsx"
       skip: 5
       rows: 1017
     schema: &schema_naics
@@ -535,24 +579,12 @@ data:
         desc: NAICS code
         type: string
 
-  2023_naics:
-    desc: I-O to NAICS-2017 crosswalk, 2023 revision
-    mask: "{revision}_naics"
-    type: table
-    path: proc/{revision}/naics.pq
-    depends: raw_{revision}
-    read:
-      file: "Supply_2017_DET.xlsx"
-      skip: 5
-      rows: 1017
-    schema: *schema_naics
-
   2022_naics:
     desc: I-O to NAICS-2012 crosswalk, 2022 revision
     mask: "{revision}_naics"
     type: table
     path: proc/{revision}/naics.pq
-    depends: raw_{revision}
+    depends: raw_{revision}_su
     read:
       file: "Supply_2007_2012_DET.xlsx"
       skip: 5
