@@ -10,7 +10,150 @@ urls:
   "Gross Domestic Product by Industry and Input-Output Statistics":
     https://apps.bea.gov/histdatacore/histChildLevels.html?HMI=8&oldDiv=Industry%20Accounts
 
+
+schema:
+  mak_sec: &schema_mak_sec
+    row_code:
+      desc: Row code - sector level industry.
+      type: string
+    row_name:
+      desc: Row description - sector level industry.
+      type: string
+    col_code:
+      desc: Column code - sector level commodity.
+      type: string
+    col_name:
+      desc: Column description - sector level commodity.
+      type: string
+    value:
+      desc: Value at the intersection of row and column.
+      type: number
+    core_matrix:
+      desc: Whether value is part of the core industry-commodity matrix.
+      type: bool
+  mak_sum: &schema_mak_sum
+    row_code:
+      desc: Row code - summary level industry.
+      type: string
+    row_name:
+      desc: Row description - summary level industry.
+      type: string
+    col_code:
+      desc: Column code - summary level commodity.
+      type: string
+    col_name:
+      desc: Column description - summary level commodity.
+      type: string
+    value:
+      desc: Value at the intersection of row and column.
+      type: number
+    core_matrix:
+      desc: Whether value is part of the core industry-commodity matrix.
+      type: bool
+  mak_det: &schema_mak_det
+    row_code:
+      desc: Row code - detail level industry.
+      type: string
+    row_name:
+      desc: Row description - detail level industry.
+      type: string
+    col_code:
+      desc: Column code - detail level commodity.
+      type: string
+    col_name:
+      desc: Column description - detail level commodity.
+      type: string
+    value:
+      desc: Value at the intersection of row and column.
+      type: number
+    core_matrix:
+      desc: Whether value is part of the core industry-commodity matrix.
+      type: bool
+  su_sec: &schema_su_sec
+    row_code:
+      desc: Row code - sector level commodity.
+      type: string
+    row_name:
+      desc: Row description - sector level commodity.
+      type: string
+    col_code:
+      desc: Column code - sector level industry.
+      type: string
+    col_name:
+      desc: Column description - sector level industry.
+      type: string
+    value:
+      desc: Value at the intersection of row and column.
+      type: number
+    core_matrix:
+      desc: Whether value is part of the core commodity-industry matrix.
+      type: bool
+  su_sum: &schema_su_sum
+    row_code:
+      desc: Row code - summary level commodity.
+      type: string
+    row_name:
+      desc: Row description - summary level commodity.
+      type: string
+    col_code:
+      desc: Column code - summary level industry.
+      type: string
+    col_name:
+      desc: Column description - summary level industry.
+      type: string
+    value:
+      desc: Value at the intersection of row and column.
+      type: number
+    core_matrix:
+      desc: Whether value is part of the core commodity-industry matrix.
+      type: bool
+  su_det: &schema_su_det
+    row_code:
+      desc: Row code - detail level commodity.
+      type: string
+    row_name:
+      desc: Row description - detail level commodity.
+      type: string
+    col_code:
+      desc: Column code - detail level industry.
+      type: string
+    col_name:
+      desc: Column description - detail level industry.
+      type: string
+    value:
+      desc: Value at the intersection of row and column.
+      type: number
+    core_matrix:
+      desc: Whether value is part of the core commodity-industry matrix.
+      type: bool
+  naics: &schema_naics
+    sector:
+      desc: I-O sector level code
+      type: string
+    summary:
+      desc: I-O summary level code
+      type: string
+    u_summary:
+      desc: I-O underlying summary level code
+      type: string
+    detail:
+      desc: I-O detail level code
+      type: string
+    title:
+      desc: I-O industry title
+      type: string
+    naics:
+      desc: NAICS code
+      type: string
+
+
+
 data:
+  raw_2023_mu:
+    desc: Make-Use framework tables, 2023 Q2
+    type: raw
+    path: raw/AllTablesIO_2023q2.zip
+    url: https://apps.bea.gov/HistDataCore/wwwroot/Releases/Industry/2023/GDP_by_Industry/Q2/Annual_September-28-2023/AllTablesIO.zip
   raw_2023_su:
     desc: Supply-Use framework tables, 2023 Q2
     type: raw
@@ -32,10 +175,463 @@ data:
     path: raw/IoSupplemental_2022q2.zip
     url: https://apps.bea.gov/HistDataCore/wwwroot/Releases/Industry/2022/GDP_by_Industry/Q2/Annual_September-29-2022/IoSupplemental.zip
 
+  2023_mu_use-bef-pro_sec_2022: &2023_mu_use-bef-pro_sec
+    mask: "{revision}_mu_{table}_{level}_{year}"
+    desc: Make-Use framework, Use table before redefinitions, producers' prices, {year}, sector level, {revision} revision
+    type: table
+    path: proc/{revision}/mu/{table}/{level}/{year}.pq
+    depends: raw_{revision}_mu
+    read:
+      file: "IOUse_Before_Redefinitions_PRO_1997-2022_Sector.xlsx"
+      skip: 5
+      rows: 25
+      matrix: [17, 15]
+    schema: *schema_su_sec
+  2023_mu_use-bef-pro_sec_2021: *2023_mu_use-bef-pro_sec
+  2023_mu_use-bef-pro_sec_2020: *2023_mu_use-bef-pro_sec
+  2023_mu_use-bef-pro_sec_2019: *2023_mu_use-bef-pro_sec
+  2023_mu_use-bef-pro_sec_2018: *2023_mu_use-bef-pro_sec
+  2023_mu_use-bef-pro_sec_2017: *2023_mu_use-bef-pro_sec
+  2023_mu_use-bef-pro_sec_2016: *2023_mu_use-bef-pro_sec
+  2023_mu_use-bef-pro_sec_2015: *2023_mu_use-bef-pro_sec
+  2023_mu_use-bef-pro_sec_2014: *2023_mu_use-bef-pro_sec
+  2023_mu_use-bef-pro_sec_2013: *2023_mu_use-bef-pro_sec
+  2023_mu_use-bef-pro_sec_2012: *2023_mu_use-bef-pro_sec
+  2023_mu_use-bef-pro_sec_2011: *2023_mu_use-bef-pro_sec
+  2023_mu_use-bef-pro_sec_2010: *2023_mu_use-bef-pro_sec
+  2023_mu_use-bef-pro_sec_2009: *2023_mu_use-bef-pro_sec
+  2023_mu_use-bef-pro_sec_2008: *2023_mu_use-bef-pro_sec
+  2023_mu_use-bef-pro_sec_2007: *2023_mu_use-bef-pro_sec
+  2023_mu_use-bef-pro_sec_2006: *2023_mu_use-bef-pro_sec
+  2023_mu_use-bef-pro_sec_2005: *2023_mu_use-bef-pro_sec
+  2023_mu_use-bef-pro_sec_2004: *2023_mu_use-bef-pro_sec
+  2023_mu_use-bef-pro_sec_2003: *2023_mu_use-bef-pro_sec
+  2023_mu_use-bef-pro_sec_2002: *2023_mu_use-bef-pro_sec
+  2023_mu_use-bef-pro_sec_2001: *2023_mu_use-bef-pro_sec
+  2023_mu_use-bef-pro_sec_2000: *2023_mu_use-bef-pro_sec
+  2023_mu_use-bef-pro_sec_1999: *2023_mu_use-bef-pro_sec
+  2023_mu_use-bef-pro_sec_1998: *2023_mu_use-bef-pro_sec
+  2023_mu_use-bef-pro_sec_1997: *2023_mu_use-bef-pro_sec
+
+  2023_mu_use-bef-pro_sum_2022: &2023_mu_use-bef-pro_sum
+    mask: "{revision}_mu_{table}_{level}_{year}"
+    desc: Make-Use framework, Use table before redefinitions, producers' prices, {year}, summary level, {revision} revision
+    type: table
+    path: proc/{revision}/mu/{table}/{level}/{year}.pq
+    depends: raw_{revision}_mu
+    read:
+      file: "IOUse_Before_Redefinitions_PRO_1997-2022_Summary.xlsx"
+      skip: 5
+      rows: 81
+      matrix: [73, 71]
+    schema: *schema_su_sum
+  2023_mu_use-bef-pro_sum_2021: *2023_mu_use-bef-pro_sum
+  2023_mu_use-bef-pro_sum_2020: *2023_mu_use-bef-pro_sum
+  2023_mu_use-bef-pro_sum_2019: *2023_mu_use-bef-pro_sum
+  2023_mu_use-bef-pro_sum_2018: *2023_mu_use-bef-pro_sum
+  2023_mu_use-bef-pro_sum_2017: *2023_mu_use-bef-pro_sum
+  2023_mu_use-bef-pro_sum_2016: *2023_mu_use-bef-pro_sum
+  2023_mu_use-bef-pro_sum_2015: *2023_mu_use-bef-pro_sum
+  2023_mu_use-bef-pro_sum_2014: *2023_mu_use-bef-pro_sum
+  2023_mu_use-bef-pro_sum_2013: *2023_mu_use-bef-pro_sum
+  2023_mu_use-bef-pro_sum_2012: *2023_mu_use-bef-pro_sum
+  2023_mu_use-bef-pro_sum_2011: *2023_mu_use-bef-pro_sum
+  2023_mu_use-bef-pro_sum_2010: *2023_mu_use-bef-pro_sum
+  2023_mu_use-bef-pro_sum_2009: *2023_mu_use-bef-pro_sum
+  2023_mu_use-bef-pro_sum_2008: *2023_mu_use-bef-pro_sum
+  2023_mu_use-bef-pro_sum_2007: *2023_mu_use-bef-pro_sum
+  2023_mu_use-bef-pro_sum_2006: *2023_mu_use-bef-pro_sum
+  2023_mu_use-bef-pro_sum_2005: *2023_mu_use-bef-pro_sum
+  2023_mu_use-bef-pro_sum_2004: *2023_mu_use-bef-pro_sum
+  2023_mu_use-bef-pro_sum_2003: *2023_mu_use-bef-pro_sum
+  2023_mu_use-bef-pro_sum_2002: *2023_mu_use-bef-pro_sum
+  2023_mu_use-bef-pro_sum_2001: *2023_mu_use-bef-pro_sum
+  2023_mu_use-bef-pro_sum_2000: *2023_mu_use-bef-pro_sum
+  2023_mu_use-bef-pro_sum_1999: *2023_mu_use-bef-pro_sum
+  2023_mu_use-bef-pro_sum_1998: *2023_mu_use-bef-pro_sum
+  2023_mu_use-bef-pro_sum_1997: *2023_mu_use-bef-pro_sum
+
+  2023_mu_use-bef-pro_det_2017: &2023_mu_use-bef-pro_det
+    mask: "{revision}_mu_{table}_{level}_{year}"
+    desc: Make-Use framework, Use table before redefinitions, producers' prices, {year}, detail level, {revision} revision
+    type: table
+    path: proc/{revision}/mu/{table}/{level}/{year}.pq
+    depends: raw_{revision}_mu
+    read:
+      file: "IOUse_Before_Redefinitions_PRO_2017_Detail.xlsx"
+      skip: 4
+      rows: 410
+      matrix: [402, 402]
+    schema: *schema_su_det
+  2023_mu_use-bef-pro_det_2012: *2023_mu_use-bef-pro_det
+  2023_mu_use-bef-pro_det_2007: *2023_mu_use-bef-pro_det
+
+  2023_mu_use-bef-pur_sec_2017: &2023_mu_use-bef-pur_sec
+    mask: "{revision}_mu_{table}_{level}_{year}"
+    desc: Make-Use framework, Use table before redefinitions, purchasers' prices, {year}, sector level, {revision} revision
+    type: table
+    path: proc/{revision}/mu/{table}/{level}/{year}.pq
+    depends: raw_{revision}_mu
+    read:
+      file: "IOUse_Before_Redefinitions_PUR_2017_Sector.xlsx"
+      skip: 5
+      rows: 25
+      matrix: [17, 15]
+    schema: *schema_su_sec
+  2023_mu_use-bef-pur_sec_2012: *2023_mu_use-bef-pur_sec
+  2023_mu_use-bef-pur_sec_2007: *2023_mu_use-bef-pur_sec
+
+  2023_mu_use-bef-pur_sum_2017: &2023_mu_use-bef-pur_sum
+    mask: "{revision}_mu_{table}_{level}_{year}"
+    desc: Make-Use framework, Use table before redefinitions, purchasers' prices, {year}, summary level, {revision} revision
+    type: table
+    path: proc/{revision}/mu/{table}/{level}/{year}.pq
+    depends: raw_{revision}_mu
+    read:
+      file: "IOUse_Before_Redefinitions_PUR_2017_Summary.xlsx"
+      skip: 5
+      rows: 78
+      matrix: [70, 71]
+    schema: *schema_su_sum
+  2023_mu_use-bef-pur_sum_2012: *2023_mu_use-bef-pur_sum
+  2023_mu_use-bef-pur_sum_2007: *2023_mu_use-bef-pur_sum
+
+  2023_mu_use-bef-pur_det_2017: &2023_mu_use-bef-pur_det
+    mask: "{revision}_mu_{table}_{level}_{year}"
+    desc: Make-Use framework, Use table before redefinitions, purchasers' prices, {year}, detail level, {revision} revision
+    type: table
+    path: proc/{revision}/mu/{table}/{level}/{year}.pq
+    depends: raw_{revision}_mu
+    read:
+      file: "IOUse_Before_Redefinitions_PUR_2017_Detail.xlsx"
+      skip: 4
+      rows: 402
+      matrix: [394, 402]
+    schema: *schema_su_det
+  2023_mu_use-bef-pur_det_2012: *2023_mu_use-bef-pur_det
+  2023_mu_use-bef-pur_det_2007: *2023_mu_use-bef-pur_det
+
+  2023_mu_use-aft-pro_sec_2022: &2023_mu_use-aft-pro_sec
+    mask: "{revision}_mu_{table}_{level}_{year}"
+    desc: Make-Use framework, Use table after redefinitions, producers' prices, {year}, sector level, {revision} revision
+    type: table
+    path: proc/{revision}/mu/{table}/{level}/{year}.pq
+    depends: raw_{revision}_mu
+    read:
+      file: "IOUse_After_Redefinitions_PRO_1997-2022_Sector.xlsx"
+      skip: 5
+      rows: 25
+      matrix: [17, 15]
+    schema: *schema_su_sec
+  2023_mu_use-aft-pro_sec_2021: *2023_mu_use-aft-pro_sec
+  2023_mu_use-aft-pro_sec_2020: *2023_mu_use-aft-pro_sec
+  2023_mu_use-aft-pro_sec_2019: *2023_mu_use-aft-pro_sec
+  2023_mu_use-aft-pro_sec_2018: *2023_mu_use-aft-pro_sec
+  2023_mu_use-aft-pro_sec_2017: *2023_mu_use-aft-pro_sec
+  2023_mu_use-aft-pro_sec_2016: *2023_mu_use-aft-pro_sec
+  2023_mu_use-aft-pro_sec_2015: *2023_mu_use-aft-pro_sec
+  2023_mu_use-aft-pro_sec_2014: *2023_mu_use-aft-pro_sec
+  2023_mu_use-aft-pro_sec_2013: *2023_mu_use-aft-pro_sec
+  2023_mu_use-aft-pro_sec_2012: *2023_mu_use-aft-pro_sec
+  2023_mu_use-aft-pro_sec_2011: *2023_mu_use-aft-pro_sec
+  2023_mu_use-aft-pro_sec_2010: *2023_mu_use-aft-pro_sec
+  2023_mu_use-aft-pro_sec_2009: *2023_mu_use-aft-pro_sec
+  2023_mu_use-aft-pro_sec_2008: *2023_mu_use-aft-pro_sec
+  2023_mu_use-aft-pro_sec_2007: *2023_mu_use-aft-pro_sec
+  2023_mu_use-aft-pro_sec_2006: *2023_mu_use-aft-pro_sec
+  2023_mu_use-aft-pro_sec_2005: *2023_mu_use-aft-pro_sec
+  2023_mu_use-aft-pro_sec_2004: *2023_mu_use-aft-pro_sec
+  2023_mu_use-aft-pro_sec_2003: *2023_mu_use-aft-pro_sec
+  2023_mu_use-aft-pro_sec_2002: *2023_mu_use-aft-pro_sec
+  2023_mu_use-aft-pro_sec_2001: *2023_mu_use-aft-pro_sec
+  2023_mu_use-aft-pro_sec_2000: *2023_mu_use-aft-pro_sec
+  2023_mu_use-aft-pro_sec_1999: *2023_mu_use-aft-pro_sec
+  2023_mu_use-aft-pro_sec_1998: *2023_mu_use-aft-pro_sec
+  2023_mu_use-aft-pro_sec_1997: *2023_mu_use-aft-pro_sec
+
+  2023_mu_use-aft-pro_sum_2022: &2023_mu_use-aft-pro_sum
+    mask: "{revision}_mu_{table}_{level}_{year}"
+    desc: Make-Use framework, Use table after redefinitions, producers' prices, {year}, summary level, {revision} revision
+    type: table
+    path: proc/{revision}/mu/{table}/{level}/{year}.pq
+    depends: raw_{revision}_mu
+    read:
+      file: "IOUse_After_Redefinitions_PRO_1997-2022_Summary.xlsx"
+      skip: 5
+      rows: 81
+      matrix: [73, 71]
+    schema: *schema_su_sum
+  2023_mu_use-aft-pro_sum_2021: *2023_mu_use-aft-pro_sum
+  2023_mu_use-aft-pro_sum_2020: *2023_mu_use-aft-pro_sum
+  2023_mu_use-aft-pro_sum_2019: *2023_mu_use-aft-pro_sum
+  2023_mu_use-aft-pro_sum_2018: *2023_mu_use-aft-pro_sum
+  2023_mu_use-aft-pro_sum_2017: *2023_mu_use-aft-pro_sum
+  2023_mu_use-aft-pro_sum_2016: *2023_mu_use-aft-pro_sum
+  2023_mu_use-aft-pro_sum_2015: *2023_mu_use-aft-pro_sum
+  2023_mu_use-aft-pro_sum_2014: *2023_mu_use-aft-pro_sum
+  2023_mu_use-aft-pro_sum_2013: *2023_mu_use-aft-pro_sum
+  2023_mu_use-aft-pro_sum_2012: *2023_mu_use-aft-pro_sum
+  2023_mu_use-aft-pro_sum_2011: *2023_mu_use-aft-pro_sum
+  2023_mu_use-aft-pro_sum_2010: *2023_mu_use-aft-pro_sum
+  2023_mu_use-aft-pro_sum_2009: *2023_mu_use-aft-pro_sum
+  2023_mu_use-aft-pro_sum_2008: *2023_mu_use-aft-pro_sum
+  2023_mu_use-aft-pro_sum_2007: *2023_mu_use-aft-pro_sum
+  2023_mu_use-aft-pro_sum_2006: *2023_mu_use-aft-pro_sum
+  2023_mu_use-aft-pro_sum_2005: *2023_mu_use-aft-pro_sum
+  2023_mu_use-aft-pro_sum_2004: *2023_mu_use-aft-pro_sum
+  2023_mu_use-aft-pro_sum_2003: *2023_mu_use-aft-pro_sum
+  2023_mu_use-aft-pro_sum_2002: *2023_mu_use-aft-pro_sum
+  2023_mu_use-aft-pro_sum_2001: *2023_mu_use-aft-pro_sum
+  2023_mu_use-aft-pro_sum_2000: *2023_mu_use-aft-pro_sum
+  2023_mu_use-aft-pro_sum_1999: *2023_mu_use-aft-pro_sum
+  2023_mu_use-aft-pro_sum_1998: *2023_mu_use-aft-pro_sum
+  2023_mu_use-aft-pro_sum_1997: *2023_mu_use-aft-pro_sum
+
+  2023_mu_use-aft-pro_det_2017: &2023_mu_use-aft-pro_det
+    mask: "{revision}_mu_{table}_{level}_{year}"
+    desc: Make-Use framework, Use table after redefinitions, producers' prices, {year}, detail level, {revision} revision
+    type: table
+    path: proc/{revision}/mu/{table}/{level}/{year}.pq
+    depends: raw_{revision}_mu
+    read:
+      file: "IOUse_After_Redefinitions_PRO_2017_Detail.xlsx"
+      skip: 4
+      rows: 410
+      matrix: [402, 402]
+    schema: *schema_su_det
+  2023_mu_use-aft-pro_det_2012: *2023_mu_use-aft-pro_det
+  2023_mu_use-aft-pro_det_2007: *2023_mu_use-aft-pro_det
+
+  2023_mu_use-aft-pur_sec_2017: &2023_mu_use-aft-pur_sec
+    mask: "{revision}_mu_{table}_{level}_{year}"
+    desc: Make-Use framework, Use table after redefinitions, purchasers' prices, {year}, sector level, {revision} revision
+    type: table
+    path: proc/{revision}/mu/{table}/{level}/{year}.pq
+    depends: raw_{revision}_mu
+    read:
+      file: "IOUse_After_Redefinitions_PUR_2017_Sector.xlsx"
+      skip: 5
+      rows: 25
+      matrix: [17, 15]
+    schema: *schema_su_sec
+  2023_mu_use-aft-pur_sec_2012: *2023_mu_use-aft-pur_sec
+  2023_mu_use-aft-pur_sec_2007: *2023_mu_use-aft-pur_sec
+
+  2023_mu_use-aft-pur_sum_2017: &2023_mu_use-aft-pur_sum
+    mask: "{revision}_mu_{table}_{level}_{year}"
+    desc: Make-Use framework, Use table after redefinitions, purchasers' prices, {year}, summary level, {revision} revision
+    type: table
+    path: proc/{revision}/mu/{table}/{level}/{year}.pq
+    depends: raw_{revision}_mu
+    read:
+      file: "IOUse_After_Redefinitions_PUR_2017_Summary.xlsx"
+      skip: 5
+      rows: 78
+      matrix: [70, 71]
+    schema: *schema_su_sum
+  2023_mu_use-aft-pur_sum_2012: *2023_mu_use-aft-pur_sum
+  2023_mu_use-aft-pur_sum_2007: *2023_mu_use-aft-pur_sum
+
+  2023_mu_use-aft-pur_det_2017: &2023_mu_use-aft-pur_det
+    mask: "{revision}_mu_{table}_{level}_{year}"
+    desc: Make-Use framework, Use table after redefinitions, purchasers' prices, {year}, detail level, {revision} revision
+    type: table
+    path: proc/{revision}/mu/{table}/{level}/{year}.pq
+    depends: raw_{revision}_mu
+    read:
+      file: "IOUse_After_Redefinitions_PUR_2017_Detail.xlsx"
+      skip: 4
+      rows: 402
+      matrix: [394, 402]
+    schema: *schema_su_det
+  2023_mu_use-aft-pur_det_2012: *2023_mu_use-aft-pur_det
+  2023_mu_use-aft-pur_det_2007: *2023_mu_use-aft-pur_det
+
+  2023_mu_mak-bef_sec_2022: &2023_mu_mak-bef_sec
+    mask: "{revision}_mu_{table}_{level}_{year}"
+    desc: Make-Use framework, Make table before redefinitions, {year}, sector level, {revision} revision
+    type: table
+    path: proc/{revision}/mu/{table}/{level}/{year}.pq
+    depends: raw_{revision}_mu
+    read:
+      file: "IOMake_Before_Redefinitions_PRO_1997-2022_Sector.xlsx"
+      skip: 5
+      rows: 18
+      matrix: [15, 17]
+    schema: *schema_mak_sec
+  2023_mu_mak-bef_sec_2021: *2023_mu_mak-bef_sec
+  2023_mu_mak-bef_sec_2020: *2023_mu_mak-bef_sec
+  2023_mu_mak-bef_sec_2019: *2023_mu_mak-bef_sec
+  2023_mu_mak-bef_sec_2018: *2023_mu_mak-bef_sec
+  2023_mu_mak-bef_sec_2017: *2023_mu_mak-bef_sec
+  2023_mu_mak-bef_sec_2016: *2023_mu_mak-bef_sec
+  2023_mu_mak-bef_sec_2015: *2023_mu_mak-bef_sec
+  2023_mu_mak-bef_sec_2014: *2023_mu_mak-bef_sec
+  2023_mu_mak-bef_sec_2013: *2023_mu_mak-bef_sec
+  2023_mu_mak-bef_sec_2012: *2023_mu_mak-bef_sec
+  2023_mu_mak-bef_sec_2011: *2023_mu_mak-bef_sec
+  2023_mu_mak-bef_sec_2010: *2023_mu_mak-bef_sec
+  2023_mu_mak-bef_sec_2009: *2023_mu_mak-bef_sec
+  2023_mu_mak-bef_sec_2008: *2023_mu_mak-bef_sec
+  2023_mu_mak-bef_sec_2007: *2023_mu_mak-bef_sec
+  2023_mu_mak-bef_sec_2006: *2023_mu_mak-bef_sec
+  2023_mu_mak-bef_sec_2005: *2023_mu_mak-bef_sec
+  2023_mu_mak-bef_sec_2004: *2023_mu_mak-bef_sec
+  2023_mu_mak-bef_sec_2003: *2023_mu_mak-bef_sec
+  2023_mu_mak-bef_sec_2002: *2023_mu_mak-bef_sec
+  2023_mu_mak-bef_sec_2001: *2023_mu_mak-bef_sec
+  2023_mu_mak-bef_sec_2000: *2023_mu_mak-bef_sec
+  2023_mu_mak-bef_sec_1999: *2023_mu_mak-bef_sec
+  2023_mu_mak-bef_sec_1998: *2023_mu_mak-bef_sec
+  2023_mu_mak-bef_sec_1997: *2023_mu_mak-bef_sec
+
+  2023_mu_mak-bef_sum_2022: &2023_mu_mak-bef_sum
+    mask: "{revision}_mu_{table}_{level}_{year}"
+    desc: Make-Use framework, Make table before redefinitions, {year}, summary level, {revision} revision
+    type: table
+    path: proc/{revision}/mu/{table}/{level}/{year}.pq
+    depends: raw_{revision}_mu
+    read:
+      file: "IOMake_Before_Redefinitions_PRO_1997-2022_Summary.xlsx"
+      skip: 5
+      rows: 74
+      matrix: [71, 73]
+    schema: *schema_mak_sum
+  2023_mu_mak-bef_sum_2021: *2023_mu_mak-bef_sum
+  2023_mu_mak-bef_sum_2020: *2023_mu_mak-bef_sum
+  2023_mu_mak-bef_sum_2019: *2023_mu_mak-bef_sum
+  2023_mu_mak-bef_sum_2018: *2023_mu_mak-bef_sum
+  2023_mu_mak-bef_sum_2017: *2023_mu_mak-bef_sum
+  2023_mu_mak-bef_sum_2016: *2023_mu_mak-bef_sum
+  2023_mu_mak-bef_sum_2015: *2023_mu_mak-bef_sum
+  2023_mu_mak-bef_sum_2014: *2023_mu_mak-bef_sum
+  2023_mu_mak-bef_sum_2013: *2023_mu_mak-bef_sum
+  2023_mu_mak-bef_sum_2012: *2023_mu_mak-bef_sum
+  2023_mu_mak-bef_sum_2011: *2023_mu_mak-bef_sum
+  2023_mu_mak-bef_sum_2010: *2023_mu_mak-bef_sum
+  2023_mu_mak-bef_sum_2009: *2023_mu_mak-bef_sum
+  2023_mu_mak-bef_sum_2008: *2023_mu_mak-bef_sum
+  2023_mu_mak-bef_sum_2007: *2023_mu_mak-bef_sum
+  2023_mu_mak-bef_sum_2006: *2023_mu_mak-bef_sum
+  2023_mu_mak-bef_sum_2005: *2023_mu_mak-bef_sum
+  2023_mu_mak-bef_sum_2004: *2023_mu_mak-bef_sum
+  2023_mu_mak-bef_sum_2003: *2023_mu_mak-bef_sum
+  2023_mu_mak-bef_sum_2002: *2023_mu_mak-bef_sum
+  2023_mu_mak-bef_sum_2001: *2023_mu_mak-bef_sum
+  2023_mu_mak-bef_sum_2000: *2023_mu_mak-bef_sum
+  2023_mu_mak-bef_sum_1999: *2023_mu_mak-bef_sum
+  2023_mu_mak-bef_sum_1998: *2023_mu_mak-bef_sum
+  2023_mu_mak-bef_sum_1997: *2023_mu_mak-bef_sum
+
+  2023_mu_mak-bef_det_2017: &2023_mu_mak-bef_det
+    mask: "{revision}_mu_{table}_{level}_{year}"
+    desc: Make-Use framework, Make table before redefinitions, {year}, detail level, {revision} revision
+    type: table
+    path: proc/{revision}/mu/{table}/{level}/{year}.pq
+    depends: raw_{revision}_mu
+    read:
+      file: "IOMake_Before_Redefinitions_2017_Detail.xlsx"
+      skip: 4
+      rows: 405
+      matrix: [402, 402]
+    schema: *schema_mak_det
+  2023_mu_mak-bef_det_2012: *2023_mu_mak-bef_det
+  2023_mu_mak-bef_det_2007: *2023_mu_mak-bef_det
+
+  2023_mu_mak-aft_sec_2022: &2023_mu_mak-aft_sec
+    mask: "{revision}_mu_{table}_{level}_{year}"
+    desc: Make-Use framework, Make table after redefinitions, {year}, sector level, {revision} revision
+    type: table
+    path: proc/{revision}/mu/{table}/{level}/{year}.pq
+    depends: raw_{revision}_mu
+    read:
+      file: "IOMake_After_Redefinitions_PRO_1997-2022_Sector.xlsx"
+      skip: 5
+      rows: 18
+      matrix: [15, 17]
+    schema: *schema_mak_sec
+  2023_mu_mak-aft_sec_2021: *2023_mu_mak-aft_sec
+  2023_mu_mak-aft_sec_2020: *2023_mu_mak-aft_sec
+  2023_mu_mak-aft_sec_2019: *2023_mu_mak-aft_sec
+  2023_mu_mak-aft_sec_2018: *2023_mu_mak-aft_sec
+  2023_mu_mak-aft_sec_2017: *2023_mu_mak-aft_sec
+  2023_mu_mak-aft_sec_2016: *2023_mu_mak-aft_sec
+  2023_mu_mak-aft_sec_2015: *2023_mu_mak-aft_sec
+  2023_mu_mak-aft_sec_2014: *2023_mu_mak-aft_sec
+  2023_mu_mak-aft_sec_2013: *2023_mu_mak-aft_sec
+  2023_mu_mak-aft_sec_2012: *2023_mu_mak-aft_sec
+  2023_mu_mak-aft_sec_2011: *2023_mu_mak-aft_sec
+  2023_mu_mak-aft_sec_2010: *2023_mu_mak-aft_sec
+  2023_mu_mak-aft_sec_2009: *2023_mu_mak-aft_sec
+  2023_mu_mak-aft_sec_2008: *2023_mu_mak-aft_sec
+  2023_mu_mak-aft_sec_2007: *2023_mu_mak-aft_sec
+  2023_mu_mak-aft_sec_2006: *2023_mu_mak-aft_sec
+  2023_mu_mak-aft_sec_2005: *2023_mu_mak-aft_sec
+  2023_mu_mak-aft_sec_2004: *2023_mu_mak-aft_sec
+  2023_mu_mak-aft_sec_2003: *2023_mu_mak-aft_sec
+  2023_mu_mak-aft_sec_2002: *2023_mu_mak-aft_sec
+  2023_mu_mak-aft_sec_2001: *2023_mu_mak-aft_sec
+  2023_mu_mak-aft_sec_2000: *2023_mu_mak-aft_sec
+  2023_mu_mak-aft_sec_1999: *2023_mu_mak-aft_sec
+  2023_mu_mak-aft_sec_1998: *2023_mu_mak-aft_sec
+  2023_mu_mak-aft_sec_1997: *2023_mu_mak-aft_sec
+
+  2023_mu_mak-aft_sum_2022: &2023_mu_mak-aft_sum
+    mask: "{revision}_mu_{table}_{level}_{year}"
+    desc: Make-Use framework, Make table after redefinitions, {year}, summary level, {revision} revision
+    type: table
+    path: proc/{revision}/mu/{table}/{level}/{year}.pq
+    depends: raw_{revision}_mu
+    read:
+      file: "IOMake_After_Redefinitions_PRO_1997-2022_Summary.xlsx"
+      skip: 5
+      rows: 74
+      matrix: [71, 73]
+    schema: *schema_mak_sum
+  2023_mu_mak-aft_sum_2021: *2023_mu_mak-aft_sum
+  2023_mu_mak-aft_sum_2020: *2023_mu_mak-aft_sum
+  2023_mu_mak-aft_sum_2019: *2023_mu_mak-aft_sum
+  2023_mu_mak-aft_sum_2018: *2023_mu_mak-aft_sum
+  2023_mu_mak-aft_sum_2017: *2023_mu_mak-aft_sum
+  2023_mu_mak-aft_sum_2016: *2023_mu_mak-aft_sum
+  2023_mu_mak-aft_sum_2015: *2023_mu_mak-aft_sum
+  2023_mu_mak-aft_sum_2014: *2023_mu_mak-aft_sum
+  2023_mu_mak-aft_sum_2013: *2023_mu_mak-aft_sum
+  2023_mu_mak-aft_sum_2012: *2023_mu_mak-aft_sum
+  2023_mu_mak-aft_sum_2011: *2023_mu_mak-aft_sum
+  2023_mu_mak-aft_sum_2010: *2023_mu_mak-aft_sum
+  2023_mu_mak-aft_sum_2009: *2023_mu_mak-aft_sum
+  2023_mu_mak-aft_sum_2008: *2023_mu_mak-aft_sum
+  2023_mu_mak-aft_sum_2007: *2023_mu_mak-aft_sum
+  2023_mu_mak-aft_sum_2006: *2023_mu_mak-aft_sum
+  2023_mu_mak-aft_sum_2005: *2023_mu_mak-aft_sum
+  2023_mu_mak-aft_sum_2004: *2023_mu_mak-aft_sum
+  2023_mu_mak-aft_sum_2003: *2023_mu_mak-aft_sum
+  2023_mu_mak-aft_sum_2002: *2023_mu_mak-aft_sum
+  2023_mu_mak-aft_sum_2001: *2023_mu_mak-aft_sum
+  2023_mu_mak-aft_sum_2000: *2023_mu_mak-aft_sum
+  2023_mu_mak-aft_sum_1999: *2023_mu_mak-aft_sum
+  2023_mu_mak-aft_sum_1998: *2023_mu_mak-aft_sum
+  2023_mu_mak-aft_sum_1997: *2023_mu_mak-aft_sum
+
+  2023_mu_mak-aft_det_2017: &2023_mu_mak-aft_det
+    mask: "{revision}_mu_{table}_{level}_{year}"
+    desc: Make-Use framework, Make table after redefinitions, {year}, detail level, {revision} revision
+    type: table
+    path: proc/{revision}/mu/{table}/{level}/{year}.pq
+    depends: raw_{revision}_mu
+    read:
+      file: "IOMake_After_Redefinitions_2017_Detail .xlsx"
+      skip: 4
+      rows: 405
+      matrix: [402, 402]
+    schema: *schema_mak_det
+  2023_mu_mak-aft_det_2012: *2023_mu_mak-aft_det
+  2023_mu_mak-aft_det_2007: *2023_mu_mak-aft_det
 
   2023_su_use_sec_2022: &2023_su_use_sec
     mask: "{revision}_su_{table}_{level}_{year}"
-    desc: Supply-Use framework, Use table, {year}, sector level, 2023 revision
+    desc: Supply-Use framework, Use table, {year}, sector level, {revision} revision
     type: table
     path: proc/{revision}/su/{table}/{level}/{year}.pq
     depends: raw_{revision}_su
@@ -44,25 +640,7 @@ data:
       skip: 5
       rows: 29
       matrix: [17, 15]
-    schema: &schema_su_sec
-      row_code:
-        desc: Row code - sector level commodity.
-        type: string
-      row_name:
-        desc: Row description - sector level commodity.
-        type: string
-      col_code:
-        desc: Column code - sector level industry.
-        type: string
-      col_name:
-        desc: Column description - sector level industry.
-        type: string
-      value:
-        desc: Value at the intersection of row and column.
-        type: number
-      core_matrix:
-        desc: Whether value is part of the core commodity-industry matrix.
-        type: bool
+    schema: *schema_su_sec
   2023_su_use_sec_2021: *2023_su_use_sec
   2023_su_use_sec_2020: *2023_su_use_sec
   2023_su_use_sec_2019: *2023_su_use_sec
@@ -91,7 +669,7 @@ data:
 
   2023_su_use_sum_2022: &2023_su_use_sum
     mask: "{revision}_su_{table}_{level}_{year}"
-    desc: Supply-Use framework, Use table, {year}, summary level, 2023 revision
+    desc: Supply-Use framework, Use table, {year}, summary level, {revision} revision
     type: table
     path: proc/{revision}/su/{table}/{level}/{year}.pq
     depends: raw_{revision}_su
@@ -100,25 +678,7 @@ data:
       skip: 5
       rows: 85
       matrix: [73, 71]
-    schema: &schema_su_sum
-      row_code:
-        desc: Row code - summary level commodity.
-        type: string
-      row_name:
-        desc: Row description - summary level commodity.
-        type: string
-      col_code:
-        desc: Column code - summary level industry.
-        type: string
-      col_name:
-        desc: Column description - summary level industry.
-        type: string
-      value:
-        desc: Value at the intersection of row and column.
-        type: number
-      core_matrix:
-        desc: Whether value is part of the core commodity-industry matrix.
-        type: bool
+    schema: *schema_su_sum
   2023_su_use_sum_2021: *2023_su_use_sum
   2023_su_use_sum_2020: *2023_su_use_sum
   2023_su_use_sum_2019: *2023_su_use_sum
@@ -147,7 +707,7 @@ data:
 
   2023_su_use_det_2017: &2023_su_use_det
     mask: "{revision}_su_{table}_{level}_{year}"
-    desc: Supply-Use framework, Use table, {year}, detail level, 2023 revision
+    desc: Supply-Use framework, Use table, {year}, detail level, {revision} revision
     type: table
     path: proc/{revision}/su/{table}/{level}/{year}.pq
     depends: raw_{revision}_su
@@ -156,31 +716,13 @@ data:
       skip: 4
       rows: 413
       matrix: [402, 402]
-    schema: &schema_su_det
-      row_code:
-        desc: Row code - detail level commodity.
-        type: string
-      row_name:
-        desc: Row description - detail level commodity.
-        type: string
-      col_code:
-        desc: Column code - detail level industry.
-        type: string
-      col_name:
-        desc: Column description - detail level industry.
-        type: string
-      value:
-        desc: Value at the intersection of row and column.
-        type: number
-      core_matrix:
-        desc: Whether value is part of the core commodity-industry matrix.
-        type: bool
+    schema: *schema_su_det
   2023_su_use_det_2012: *2023_su_use_det
   2023_su_use_det_2007: *2023_su_use_det
 
   2023_su_sup_sec_2022: &2023_su_sup_sec
     mask: "{revision}_su_{table}_{level}_{year}"
-    desc: Supply-Use framework, Supply table, {year}, sector level, 2023 revision
+    desc: Supply-Use framework, Supply table, {year}, sector level, {revision} revision
     type: table
     path: proc/{revision}/su/{table}/{level}/{year}.pq
     depends: raw_{revision}_su
@@ -218,7 +760,7 @@ data:
 
   2023_su_sup_sum_2022: &2023_su_sup_sum
     mask: "{revision}_su_{table}_{level}_{year}"
-    desc: Supply-Use framework, Supply table, {year}, summary level, 2023 revision
+    desc: Supply-Use framework, Supply table, {year}, summary level, {revision} revision
     type: table
     path: proc/{revision}/su/{table}/{level}/{year}.pq
     depends: raw_{revision}_su
@@ -256,7 +798,7 @@ data:
 
   2023_su_sup_det_2017: &2023_su_sup_det
     mask: "{revision}_su_{table}_{level}_{year}"
-    desc: Supply-Use framework, Supply table, {year}, detail level, 2023 revision
+    desc: Supply-Use framework, Supply table, {year}, detail level, {revision} revision
     type: table
     path: proc/{revision}/{table}/{level}/{year}.pq
     depends: raw_{revision}_su
@@ -269,9 +811,464 @@ data:
   2023_su_sup_det_2012: *2023_su_sup_det
   2023_su_sup_det_2007: *2023_su_sup_det
 
+
+  2022_mu_use-bef-pro_sec_2021: &2022_mu_use-bef-pro_sec
+    mask: "{revision}_mu_{table}_{level}_{year}"
+    desc: Make-Use framework, Use table before redefinitions, producers' prices, {year}, sector level, {revision} revision
+    type: table
+    path: proc/{revision}/mu/{table}/{level}/{year}.pq
+    depends: raw_{revision}_mu
+    read:
+      file: "IOUse_Before_Redefinitions_PRO_1997-2021_Sector.xlsx"
+      skip: 5
+      rows: 25
+      matrix: [17, 15]
+    schema: *schema_su_sec
+  2022_mu_use-bef-pro_sec_2020: *2022_mu_use-bef-pro_sec
+  2022_mu_use-bef-pro_sec_2019: *2022_mu_use-bef-pro_sec
+  2022_mu_use-bef-pro_sec_2018: *2022_mu_use-bef-pro_sec
+  2022_mu_use-bef-pro_sec_2017: *2022_mu_use-bef-pro_sec
+  2022_mu_use-bef-pro_sec_2016: *2022_mu_use-bef-pro_sec
+  2022_mu_use-bef-pro_sec_2015: *2022_mu_use-bef-pro_sec
+  2022_mu_use-bef-pro_sec_2014: *2022_mu_use-bef-pro_sec
+  2022_mu_use-bef-pro_sec_2013: *2022_mu_use-bef-pro_sec
+  2022_mu_use-bef-pro_sec_2012: *2022_mu_use-bef-pro_sec
+  2022_mu_use-bef-pro_sec_2011: *2022_mu_use-bef-pro_sec
+  2022_mu_use-bef-pro_sec_2010: *2022_mu_use-bef-pro_sec
+  2022_mu_use-bef-pro_sec_2009: *2022_mu_use-bef-pro_sec
+  2022_mu_use-bef-pro_sec_2008: *2022_mu_use-bef-pro_sec
+  2022_mu_use-bef-pro_sec_2007: *2022_mu_use-bef-pro_sec
+  2022_mu_use-bef-pro_sec_2006: *2022_mu_use-bef-pro_sec
+  2022_mu_use-bef-pro_sec_2005: *2022_mu_use-bef-pro_sec
+  2022_mu_use-bef-pro_sec_2004: *2022_mu_use-bef-pro_sec
+  2022_mu_use-bef-pro_sec_2003: *2022_mu_use-bef-pro_sec
+  2022_mu_use-bef-pro_sec_2002: *2022_mu_use-bef-pro_sec
+  2022_mu_use-bef-pro_sec_2001: *2022_mu_use-bef-pro_sec
+  2022_mu_use-bef-pro_sec_2000: *2022_mu_use-bef-pro_sec
+  2022_mu_use-bef-pro_sec_1999: *2022_mu_use-bef-pro_sec
+  2022_mu_use-bef-pro_sec_1998: *2022_mu_use-bef-pro_sec
+  2022_mu_use-bef-pro_sec_1997: *2022_mu_use-bef-pro_sec
+
+
+  2022_mu_use-bef-pro_sum_2021: &2022_mu_use-bef-pro_sum
+    mask: "{revision}_mu_{table}_{level}_{year}"
+    desc: Make-Use framework, Use table before redefinitions, producers' prices, {year}, summary level, {revision} revision
+    type: table
+    path: proc/{revision}/mu/{table}/{level}/{year}.pq
+    depends: raw_{revision}_mu
+    read:
+      file: "IOUse_Before_Redefinitions_PRO_1997-2021_Summary.xlsx"
+      skip: 5
+      rows: 81
+      matrix: [73, 71]
+    schema: *schema_su_sum
+  2022_mu_use-bef-pro_sum_2020: *2022_mu_use-bef-pro_sum
+  2022_mu_use-bef-pro_sum_2019: *2022_mu_use-bef-pro_sum
+  2022_mu_use-bef-pro_sum_2018: *2022_mu_use-bef-pro_sum
+  2022_mu_use-bef-pro_sum_2017: *2022_mu_use-bef-pro_sum
+  2022_mu_use-bef-pro_sum_2016: *2022_mu_use-bef-pro_sum
+  2022_mu_use-bef-pro_sum_2015: *2022_mu_use-bef-pro_sum
+  2022_mu_use-bef-pro_sum_2014: *2022_mu_use-bef-pro_sum
+  2022_mu_use-bef-pro_sum_2013: *2022_mu_use-bef-pro_sum
+  2022_mu_use-bef-pro_sum_2012: *2022_mu_use-bef-pro_sum
+  2022_mu_use-bef-pro_sum_2011: *2022_mu_use-bef-pro_sum
+  2022_mu_use-bef-pro_sum_2010: *2022_mu_use-bef-pro_sum
+  2022_mu_use-bef-pro_sum_2009: *2022_mu_use-bef-pro_sum
+  2022_mu_use-bef-pro_sum_2008: *2022_mu_use-bef-pro_sum
+  2022_mu_use-bef-pro_sum_2007: *2022_mu_use-bef-pro_sum
+  2022_mu_use-bef-pro_sum_2006: *2022_mu_use-bef-pro_sum
+  2022_mu_use-bef-pro_sum_2005: *2022_mu_use-bef-pro_sum
+  2022_mu_use-bef-pro_sum_2004: *2022_mu_use-bef-pro_sum
+  2022_mu_use-bef-pro_sum_2003: *2022_mu_use-bef-pro_sum
+  2022_mu_use-bef-pro_sum_2002: *2022_mu_use-bef-pro_sum
+  2022_mu_use-bef-pro_sum_2001: *2022_mu_use-bef-pro_sum
+  2022_mu_use-bef-pro_sum_2000: *2022_mu_use-bef-pro_sum
+  2022_mu_use-bef-pro_sum_1999: *2022_mu_use-bef-pro_sum
+  2022_mu_use-bef-pro_sum_1998: *2022_mu_use-bef-pro_sum
+  2022_mu_use-bef-pro_sum_1997: *2022_mu_use-bef-pro_sum
+
+
+  2022_mu_use-bef-pro_det_2012: &2022_mu_use-bef-pro_det
+    mask: "{revision}_mu_{table}_{level}_{year}"
+    desc: Make-Use framework, Use table before redefinitions, producers' prices, {year}, detail level, {revision} revision
+    type: table
+    path: proc/{revision}/mu/{table}/{level}/{year}.pq
+    depends: raw_{revision}_mu
+    read:
+      file: "IOUse_Before_Redefinitions_PRO_2007_2012_Detail.xlsx"
+      skip: 4
+      rows: 413
+      matrix: [405, 405]
+    schema: *schema_su_det
+  2022_mu_use-bef-pro_det_2007: *2022_mu_use-bef-pro_det
+
+
+  2022_mu_use-bef-pur_sec_2012: &2022_mu_use-bef-pur_sec
+    mask: "{revision}_mu_{table}_{level}_{year}"
+    desc: Make-Use framework, Use table before redefinitions, purchasers' prices, {year}, sector level, {revision} revision
+    type: table
+    path: proc/{revision}/mu/{table}/{level}/{year}.pq
+    depends: raw_{revision}_mu
+    read:
+      file: "IOUse_Before_Redefinitions_PUR_2007_2012_Sector.xlsx"
+      skip: 5
+      rows: 25
+      matrix: [17, 15]
+    schema: *schema_su_sec
+  2022_mu_use-bef-pur_sec_2007: *2022_mu_use-bef-pur_sec
+
+
+  2022_mu_use-bef-pur_sum_2012: &2022_mu_use-bef-pur_sum
+    mask: "{revision}_mu_{table}_{level}_{year}"
+    desc: Make-Use framework, Use table before redefinitions, purchasers' prices, {year}, summary level, {revision} revision
+    type: table
+    path: proc/{revision}/mu/{table}/{level}/{year}.pq
+    depends: raw_{revision}_mu
+    read:
+      file: "IOUse_Before_Redefinitions_PUR_2007_2012_Summary.xlsx"
+      skip: 5
+      rows: 78
+      matrix: [70, 71]
+    schema: *schema_su_sum
+  2022_mu_use-bef-pur_sum_2007: *2022_mu_use-bef-pur_sum
+
+
+  2022_mu_use-bef-pur_det_2012: &2022_mu_use-bef-pur_det
+    mask: "{revision}_mu_{table}_{level}_{year}"
+    desc: Make-Use framework, Use table before redefinitions, purchasers' prices, {year}, detail level, {revision} revision
+    type: table
+    path: proc/{revision}/mu/{table}/{level}/{year}.pq
+    depends: raw_{revision}_mu
+    read:
+      file: "IOUse_Before_Redefinitions_PUR_2007_2012_Detail.xlsx"
+      skip: 4
+      rows: 405
+      matrix: [397, 405]
+    schema: *schema_su_det
+  2022_mu_use-bef-pur_det_2007: *2022_mu_use-bef-pur_det
+
+
+  2022_mu_use-aft-pro_sec_2021: &2022_mu_use-aft-pro_sec
+    mask: "{revision}_mu_{table}_{level}_{year}"
+    desc: Make-Use framework, Use table after redefinitions, producers' prices, {year}, sector level, {revision} revision
+    type: table
+    path: proc/{revision}/mu/{table}/{level}/{year}.pq
+    depends: raw_{revision}_mu
+    read:
+      file: "IOUse_After_Redefinitions_PRO_1997-2021_Sector.xlsx"
+      skip: 5
+      rows: 25
+      matrix: [17, 15]
+    schema: *schema_su_sec
+  2022_mu_use-aft-pro_sec_2020: *2022_mu_use-aft-pro_sec
+  2022_mu_use-aft-pro_sec_2019: *2022_mu_use-aft-pro_sec
+  2022_mu_use-aft-pro_sec_2018: *2022_mu_use-aft-pro_sec
+  2022_mu_use-aft-pro_sec_2017: *2022_mu_use-aft-pro_sec
+  2022_mu_use-aft-pro_sec_2016: *2022_mu_use-aft-pro_sec
+  2022_mu_use-aft-pro_sec_2015: *2022_mu_use-aft-pro_sec
+  2022_mu_use-aft-pro_sec_2014: *2022_mu_use-aft-pro_sec
+  2022_mu_use-aft-pro_sec_2013: *2022_mu_use-aft-pro_sec
+  2022_mu_use-aft-pro_sec_2012: *2022_mu_use-aft-pro_sec
+  2022_mu_use-aft-pro_sec_2011: *2022_mu_use-aft-pro_sec
+  2022_mu_use-aft-pro_sec_2010: *2022_mu_use-aft-pro_sec
+  2022_mu_use-aft-pro_sec_2009: *2022_mu_use-aft-pro_sec
+  2022_mu_use-aft-pro_sec_2008: *2022_mu_use-aft-pro_sec
+  2022_mu_use-aft-pro_sec_2007: *2022_mu_use-aft-pro_sec
+  2022_mu_use-aft-pro_sec_2006: *2022_mu_use-aft-pro_sec
+  2022_mu_use-aft-pro_sec_2005: *2022_mu_use-aft-pro_sec
+  2022_mu_use-aft-pro_sec_2004: *2022_mu_use-aft-pro_sec
+  2022_mu_use-aft-pro_sec_2003: *2022_mu_use-aft-pro_sec
+  2022_mu_use-aft-pro_sec_2002: *2022_mu_use-aft-pro_sec
+  2022_mu_use-aft-pro_sec_2001: *2022_mu_use-aft-pro_sec
+  2022_mu_use-aft-pro_sec_2000: *2022_mu_use-aft-pro_sec
+  2022_mu_use-aft-pro_sec_1999: *2022_mu_use-aft-pro_sec
+  2022_mu_use-aft-pro_sec_1998: *2022_mu_use-aft-pro_sec
+  2022_mu_use-aft-pro_sec_1997: *2022_mu_use-aft-pro_sec
+
+
+  2022_mu_use-aft-pro_sum_2021: &2022_mu_use-aft-pro_sum
+    mask: "{revision}_mu_{table}_{level}_{year}"
+    desc: Make-Use framework, Use table after redefinitions, producers' prices, {year}, summary level, {revision} revision
+    type: table
+    path: proc/{revision}/mu/{table}/{level}/{year}.pq
+    depends: raw_{revision}_mu
+    read:
+      file: "IOUse_After_Redefinitions_PRO_1997-2021_Summary.xlsx"
+      skip: 5
+      rows: 81
+      matrix: [73, 71]
+    schema: *schema_su_sum
+  2022_mu_use-aft-pro_sum_2020: *2022_mu_use-aft-pro_sum
+  2022_mu_use-aft-pro_sum_2019: *2022_mu_use-aft-pro_sum
+  2022_mu_use-aft-pro_sum_2018: *2022_mu_use-aft-pro_sum
+  2022_mu_use-aft-pro_sum_2017: *2022_mu_use-aft-pro_sum
+  2022_mu_use-aft-pro_sum_2016: *2022_mu_use-aft-pro_sum
+  2022_mu_use-aft-pro_sum_2015: *2022_mu_use-aft-pro_sum
+  2022_mu_use-aft-pro_sum_2014: *2022_mu_use-aft-pro_sum
+  2022_mu_use-aft-pro_sum_2013: *2022_mu_use-aft-pro_sum
+  2022_mu_use-aft-pro_sum_2012: *2022_mu_use-aft-pro_sum
+  2022_mu_use-aft-pro_sum_2011: *2022_mu_use-aft-pro_sum
+  2022_mu_use-aft-pro_sum_2010: *2022_mu_use-aft-pro_sum
+  2022_mu_use-aft-pro_sum_2009: *2022_mu_use-aft-pro_sum
+  2022_mu_use-aft-pro_sum_2008: *2022_mu_use-aft-pro_sum
+  2022_mu_use-aft-pro_sum_2007: *2022_mu_use-aft-pro_sum
+  2022_mu_use-aft-pro_sum_2006: *2022_mu_use-aft-pro_sum
+  2022_mu_use-aft-pro_sum_2005: *2022_mu_use-aft-pro_sum
+  2022_mu_use-aft-pro_sum_2004: *2022_mu_use-aft-pro_sum
+  2022_mu_use-aft-pro_sum_2003: *2022_mu_use-aft-pro_sum
+  2022_mu_use-aft-pro_sum_2002: *2022_mu_use-aft-pro_sum
+  2022_mu_use-aft-pro_sum_2001: *2022_mu_use-aft-pro_sum
+  2022_mu_use-aft-pro_sum_2000: *2022_mu_use-aft-pro_sum
+  2022_mu_use-aft-pro_sum_1999: *2022_mu_use-aft-pro_sum
+  2022_mu_use-aft-pro_sum_1998: *2022_mu_use-aft-pro_sum
+  2022_mu_use-aft-pro_sum_1997: *2022_mu_use-aft-pro_sum
+
+
+  2022_mu_use-aft-pro_det_2012: &2022_mu_use-aft-pro_det
+    mask: "{revision}_mu_{table}_{level}_{year}"
+    desc: Make-Use framework, Use table after redefinitions, producers' prices, {year}, detail level, {revision} revision
+    type: table
+    path: proc/{revision}/mu/{table}/{level}/{year}.pq
+    depends: raw_{revision}_mu
+    read:
+      file: "IOUse_After_Redefinitions_PRO_2007_2012_Detail.xlsx"
+      skip: 4
+      rows: 413
+      matrix: [405, 405]
+    schema: *schema_su_det
+  2022_mu_use-aft-pro_det_2007: *2022_mu_use-aft-pro_det
+
+
+  2022_mu_use-aft-pur_sec_2012: &2022_mu_use-aft-pur_sec
+    mask: "{revision}_mu_{table}_{level}_{year}"
+    desc: Make-Use framework, Use table after redefinitions, purchasers' prices, {year}, sector level, {revision} revision
+    type: table
+    path: proc/{revision}/mu/{table}/{level}/{year}.pq
+    depends: raw_{revision}_mu
+    read:
+      file: "IOUse_After_Redefinitions_PUR_2007_2012_Sector.xlsx"
+      skip: 5
+      rows: 25
+      matrix: [17, 15]
+    schema: *schema_su_sec
+  2022_mu_use-aft-pur_sec_2007: *2022_mu_use-aft-pur_sec
+
+
+  2022_mu_use-aft-pur_sum_2012: &2022_mu_use-aft-pur_sum
+    mask: "{revision}_mu_{table}_{level}_{year}"
+    desc: Make-Use framework, Use table after redefinitions, purchasers' prices, {year}, summary level, {revision} revision
+    type: table
+    path: proc/{revision}/mu/{table}/{level}/{year}.pq
+    depends: raw_{revision}_mu
+    read:
+      file: "IOUse_After_Redefinitions_PUR_2007_2012_Summary.xlsx"
+      skip: 5
+      rows: 78
+      matrix: [70, 71]
+    schema: *schema_su_sum
+  2022_mu_use-aft-pur_sum_2007: *2022_mu_use-aft-pur_sum
+
+
+  2022_mu_use-aft-pur_det_2012: &2022_mu_use-aft-pur_det
+    mask: "{revision}_mu_{table}_{level}_{year}"
+    desc: Make-Use framework, Use table after redefinitions, purchasers' prices, {year}, detail level, {revision} revision
+    type: table
+    path: proc/{revision}/mu/{table}/{level}/{year}.pq
+    depends: raw_{revision}_mu
+    read:
+      file: "IOUse_After_Redefinitions_PUR_2007_2012_Detail.xlsx"
+      skip: 4
+      rows: 405
+      matrix: [397, 405]
+    schema: *schema_su_det
+  2022_mu_use-aft-pur_det_2007: *2022_mu_use-aft-pur_det
+
+
+  2022_mu_mak-bef_sec_2021: &2022_mu_mak-bef_sec
+    mask: "{revision}_mu_{table}_{level}_{year}"
+    desc: Make-Use framework, Make table before redefinitions, {year}, sector level, {revision} revision
+    type: table
+    path: proc/{revision}/mu/{table}/{level}/{year}.pq
+    depends: raw_{revision}_mu
+    read:
+      file: "IOMake_Before_Redefinitions_PRO_1997-2021_Sector.xlsx"
+      skip: 5
+      rows: 18
+      matrix: [15, 17]
+    schema: *schema_mak_sec
+  2022_mu_mak-bef_sec_2020: *2022_mu_mak-bef_sec
+  2022_mu_mak-bef_sec_2019: *2022_mu_mak-bef_sec
+  2022_mu_mak-bef_sec_2018: *2022_mu_mak-bef_sec
+  2022_mu_mak-bef_sec_2017: *2022_mu_mak-bef_sec
+  2022_mu_mak-bef_sec_2016: *2022_mu_mak-bef_sec
+  2022_mu_mak-bef_sec_2015: *2022_mu_mak-bef_sec
+  2022_mu_mak-bef_sec_2014: *2022_mu_mak-bef_sec
+  2022_mu_mak-bef_sec_2013: *2022_mu_mak-bef_sec
+  2022_mu_mak-bef_sec_2012: *2022_mu_mak-bef_sec
+  2022_mu_mak-bef_sec_2011: *2022_mu_mak-bef_sec
+  2022_mu_mak-bef_sec_2010: *2022_mu_mak-bef_sec
+  2022_mu_mak-bef_sec_2009: *2022_mu_mak-bef_sec
+  2022_mu_mak-bef_sec_2008: *2022_mu_mak-bef_sec
+  2022_mu_mak-bef_sec_2007: *2022_mu_mak-bef_sec
+  2022_mu_mak-bef_sec_2006: *2022_mu_mak-bef_sec
+  2022_mu_mak-bef_sec_2005: *2022_mu_mak-bef_sec
+  2022_mu_mak-bef_sec_2004: *2022_mu_mak-bef_sec
+  2022_mu_mak-bef_sec_2003: *2022_mu_mak-bef_sec
+  2022_mu_mak-bef_sec_2002: *2022_mu_mak-bef_sec
+  2022_mu_mak-bef_sec_2001: *2022_mu_mak-bef_sec
+  2022_mu_mak-bef_sec_2000: *2022_mu_mak-bef_sec
+  2022_mu_mak-bef_sec_1999: *2022_mu_mak-bef_sec
+  2022_mu_mak-bef_sec_1998: *2022_mu_mak-bef_sec
+  2022_mu_mak-bef_sec_1997: *2022_mu_mak-bef_sec
+
+
+  2022_mu_mak-bef_sum_2021: &2022_mu_mak-bef_sum
+    mask: "{revision}_mu_{table}_{level}_{year}"
+    desc: Make-Use framework, Make table before redefinitions, {year}, summary level, {revision} revision
+    type: table
+    path: proc/{revision}/mu/{table}/{level}/{year}.pq
+    depends: raw_{revision}_mu
+    read:
+      file: "IOMake_Before_Redefinitions_PRO_1997-2021_Summary.xlsx"
+      skip: 5
+      rows: 74
+      matrix: [71, 73]
+    schema: *schema_mak_sum
+  2022_mu_mak-bef_sum_2020: *2022_mu_mak-bef_sum
+  2022_mu_mak-bef_sum_2019: *2022_mu_mak-bef_sum
+  2022_mu_mak-bef_sum_2018: *2022_mu_mak-bef_sum
+  2022_mu_mak-bef_sum_2017: *2022_mu_mak-bef_sum
+  2022_mu_mak-bef_sum_2016: *2022_mu_mak-bef_sum
+  2022_mu_mak-bef_sum_2015: *2022_mu_mak-bef_sum
+  2022_mu_mak-bef_sum_2014: *2022_mu_mak-bef_sum
+  2022_mu_mak-bef_sum_2013: *2022_mu_mak-bef_sum
+  2022_mu_mak-bef_sum_2012: *2022_mu_mak-bef_sum
+  2022_mu_mak-bef_sum_2011: *2022_mu_mak-bef_sum
+  2022_mu_mak-bef_sum_2010: *2022_mu_mak-bef_sum
+  2022_mu_mak-bef_sum_2009: *2022_mu_mak-bef_sum
+  2022_mu_mak-bef_sum_2008: *2022_mu_mak-bef_sum
+  2022_mu_mak-bef_sum_2007: *2022_mu_mak-bef_sum
+  2022_mu_mak-bef_sum_2006: *2022_mu_mak-bef_sum
+  2022_mu_mak-bef_sum_2005: *2022_mu_mak-bef_sum
+  2022_mu_mak-bef_sum_2004: *2022_mu_mak-bef_sum
+  2022_mu_mak-bef_sum_2003: *2022_mu_mak-bef_sum
+  2022_mu_mak-bef_sum_2002: *2022_mu_mak-bef_sum
+  2022_mu_mak-bef_sum_2001: *2022_mu_mak-bef_sum
+  2022_mu_mak-bef_sum_2000: *2022_mu_mak-bef_sum
+  2022_mu_mak-bef_sum_1999: *2022_mu_mak-bef_sum
+  2022_mu_mak-bef_sum_1998: *2022_mu_mak-bef_sum
+  2022_mu_mak-bef_sum_1997: *2022_mu_mak-bef_sum
+
+
+  2022_mu_mak-bef_det_2012: &2022_mu_mak-bef_det
+    mask: "{revision}_mu_{table}_{level}_{year}"
+    desc: Make-Use framework, Make table before redefinitions, {year}, detail level, {revision} revision
+    type: table
+    path: proc/{revision}/mu/{table}/{level}/{year}.pq
+    depends: raw_{revision}_mu
+    read:
+      file: "IOMake_Before_Redefinitions_2007_2012_Detail.xlsx"
+      skip: 4
+      rows: 408
+      matrix: [405, 405]
+    schema: *schema_mak_det
+  2022_mu_mak-bef_det_2007: *2022_mu_mak-bef_det
+
+
+  2022_mu_mak-aft_sec_2021: &2022_mu_mak-aft_sec
+    mask: "{revision}_mu_{table}_{level}_{year}"
+    desc: Make-Use framework, Make table after redefinitions, {year}, sector level, {revision} revision
+    type: table
+    path: proc/{revision}/mu/{table}/{level}/{year}.pq
+    depends: raw_{revision}_mu
+    read:
+      file: "IOMake_After_Redefinitions_PRO_1997-2021_Sector.xlsx"
+      skip: 5
+      rows: 18
+      matrix: [15, 17]
+    schema: *schema_mak_sec
+  2022_mu_mak-aft_sec_2020: *2022_mu_mak-aft_sec
+  2022_mu_mak-aft_sec_2019: *2022_mu_mak-aft_sec
+  2022_mu_mak-aft_sec_2018: *2022_mu_mak-aft_sec
+  2022_mu_mak-aft_sec_2017: *2022_mu_mak-aft_sec
+  2022_mu_mak-aft_sec_2016: *2022_mu_mak-aft_sec
+  2022_mu_mak-aft_sec_2015: *2022_mu_mak-aft_sec
+  2022_mu_mak-aft_sec_2014: *2022_mu_mak-aft_sec
+  2022_mu_mak-aft_sec_2013: *2022_mu_mak-aft_sec
+  2022_mu_mak-aft_sec_2012: *2022_mu_mak-aft_sec
+  2022_mu_mak-aft_sec_2011: *2022_mu_mak-aft_sec
+  2022_mu_mak-aft_sec_2010: *2022_mu_mak-aft_sec
+  2022_mu_mak-aft_sec_2009: *2022_mu_mak-aft_sec
+  2022_mu_mak-aft_sec_2008: *2022_mu_mak-aft_sec
+  2022_mu_mak-aft_sec_2007: *2022_mu_mak-aft_sec
+  2022_mu_mak-aft_sec_2006: *2022_mu_mak-aft_sec
+  2022_mu_mak-aft_sec_2005: *2022_mu_mak-aft_sec
+  2022_mu_mak-aft_sec_2004: *2022_mu_mak-aft_sec
+  2022_mu_mak-aft_sec_2003: *2022_mu_mak-aft_sec
+  2022_mu_mak-aft_sec_2002: *2022_mu_mak-aft_sec
+  2022_mu_mak-aft_sec_2001: *2022_mu_mak-aft_sec
+  2022_mu_mak-aft_sec_2000: *2022_mu_mak-aft_sec
+  2022_mu_mak-aft_sec_1999: *2022_mu_mak-aft_sec
+  2022_mu_mak-aft_sec_1998: *2022_mu_mak-aft_sec
+  2022_mu_mak-aft_sec_1997: *2022_mu_mak-aft_sec
+
+
+  2022_mu_mak-aft_sum_2021: &2022_mu_mak-aft_sum
+    mask: "{revision}_mu_{table}_{level}_{year}"
+    desc: Make-Use framework, Make table after redefinitions, {year}, summary level, {revision} revision
+    type: table
+    path: proc/{revision}/mu/{table}/{level}/{year}.pq
+    depends: raw_{revision}_mu
+    read:
+      file: "IOMake_After_Redefinitions_PRO_1997-2021_Summary.xlsx"
+      skip: 5
+      rows: 74
+      matrix: [71, 73]
+    schema: *schema_mak_sum
+  2022_mu_mak-aft_sum_2020: *2022_mu_mak-aft_sum
+  2022_mu_mak-aft_sum_2019: *2022_mu_mak-aft_sum
+  2022_mu_mak-aft_sum_2018: *2022_mu_mak-aft_sum
+  2022_mu_mak-aft_sum_2017: *2022_mu_mak-aft_sum
+  2022_mu_mak-aft_sum_2016: *2022_mu_mak-aft_sum
+  2022_mu_mak-aft_sum_2015: *2022_mu_mak-aft_sum
+  2022_mu_mak-aft_sum_2014: *2022_mu_mak-aft_sum
+  2022_mu_mak-aft_sum_2013: *2022_mu_mak-aft_sum
+  2022_mu_mak-aft_sum_2012: *2022_mu_mak-aft_sum
+  2022_mu_mak-aft_sum_2011: *2022_mu_mak-aft_sum
+  2022_mu_mak-aft_sum_2010: *2022_mu_mak-aft_sum
+  2022_mu_mak-aft_sum_2009: *2022_mu_mak-aft_sum
+  2022_mu_mak-aft_sum_2008: *2022_mu_mak-aft_sum
+  2022_mu_mak-aft_sum_2007: *2022_mu_mak-aft_sum
+  2022_mu_mak-aft_sum_2006: *2022_mu_mak-aft_sum
+  2022_mu_mak-aft_sum_2005: *2022_mu_mak-aft_sum
+  2022_mu_mak-aft_sum_2004: *2022_mu_mak-aft_sum
+  2022_mu_mak-aft_sum_2003: *2022_mu_mak-aft_sum
+  2022_mu_mak-aft_sum_2002: *2022_mu_mak-aft_sum
+  2022_mu_mak-aft_sum_2001: *2022_mu_mak-aft_sum
+  2022_mu_mak-aft_sum_2000: *2022_mu_mak-aft_sum
+  2022_mu_mak-aft_sum_1999: *2022_mu_mak-aft_sum
+  2022_mu_mak-aft_sum_1998: *2022_mu_mak-aft_sum
+  2022_mu_mak-aft_sum_1997: *2022_mu_mak-aft_sum
+
+
+  2022_mu_mak-aft_det_2012: &2022_mu_mak-aft_det
+    mask: "{revision}_mu_{table}_{level}_{year}"
+    desc: Make-Use framework, Make table after redefinitions, {year}, detail level, {revision} revision
+    type: table
+    path: proc/{revision}/mu/{table}/{level}/{year}.pq
+    depends: raw_{revision}_mu
+    read:
+      file: "IOMake_After_Redefinitions_2007_2012_Detail.xlsx"
+      skip: 4
+      rows: 408
+      matrix: [405, 405]
+    schema: *schema_mak_det
+  2022_mu_mak-aft_det_2007: *2022_mu_mak-aft_det
+
+
   2022_su_use_sec_2021: &2022_su_use_sec
     mask: "{revision}_su_{table}_{level}_{year}"
-    desc: Supply-Use framework, Use table, {year}, sector level, 2022 revision
+    desc: Supply-Use framework, Use table, {year}, sector level, {revision} revision
     type: table
     path: proc/{revision}/su/{table}/{level}/{year}.pq
     depends: raw_{revision}_su
@@ -308,7 +1305,7 @@ data:
 
   2022_su_use_sum_2021: &2022_su_use_sum
     mask: "{revision}_su_{table}_{level}_{year}"
-    desc: Supply-Use framework, Use table, {year}, summary level, 2022 revision
+    desc: Supply-Use framework, Use table, {year}, summary level, {revision} revision
     type: table
     path: proc/{revision}/su/{table}/{level}/{year}.pq
     depends: raw_{revision}_su
@@ -345,7 +1342,7 @@ data:
 
   2022_su_use_det_2012: &2022_su_use_det
     mask: "{revision}_su_{table}_{level}_{year}"
-    desc: Supply-Use framework, Use table, {year}, detail level, 2022 revision
+    desc: Supply-Use framework, Use table, {year}, detail level, {revision} revision
     type: table
     path: proc/{revision}/su/{table}/{level}/{year}.pq
     depends: raw_{revision}_su
@@ -359,7 +1356,7 @@ data:
 
   2022_su_sup_sec_2021: &2022_su_sup_sec
     mask: "{revision}_su_{table}_{level}_{year}"
-    desc: Supply-Use framework, Supply table, {year}, sector level, 2022 revision
+    desc: Supply-Use framework, Supply table, {year}, sector level, {revision} revision
     type: table
     path: proc/{revision}/su/{table}/{level}/{year}.pq
     depends: raw_{revision}_su
@@ -396,7 +1393,7 @@ data:
 
   2022_su_sup_sum_2021: &2022_su_sup_sum
     mask: "{revision}_su_{table}_{level}_{year}"
-    desc: Supply-Use framework, Supply table, {year}, summary level, 2022 revision
+    desc: Supply-Use framework, Supply table, {year}, summary level, {revision} revision
     type: table
     path: proc/{revision}/su/{table}/{level}/{year}.pq
     depends: raw_{revision}_su
@@ -433,7 +1430,7 @@ data:
 
   2022_su_sup_det_2012: &2022_su_sup_det
     mask: "{revision}_su_{table}_{level}_{year}"
-    desc: Supply-Use framework, Supply table, {year}, detail level, 2022 revision
+    desc: Supply-Use framework, Supply table, {year}, detail level, {revision} revision
     type: table
     path: proc/{revision}/su/{table}/{level}/{year}.pq
     depends: raw_{revision}_su
@@ -445,9 +1442,9 @@ data:
     schema: *schema_su_det
   2022_su_sup_det_2007: *2022_su_sup_det
 
-  2022_impbef_sum_2021: &2022_impbef_sum
+  2022_imp-bef_sum_2021: &2022_imp-bef_sum
     mask: "{revision}_{table}_{level}_{year}"
-    desc: Import Matrix, Before Redefinitions, {year}, summary level, 2022 revision
+    desc: Import Matrix, Before Redefinitions, {year}, summary level, {revision} revision
     type: table
     path: proc/{revision}/supplem/{table}/{level}/{year}.pq
     depends: raw_2022_supplem
@@ -457,34 +1454,34 @@ data:
       rows: 75
       matrix: [73, 71]
     schema: *schema_su_sum
-  2022_impbef_sum_2020: *2022_impbef_sum
-  2022_impbef_sum_2019: *2022_impbef_sum
-  2022_impbef_sum_2018: *2022_impbef_sum
-  2022_impbef_sum_2017: *2022_impbef_sum
-  2022_impbef_sum_2016: *2022_impbef_sum
-  2022_impbef_sum_2015: *2022_impbef_sum
-  2022_impbef_sum_2014: *2022_impbef_sum
-  2022_impbef_sum_2013: *2022_impbef_sum
-  2022_impbef_sum_2012: *2022_impbef_sum
-  2022_impbef_sum_2011: *2022_impbef_sum
-  2022_impbef_sum_2010: *2022_impbef_sum
-  2022_impbef_sum_2009: *2022_impbef_sum
-  2022_impbef_sum_2008: *2022_impbef_sum
-  2022_impbef_sum_2007: *2022_impbef_sum
-  2022_impbef_sum_2006: *2022_impbef_sum
-  2022_impbef_sum_2005: *2022_impbef_sum
-  2022_impbef_sum_2004: *2022_impbef_sum
-  2022_impbef_sum_2003: *2022_impbef_sum
-  2022_impbef_sum_2002: *2022_impbef_sum
-  2022_impbef_sum_2001: *2022_impbef_sum
-  2022_impbef_sum_2000: *2022_impbef_sum
-  2022_impbef_sum_1999: *2022_impbef_sum
-  2022_impbef_sum_1998: *2022_impbef_sum
-  2022_impbef_sum_1997: *2022_impbef_sum
+  2022_imp-bef_sum_2020: *2022_imp-bef_sum
+  2022_imp-bef_sum_2019: *2022_imp-bef_sum
+  2022_imp-bef_sum_2018: *2022_imp-bef_sum
+  2022_imp-bef_sum_2017: *2022_imp-bef_sum
+  2022_imp-bef_sum_2016: *2022_imp-bef_sum
+  2022_imp-bef_sum_2015: *2022_imp-bef_sum
+  2022_imp-bef_sum_2014: *2022_imp-bef_sum
+  2022_imp-bef_sum_2013: *2022_imp-bef_sum
+  2022_imp-bef_sum_2012: *2022_imp-bef_sum
+  2022_imp-bef_sum_2011: *2022_imp-bef_sum
+  2022_imp-bef_sum_2010: *2022_imp-bef_sum
+  2022_imp-bef_sum_2009: *2022_imp-bef_sum
+  2022_imp-bef_sum_2008: *2022_imp-bef_sum
+  2022_imp-bef_sum_2007: *2022_imp-bef_sum
+  2022_imp-bef_sum_2006: *2022_imp-bef_sum
+  2022_imp-bef_sum_2005: *2022_imp-bef_sum
+  2022_imp-bef_sum_2004: *2022_imp-bef_sum
+  2022_imp-bef_sum_2003: *2022_imp-bef_sum
+  2022_imp-bef_sum_2002: *2022_imp-bef_sum
+  2022_imp-bef_sum_2001: *2022_imp-bef_sum
+  2022_imp-bef_sum_2000: *2022_imp-bef_sum
+  2022_imp-bef_sum_1999: *2022_imp-bef_sum
+  2022_imp-bef_sum_1998: *2022_imp-bef_sum
+  2022_imp-bef_sum_1997: *2022_imp-bef_sum
 
-  2022_impaft_sum_2021: &2022_impaft_sum
+  2022_imp-aft_sum_2021: &2022_imp-aft_sum
     mask: "{revision}_{table}_{level}_{year}"
-    desc: Import Matrix, After Redefinitions, {year}, summary level, 2022 revision
+    desc: Import Matrix, After Redefinitions, {year}, summary level, {revision} revision
     type: table
     path: proc/{revision}/supplem/{table}/{level}/{year}.pq
     depends: raw_2022_supplem
@@ -494,35 +1491,35 @@ data:
       rows: 75
       matrix: [73, 71]
     schema: *schema_su_sum
-  2022_impaft_sum_2020: *2022_impaft_sum
-  2022_impaft_sum_2019: *2022_impaft_sum
-  2022_impaft_sum_2018: *2022_impaft_sum
-  2022_impaft_sum_2017: *2022_impaft_sum
-  2022_impaft_sum_2016: *2022_impaft_sum
-  2022_impaft_sum_2015: *2022_impaft_sum
-  2022_impaft_sum_2014: *2022_impaft_sum
-  2022_impaft_sum_2013: *2022_impaft_sum
-  2022_impaft_sum_2012: *2022_impaft_sum
-  2022_impaft_sum_2011: *2022_impaft_sum
-  2022_impaft_sum_2010: *2022_impaft_sum
-  2022_impaft_sum_2009: *2022_impaft_sum
-  2022_impaft_sum_2008: *2022_impaft_sum
-  2022_impaft_sum_2007: *2022_impaft_sum
-  2022_impaft_sum_2006: *2022_impaft_sum
-  2022_impaft_sum_2005: *2022_impaft_sum
-  2022_impaft_sum_2004: *2022_impaft_sum
-  2022_impaft_sum_2003: *2022_impaft_sum
-  2022_impaft_sum_2002: *2022_impaft_sum
-  2022_impaft_sum_2001: *2022_impaft_sum
-  2022_impaft_sum_2000: *2022_impaft_sum
-  2022_impaft_sum_1999: *2022_impaft_sum
-  2022_impaft_sum_1998: *2022_impaft_sum
-  2022_impaft_sum_1997: *2022_impaft_sum
+  2022_imp-aft_sum_2020: *2022_imp-aft_sum
+  2022_imp-aft_sum_2019: *2022_imp-aft_sum
+  2022_imp-aft_sum_2018: *2022_imp-aft_sum
+  2022_imp-aft_sum_2017: *2022_imp-aft_sum
+  2022_imp-aft_sum_2016: *2022_imp-aft_sum
+  2022_imp-aft_sum_2015: *2022_imp-aft_sum
+  2022_imp-aft_sum_2014: *2022_imp-aft_sum
+  2022_imp-aft_sum_2013: *2022_imp-aft_sum
+  2022_imp-aft_sum_2012: *2022_imp-aft_sum
+  2022_imp-aft_sum_2011: *2022_imp-aft_sum
+  2022_imp-aft_sum_2010: *2022_imp-aft_sum
+  2022_imp-aft_sum_2009: *2022_imp-aft_sum
+  2022_imp-aft_sum_2008: *2022_imp-aft_sum
+  2022_imp-aft_sum_2007: *2022_imp-aft_sum
+  2022_imp-aft_sum_2006: *2022_imp-aft_sum
+  2022_imp-aft_sum_2005: *2022_imp-aft_sum
+  2022_imp-aft_sum_2004: *2022_imp-aft_sum
+  2022_imp-aft_sum_2003: *2022_imp-aft_sum
+  2022_imp-aft_sum_2002: *2022_imp-aft_sum
+  2022_imp-aft_sum_2001: *2022_imp-aft_sum
+  2022_imp-aft_sum_2000: *2022_imp-aft_sum
+  2022_imp-aft_sum_1999: *2022_imp-aft_sum
+  2022_imp-aft_sum_1998: *2022_imp-aft_sum
+  2022_imp-aft_sum_1997: *2022_imp-aft_sum
 
 
-  2022_impbef_det_2012: &2022_impbef_det
+  2022_imp-bef_det_2012: &2022_imp-bef_det
     mask: "{revision}_{table}_{level}_{year}"
-    desc: Import Matrix, Before Redefinitions, {year}, detail level, 2022 revision
+    desc: Import Matrix, Before Redefinitions, {year}, detail level, {revision} revision
     type: table
     path: proc/{revision}/supplem/{table}/{level}/{year}.pq
     depends: raw_{revision}_supplem
@@ -532,11 +1529,11 @@ data:
       rows: 407
       matrix: [405, 405]
     schema: *schema_su_det
-  2022_impbef_det_2007: *2022_impbef_det
+  2022_imp-bef_det_2007: *2022_imp-bef_det
 
-  2022_impaft_det_2012: &2022_impaft_det
+  2022_imp-aft_det_2012: &2022_imp-aft_det
     mask: "{revision}_{table}_{level}_{year}"
-    desc: Import Matrix, After Redefinitions, {year}, detail level, 2022 revision
+    desc: Import Matrix, After Redefinitions, {year}, detail level, {revision} revision
     type: table
     path: proc/{revision}/supplem/{table}/{level}/{year}.pq
     depends: raw_{revision}_supplem
@@ -546,11 +1543,11 @@ data:
       rows: 407
       matrix: [405, 405]
     schema: *schema_su_det
-  2022_impaft_det_2007: *2022_impaft_det
+  2022_imp-aft_det_2007: *2022_imp-aft_det
 
 
   2023_naics:
-    desc: I-O to NAICS-2017 crosswalk, 2023 revision
+    desc: I-O to NAICS-2017 crosswalk, {revision} revision
     mask: "{revision}_naics"
     type: table
     path: proc/{revision}/naics.pq
@@ -559,28 +1556,10 @@ data:
       file: "Supply_2017_DET.xlsx"
       skip: 5
       rows: 1017
-    schema: &schema_naics
-      sector:
-        desc: I-O sector level code
-        type: string
-      summary:
-        desc: I-O summary level code
-        type: string
-      u_summary:
-        desc: I-O underlying summary level code
-        type: string
-      detail:
-        desc: I-O detail level code
-        type: string
-      title:
-        desc: I-O industry title
-        type: string
-      naics:
-        desc: NAICS code
-        type: string
+    schema: *schema_naics
 
   2022_naics:
-    desc: I-O to NAICS-2012 crosswalk, 2022 revision
+    desc: I-O to NAICS-2012 crosswalk, {revision} revision
     mask: "{revision}_naics"
     type: table
     path: proc/{revision}/naics.pq

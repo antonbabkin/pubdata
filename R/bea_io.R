@@ -71,7 +71,10 @@ bea_io_get <- function(key) {
   unzipped_spreadsheet <- utils::unzip(raw, meta$read$file, exdir = tempdir())
   on.exit(unlink(unzipped_spreadsheet))
   logger::log_debug("unzipped to {unzipped_spreadsheet}")
-  if (grepl("_(sup|use|impbef|impaft)_(sec|sum|det)_", key)) {
+  if (grepl("_su_(sup|use)_(sec|sum|det)_", key) ||
+      grepl("_imp-(bef|aft)_(sum|det)_", key) ||
+      grepl("_mu_use-(bef|aft)-(pro|pur)_(sec|sum|det)_", key) ||
+      grepl("_mu_mak-(bef|aft)_(sec|sum|det)_", key)) {
     return(bea_io_read_table(unzipped_spreadsheet, meta))
   } else if (grepl("_naics", key)) {
     return(bea_io_read_naics(unzipped_spreadsheet, meta))
@@ -91,28 +94,32 @@ bea_io_read_table <- function(path, meta) {
     path, sheet = meta$keys$year, col_names = FALSE, col_types = "text",
     skip = meta$read$skip, n_max = meta$read$rows, .name_repair = "unique_quiet")
 
-  # remove first two rows from table and use them as column names
+  # remove first two rows from table and save them as column names to merge back later
   # det table header is (name, code), sec and sum are (code, name)
   code_name_idx <- if (meta$keys$level == "det") 2:1 else 1:2
   col_names <- x_wide[code_name_idx, -(1:2)] |>
     t() |>
     magrittr::set_colnames(c("col_code", "col_name")) |>
-    as.data.frame()
+    as.data.frame() |>
+    tibble::rownames_to_column("raw_col")
   x_wide <- x_wide[-(1:2), ]
-  colnames(x_wide) <- c("row_code", "row_name", col_names$col_code)
+  colnames(x_wide)[1:2] <- c("row_code", "row_name")
 
   # rows and columns of the core matrix
   core_rows <- x_wide$row_code[1:meta$read$matrix[1]]
   core_cols <- col_names$col_code[1:meta$read$matrix[2]]
 
   # pivot columns to rows
-  x_long <- tidyr::pivot_longer(x_wide, !c(row_code, row_name), names_to = "col_code")
+  # browser()
+  x_long <- tidyr::pivot_longer(x_wide, !c(row_code, row_name), names_to = "raw_col")
 
-  # add column names, change value type to numeric, add core matrix indicator
+  # add column names back, strip footnote markers, change value type to numeric, add core matrix indicator
   x <- x_long |>
-    dplyr::left_join(col_names, "col_code") |>
-    dplyr::relocate(row_code, row_name, col_code, col_name, value) |>
+    dplyr::left_join(col_names, "raw_col") |>
+    dplyr::select(row_code, row_name, col_code, col_name, value) |>
     dplyr::mutate(
+      row_name = stringr::str_remove(row_name, " [/\\[][:digit:][/\\]]$"),
+      col_name = stringr::str_remove(col_name, " [/\\[][:digit:][/\\]]$"),
       value = as.numeric(dplyr::if_else(value == "...", NA, value)),
       core_matrix = (row_code %in% core_rows) & (col_code %in% core_cols)
     )
