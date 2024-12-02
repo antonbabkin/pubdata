@@ -52,7 +52,7 @@ glue_meta <- function(key, meta) {
       }
       if (is.character(node)) {
         return(node |>
-          glue::glue(.envir = keys) |>
+          glue::glue(.envir = as.environment(keys)) |>
           as.character()
         )
       }
