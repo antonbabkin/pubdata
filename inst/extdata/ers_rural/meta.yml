@@ -1,0 +1,45 @@
+dataset: ers_rural
+description: Rurality classifications from the USDA Economic Research Service (ERS)
+urls:
+  "Home":
+    https://www.ers.usda.gov/topics/rural-economy-population/rural-classifications/
+  "Rural-Urban Continuum Codes":
+    https://www.ers.usda.gov/data-products/rural-urban-continuum-codes/
+  "Urban Influence Codes":
+    https://www.ers.usda.gov/data-products/urban-influence-codes/
+  "Rural-Urban Commuting Area Codes":
+    https://www.ers.usda.gov/data-products/rural-urban-commuting-area-codes/
+  "Frontier and Remote Area Codes":
+    https://www.ers.usda.gov/data-products/frontier-and-remote-area-codes/
+
+
+data:
+  raw_ruc_2023:
+    desc: 2023 Rural-Urban Continuum Codes
+    type: raw
+    path: raw/Ruralurbancontinuumcodes2023.csv
+    url: https://www.ers.usda.gov/webdocs/DataFiles/53251/Ruralurbancontinuumcodes2023.csv?v=3273.6
+
+  ruc_2023:
+    mask: "ruc_{year}"
+    desc: 2023 Rural-Urban Continuum Codes
+    type: table
+    path: proc/ruc_2023.pq
+    depends: raw_ruc_2023
+    schema:
+      fips:
+        desc: County FIPS code.
+        type: string
+      state:
+        desc: State abbreviation.
+        type: string
+      county_name:
+        desc: County name.
+        type: string
+      attribute:
+        desc: One of "Population_2020", "RUCC_2023" or "Description".
+        type: string
+      value:
+        desc: County value of a given attribute.
+        type: string
+
