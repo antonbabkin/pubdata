@@ -1,0 +1,22 @@
+dataset: bds
+description: Business Dynamics Statistics (BDS)
+urls:
+  "Home":
+    https://www.census.gov/programs-surveys/bds.html
+  "CSV datasets":
+    https://www.census.gov/data/datasets/time-series/econ/bds/bds-datasets.html
+
+data:
+  raw_2022_st_cty:
+    desc: BDS by county, 2022 revision
+    type: raw
+    path: raw/2022/bds2022_st_cty.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2022/bds2022_st_cty.csv
+
+  2022_st_cty:
+    mask: "{revision}_st_cty"
+    desc: BDS by county, {revision} revision
+    type: table
+    path: proc/{revision}/st_cty.pq
+    depends: raw_{revision}_st_cty
+    schema: TODO
