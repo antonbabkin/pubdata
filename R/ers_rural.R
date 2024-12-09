@@ -74,9 +74,14 @@ ers_rural_get <- function(key) {
 
 #' Read RUC table
 ers_rural_read_ruc <- function(raw, meta) {
-
-  df <- readr::read_csv(raw, col_types = "c")
-  names(df) <- tolower(names(df))
+  year <- as.integer(meta$keys$year)
+  if (year == 2003) {
+    df <- readxl::read_excel(raw)
+    names(df) <- names(meta$schema)
+  } else if (year == 2023) {
+    df <- readr::read_csv(raw, col_types = "c")
+    names(df) <- tolower(names(df))
+  }
   df
 }
 

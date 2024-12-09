@@ -14,11 +14,49 @@ urls:
 
 
 data:
+  raw_ruc_2003:
+    desc: 2003 Rural-Urban Continuum Codes
+    type: raw
+    path: raw/ruralurbancodes2003.xls
+    url: https://www.ers.usda.gov/webdocs/DataFiles/53251/ruralurbancodes2003.xls?v=5203.2
+
   raw_ruc_2023:
     desc: 2023 Rural-Urban Continuum Codes
     type: raw
     path: raw/Ruralurbancontinuumcodes2023.csv
     url: https://www.ers.usda.gov/webdocs/DataFiles/53251/Ruralurbancontinuumcodes2023.csv?v=3273.6
+
+  ruc_2003:
+    mask: "ruc_{year}"
+    desc: 2003 Rural-Urban Continuum Codes
+    type: table
+    path: proc/ruc_2003.pq
+    depends: raw_ruc_2003
+    schema:
+      fips:
+        desc: County FIPS Code.
+        type: string
+      state:
+        desc: State abbreviation.
+        type: string
+      county_name:
+        desc: County Name.
+        type: string
+      ruc_code_1993:
+        desc: 1993 Rural-urban Continuum Code.
+        type: number
+      ruc_code_2003:
+        desc: 2003 Rural-urban Continuum Code.
+        type: number
+      population_2000:
+        desc: 2000 Population.
+        type: number
+      commute_pct:
+        desc: Percent of workers in nonmetro counties commuting to central counties of adjacent metro areas.
+        type: number
+      ruc_desc_2003:
+        desc: Description for 2003 codes.
+        type: string
 
   ruc_2023:
     mask: "ruc_{year}"
