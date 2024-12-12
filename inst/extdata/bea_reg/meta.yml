@@ -1,0 +1,70 @@
+dataset: bea_reg
+description: BEA Regional Economic Accounts
+urls:
+  "Home":
+    https://www.bea.gov/data/economic-accounts/regional
+  "Historical data archive":
+    https://apps.bea.gov/histdatacore/Regional_Accounts_new.html
+
+
+data:
+  raw_2022_cagdp2:
+    desc: "CAGDP2: GDP in Current Dollars by County and MSA, 2022"
+    type: raw
+    path: raw/1223lagdp/CAGDP2.zip
+    url: https://apps.bea.gov/regional/histdata/releases/1223lagdp/CAGDP2.zip
+
+  2022_cagdp2:
+    mask: "{year}_cagdp2"
+    desc: "CAGDP2: GDP in Current Dollars by County and MSA, 2022"
+    type: table
+    path: proc/lagdp/cagdp2_{year}.pq
+    depends: raw_{year}_cagdp2
+    read:
+      file: "CAGDP2__ALL_AREAS_2001_2022.csv"
+      rows: 108052
+    schema:
+      geo_fips:
+        desc: Geographic area FIPS code
+        orig: GeoFIPS
+        type: string
+      geo_name:
+        desc: Geographic area name
+        orig: GeoName
+        type: string
+      region:
+        desc: BEA Region code
+        orig: Region
+        type: number
+      table_name:
+        desc: Name of the table
+        orig: TableName
+        type: string
+      line_code:
+        desc: Code of the definitions of industry lines (XML file contained within ZIP has defails)
+        orig: LineCode
+        type: number
+      ind_code:
+        desc: Industry code
+        orig: IndustryClassification
+        type: string
+      ind_desc:
+        desc: Industry description
+        orig: Description
+        type: string
+      unit:
+        desc: Measurement unit
+        orig: Unit
+        type: string
+      year:
+        desc: Value year
+        type: number
+      value:
+        desc: Table value
+        type: number
+      value_f:
+        desc: Missing value flag
+        type: string
+
+
+
