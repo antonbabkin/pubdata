@@ -7,11 +7,49 @@ urls:
     https://www.census.gov/data/datasets/time-series/econ/bds/bds-datasets.html
 
 data:
+  raw_2022_met:
+    desc: BDS by metro/non-metro, 2022 revision
+    type: raw
+    path: raw/2022/bds2022_met.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2022/bds2022_met.csv
+
   raw_2022_st_cty:
     desc: BDS by county, 2022 revision
     type: raw
     path: raw/2022/bds2022_st_cty.csv
     url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2022/bds2022_st_cty.csv
+
+  raw_2022_met_ea:
+    desc: BDS by metro/non-metro and establishment age, 2022 revision
+    type: raw
+    path: raw/2022/bds2022_met_ea.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2022/bds2022_met_ea.csv
+
+  raw_2022_met_eac:
+    desc: BDS by metro/non-metro and establishment age coarse, 2022 revision
+    type: raw
+    path: raw/2022/bds2022_met_eac.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2022/bds2022_met_eac.csv
+
+  raw_2022_met_ezc:
+    desc: BDS by metro/non-metro and establishment size coarse, 2022 revision
+    type: raw
+    path: raw/2022/bds2022_met_ezc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2022/bds2022_met_ezc.csv
+
+  raw_2022_met_sec:
+    desc: BDS by metro/non-metro and NAICS sector, 2022 revision
+    type: raw
+    path: raw/2022/bds2022_met_sec.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2022/bds2022_met_sec.csv
+
+  2022_met:
+    mask: "{revision}_met"
+    desc: BDS by metro/non-metro, {revision} revision
+    type: table
+    path: proc/{revision}/met.pq
+    depends: raw_{revision}_met
+    schema: TODO
 
   2022_st_cty:
     mask: "{revision}_st_cty"
@@ -19,4 +57,36 @@ data:
     type: table
     path: proc/{revision}/st_cty.pq
     depends: raw_{revision}_st_cty
+    schema: TODO
+
+  2022_met_ea:
+    mask: "{revision}_met_ea"
+    desc: BDS by metro/non-metro and establishment age, {revision} revision
+    type: table
+    path: proc/{revision}/met_ea.pq
+    depends: raw_{revision}_met_ea
+    schema: TODO
+
+  2022_met_eac:
+    mask: "{revision}_met_eac"
+    desc: BDS by metro/non-metro and establishment age coarse, {revision} revision
+    type: table
+    path: proc/{revision}/met_eac.pq
+    depends: raw_{revision}_met_eac
+    schema: TODO
+
+  2022_met_ezc:
+    mask: "{revision}_met_ezc"
+    desc: BDS by metro/non-metro and establishment size coarse, {revision} revision
+    type: table
+    path: proc/{revision}/met_ezc.pq
+    depends: raw_{revision}_met_ezc
+    schema: TODO
+
+  2022_met_sec:
+    mask: "{revision}_met_sec"
+    desc: BDS by metro/non-metro and NAICS sector, {revision} revision
+    type: table
+    path: proc/{revision}/met_sec.pq
+    depends: raw_{revision}_met_sec
     schema: TODO

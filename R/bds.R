@@ -73,10 +73,15 @@ bds_get <- function(key) {
 
 #' Read BDS table
 bds_read <- function(raw, meta) {
-  df <- readr::read_csv(raw, col_types = cols(
+  df <- readr::read_csv(raw, col_types = readr::cols(
     year = "i",
+    metro = "c",
     st = "c",
     cty = "c",
+    eage = "c",
+    eagecoarse = "c",
+    esizecoarse = "c",
+    sector = "c",
     firms = "i",
     estabs = "i",
     emp = "i",
