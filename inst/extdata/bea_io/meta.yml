@@ -1,5 +1,5 @@
-dataset: bea_io
-description: Input-Output Tables, BEA
+collection: bea_io
+desc: Input-Output Tables, BEA
 urls:
   "Home":
     https://www.bea.gov/data/industries/input-output-accounts-data

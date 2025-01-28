@@ -1,5 +1,5 @@
-dataset: ers_rural
-description: Rurality classifications from the USDA Economic Research Service (ERS)
+collection: ers_rural
+desc: Rurality classifications from the USDA Economic Research Service (ERS)
 urls:
   "Home":
     https://www.ers.usda.gov/topics/rural-economy-population/rural-classifications/

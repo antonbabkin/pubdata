@@ -1,14 +1,18 @@
 
 
-
 #' @importFrom magrittr "%>%"
 
 
-
+#' Construct path within pubdata cache folder
 pubdata_path <- function(...) {
   pubdata_dir <- Sys.getenv("PUBDATA_CACHE_DIR")
   if (pubdata_dir == "") stop("PUBDATA_CACHE_DIR environmental variable is not set.")
   file.path(pubdata_dir, ...)
+}
+
+#' Path to metadata YAML file
+pubdata_meta_path <- function(collection) {
+  system.file(file.path("extdata", collection, "meta.yml"), package = "pubdata")
 }
 
 

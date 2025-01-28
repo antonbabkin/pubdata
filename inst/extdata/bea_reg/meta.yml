@@ -1,5 +1,5 @@
-dataset: bea_reg
-description: BEA Regional Economic Accounts
+collection: bea_reg
+desc: BEA Regional Economic Accounts
 urls:
   "Home":
     https://www.bea.gov/data/economic-accounts/regional

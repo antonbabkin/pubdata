@@ -1,80 +1,33 @@
-# BEA Regional Economic Accounts
-
-#' List data keys
-#'
-#' @param pattern grep pattern to filter with
-#'
-#' @return Vector of keys that match pattern.
-#' @export
-#'
-#' @examples
-#' bea_reg_ls("raw")
-bea_reg_ls <- function(pattern = ".") {
-  meta_path <- system.file("extdata/bea_reg/meta.yml", package = "pubdata")
-  full_meta <- yaml::read_yaml(meta_path)
-  all_keys <- names(full_meta$data)
-  grep(pattern, all_keys, value = TRUE)
-}
-
-
-#' Metadata for a data object
-#'
-#' @param key String key of the specific data object
-#'
-#' @return Metadata as a list.
-#' @export
-#' @examples
-#' # use as a list
-#' bea_reg_meta("raw_2022_cagdp2")
-#'
-#' # print in a compact format
-#' bea_reg_meta("raw_2022_cagdp2") |>
-#'   yaml::as.yaml() |>
-#'   cat()
-#'
-bea_reg_meta <- function(key) {
-  meta_path <- system.file("extdata/bea_reg/meta.yml", package = "pubdata")
-  full_meta <- yaml::read_yaml(meta_path)
-
-  if (!(key %in% names(full_meta$data))) {
-    stop(key, " is not a valid data key")
-  }
-
-  glue_meta(key, full_meta$data[[key]])
-}
-
-
 #' Data object
 #'
 #' @param key Data object key.
 #'
 #' @return Tidy table or path to raw file.
-#' @export
 bea_reg_get <- function(key) {
-  meta <- bea_reg_meta(key)
-  path <- pubdata_path("bea_reg", meta$path)
+  this_meta <- meta("bea_reg", key, print = FALSE)
+  path <- pubdata_path("bea_reg", this_meta$path)
 
   if (file.exists(path)) {
-    if (meta$type == "raw") {
+    if (this_meta$type == "raw") {
       return(path)
-    } else if (meta$type == "table") {
+    } else if (this_meta$type == "table") {
       logger::log_debug("{key} read from {path}")
       return(arrow::read_parquet(path))
     }
   }
 
-  if (meta$type == "raw") {
-    utils::download.file(meta$url, mkdir(path))
+  if (this_meta$type == "raw") {
+    utils::download.file(this_meta$url, mkdir(path))
     stopifnot(file.exists(path))
     return(path)
   }
 
-  raw <- bea_reg_get(meta$depends)
-  unzipped_file <- utils::unzip(raw, meta$read$file, exdir = tempdir())
+  raw <- bea_reg_get(this_meta$depends)
+  unzipped_file <- utils::unzip(raw, this_meta$read$file, exdir = tempdir())
   on.exit(unlink(unzipped_file))
   logger::log_debug("unzipped to {unzipped_file}")
 
-  df <- bea_reg_read(unzipped_file, meta)
+  df <- bea_reg_read(unzipped_file, this_meta)
 
   arrow::write_parquet(df, mkdir(path))
   logger::log_debug("{key} saved to {path}")

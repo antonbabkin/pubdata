@@ -1,83 +1,37 @@
-#' List data keys in the BEA I-O collection
-#'
-#' @param pattern grep pattern to filter with
-#'
-#' @return Vector of keys that match pattern.
-#' @export
-#'
-#' @examples
-#' bea_io_ls("raw")
-bea_io_ls <- function(pattern = ".") {
-  meta_path <- system.file("extdata/bea_io/meta.yml", package = "pubdata")
-  full_meta <- yaml::read_yaml(meta_path)
-  all_keys <- names(full_meta$data)
-  grep(pattern, all_keys, value = TRUE)
-}
-
-
-#' BEA I-O Tables metadata for a data object
-#'
-#' @param key String key of the specific data object
-#'
-#' @return Metadata as a list.
-#' @export
-#' @examples
-#' # use as a list
-#' bea_io_meta("2023_use_det_2017")
-#'
-#' # print in a compact format
-#' bea_io_meta("2023_use_det_2017") |>
-#'   yaml::as.yaml() |>
-#'   cat()
-#'
-bea_io_meta <- function(key) {
-  meta_path <- system.file("extdata/bea_io/meta.yml", package = "pubdata")
-  full_meta <- yaml::read_yaml(meta_path)
-
-  if (!(key %in% names(full_meta$data))) {
-    stop(key, " is not a valid data key")
-  }
-
-  glue_meta(key, full_meta$data[[key]])
-}
-
-
-
 #' BEA I-O Tables data object
 #'
 #' @param key Data object key.
 #'
 #' @return Tidy table or path to raw file.
-#' @export
 bea_io_get <- function(key) {
-  meta <- bea_io_meta(key)
-  path <- pubdata_path("bea_io", meta$path)
+  this_meta <- meta("bea_io", key, print = FALSE)
+  path <- pubdata_path("bea_io", this_meta$path)
 
   if (file.exists(path)) {
-    if (meta$type == "raw") {
+    if (this_meta$type == "raw") {
       return(path)
-    } else if (meta$type == "table") {
+    } else if (this_meta$type == "table") {
       return(arrow::read_parquet(path))
     }
   }
 
-  if (meta$type == "raw") {
-    utils::download.file(meta$url, mkdir(path))
+  if (this_meta$type == "raw") {
+    utils::download.file(this_meta$url, mkdir(path))
     stopifnot(file.exists(path))
     return(path)
   }
 
-  raw <- bea_io_get(meta$depends)
-  unzipped_spreadsheet <- utils::unzip(raw, meta$read$file, exdir = tempdir())
+  raw <- bea_io_get(this_meta$depends)
+  unzipped_spreadsheet <- utils::unzip(raw, this_meta$read$file, exdir = tempdir())
   on.exit(unlink(unzipped_spreadsheet))
   logger::log_debug("unzipped to {unzipped_spreadsheet}")
   if (grepl("_su_(sup|use)_(sec|sum|det)_", key) ||
       grepl("_imp-(bef|aft)_(sum|det)_", key) ||
       grepl("_mu_use-(bef|aft)-(pro|pur)_(sec|sum|det)_", key) ||
       grepl("_mu_mak-(bef|aft)_(sec|sum|det)_", key)) {
-    return(bea_io_read_table(unzipped_spreadsheet, meta))
+    return(bea_io_read_table(unzipped_spreadsheet, this_meta))
   } else if (grepl("_naics", key)) {
-    return(bea_io_read_naics(unzipped_spreadsheet, meta))
+    return(bea_io_read_naics(unzipped_spreadsheet, this_meta))
   } else {
     stop("Not implemented")
   }
@@ -86,7 +40,7 @@ bea_io_get <- function(key) {
 
 #' Read and tidy supply/use table
 #' @param path Path to unzipped spreadsheet
-#' @param meta Metadata list as returned by bea_io_meta("key")
+#' @param meta Metadata list
 bea_io_read_table <- function(path, meta) {
 
   # read data section of sheet as text
@@ -162,7 +116,7 @@ bea_io_pivot_wider <- function(data, core = FALSE, labels = c("code", "name")) {
 
 #' Read and tidy NAICS crosswalk
 #' @param path Path to unzipped spreadsheet
-#' @param meta Metadata list as returned by bea_io_meta("key")
+#' @param meta Metadata list
 bea_io_read_naics <- function(path, meta) {
 
   # read data section of sheet as text

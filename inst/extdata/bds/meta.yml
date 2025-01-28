@@ -1,10 +1,122 @@
-dataset: bds
-description: Business Dynamics Statistics (BDS)
+collection: bds
+desc: Business Dynamics Statistics (BDS)
 urls:
   "Home":
     https://www.census.gov/programs-surveys/bds.html
   "CSV datasets":
     https://www.census.gov/data/datasets/time-series/econ/bds/bds-datasets.html
+  "Codebook and Glossary":
+    https://www.census.gov/programs-surveys/bds/documentation/codebook-glossary.html
+
+
+# shared variables
+schema:
+  core: &schema_core
+    year:
+      desc: "Record year."
+      type: number
+    firms:
+      desc: "A simple count of the number of firms in the cell.
+        For state level tables, a firm with establishments in multiple states be
+        counted multiple times, once in each state, irrespective of the portion
+        of the firm residing in that state."
+      type: number
+    estabs:
+      desc: "A simple count of the number of establishments in the cell."
+      type: number
+    emp:
+      desc: "Paid employment consists of full and part-time employees, including salaried officers and
+        executives of corporations, who are on the payroll in the pay period including March 12. Included
+        are employees on paid sick leave, holidays, and vacations."
+      type: number
+    denom:
+      desc: "Davis-Haltiwanger-Schuh (DHS) denominator. For time t, denom is the average of employment
+        for times t and t-1. This variable attempts to prevent transitory shocks from creating a bias to the
+        relationship between net growth from t-1 to t and size."
+      type: number
+    estabs_entry:
+      desc: "A count of establishments born within the cell during the last 12 months."
+      type: number
+    estabs_entry_rate:
+      desc: "100 * (estabs_entry at time t divided by the average of estabs at t and t-1)."
+      type: number
+    estabs_exit:
+      desc: "A count of establishments exiting from within the cell during the last 12 months."
+      type: number
+    estabs_exit_rate:
+      desc: "100 * (estabs_exit at time t divided by the average of estabs at t and t-1)."
+      type: number
+    job_creation:
+      desc: "Count of all employment gains within the cell from expanding and opening establishments
+        between the week of March 12 of the prior year to the current year."
+      type: number
+    job_creation_births:
+      desc: "Count of employment gains within the cell from establishment openings (births) between the week
+        of March 12 of the prior year to the current year."
+      type: number
+    job_creation_continuers:
+      desc: "Count of employment gains within the cell from continuing establishments that expanded between
+        the week of March 12 of the prior year to the current year."
+      type: number
+    job_creation_rate_births:
+      desc: "100 * (job_creation_births / denom)"
+      type: number
+    job_creation_rate:
+      desc: "100 * (job_creation / denom)"
+      type: number
+    job_destruction:
+      desc: "Count of all employment losses within the cell from contracting and closing establishments
+        between the week of March 12 of the prior year to the current year."
+      type: number
+    job_destruction_deaths:
+      desc: "Count of all employment losses within the cell from establishment closings (deaths) between the
+        week of March 12 of the prior year to the current year."
+      type: number
+    job_destruction_continuers:
+      desc: "Count of employment losses within the cell from continuing establishments that contracted
+        between the week of March 12 of the prior year to the current year."
+      type: number
+    job_destruction_rate_deaths:
+      desc: "100 * (job_destruction_deaths / denom)"
+      type: number
+    job_destruction_rate:
+      desc: "100 * (job_destruction / denom)"
+      type: number
+    net_job_creation:
+      desc: "job_creation - job_destruction"
+      type: number
+    net_job_creation_rate:
+      desc: "job_creation_rate - job_destruction_rate"
+      type: number
+    reallocation_rate:
+      desc: "job_creation_rate + job_destruction_rate - abs(net_job_creation_rate). This is often referred to as
+        an “excess” reallocation rate since it measures the rate of job reallocation over and above that
+        needed to accommodate the net job creation in the cell. A gross reallocation measure is simply the
+        sum of the job_creation_rate and the job_destruction_rate."
+      type: number
+    firmdeath_firms:
+      desc: "Count of firms that have exited in their entirety during the period. All establishments owned by the
+        firm must exit to be considered a firm death. This definition of firm death is narrow and strictly
+        applied, so that a firm with 100 establishments would not qualify as a firm death if 99 exited while
+        1 continued under different ownership. Note firm legal entities that cease to exist because of
+        merger and acquisition activity are not classified as firm deaths in the BDS data."
+      type: number
+    firmdeath_estabs:
+      desc: "Count of establishments associated with firm deaths."
+      type: number
+    firmdeath_emp:
+      desc: "Count of employment associated with firm deaths."
+      type: number
+  metro: &schema_met
+    metro:
+      desc: "Establishments located in Metropolitan or Micropolitan Statistical Areas are in cells designated
+        with “M”, while those in non-metropolitan areas are aggregated into cells designated with “N”.
+        Cells designated as “SW” (signifying “statewide”) are assigned to establishments without a fixed
+        location such as employee leasing establishments. Cells designated as “U” (signifying
+        “unclassified”) are assigned to establishments without a valid county code."
+      type: category
+
+
 
 data:
   raw_2022_met:
@@ -49,7 +161,9 @@ data:
     type: table
     path: proc/{revision}/met.pq
     depends: raw_{revision}_met
-    schema: TODO
+    schema:
+      <<: *schema_core
+      <<: *schema_met
 
   2022_st_cty:
     mask: "{revision}_st_cty"
@@ -57,7 +171,20 @@ data:
     type: table
     path: proc/{revision}/st_cty.pq
     depends: raw_{revision}_st_cty
-    schema: TODO
+    schema:
+      <<: *schema_core
+      st:
+        desc: "FIPS state code."
+        type: string
+      cty:
+        desc: "Three-character numeric code for county within a given state. Users can refer to the CBP county
+          reference files for listings of valid county codes (https://www.census.gov/programs-
+          surveys/cbp/technical-documentation/reference/state-county-geography-reference.html). The BDS
+          also includes statewide (999) and unclassified (998) county codes. Statewide county codes are
+          assigned to establishments without a fixed location such as employee leasing establishments.
+          Unclassified establishments are those with a county code that cannot be found in any of the CBP
+          county reference files."
+        type: string
 
   2022_met_ea:
     mask: "{revision}_met_ea"
@@ -65,7 +192,15 @@ data:
     type: table
     path: proc/{revision}/met_ea.pq
     depends: raw_{revision}_met_ea
-    schema: TODO
+    schema:
+      <<: *schema_core
+      <<: *schema_met
+      eage:
+        desc: "Establishment age. This is an employment-based measure of establishment age. An estab born
+          before 1977 is of unknown age and is assigned an age of “Left Censored”. One born during or
+          after 1977 is assigned an age of zero in the first year it reports positive employment, and it ages
+          each year thereafter regardless of employment."
+        type: category
 
   2022_met_eac:
     mask: "{revision}_met_eac"
@@ -73,7 +208,15 @@ data:
     type: table
     path: proc/{revision}/met_eac.pq
     depends: raw_{revision}_met_eac
-    schema: TODO
+    schema:
+      <<: *schema_core
+      <<: *schema_met
+      eagecoarse:
+        desc: "Establishment age coarse. This is an employment-based measure of establishment age. An estab born
+          before 1977 is of unknown age and is assigned an age of “Left Censored”. One born during or
+          after 1977 is assigned an age of zero in the first year it reports positive employment, and it ages
+          each year thereafter regardless of employment. Includes 5 broader establishment age classes."
+        type: category
 
   2022_met_ezc:
     mask: "{revision}_met_ezc"
@@ -81,7 +224,13 @@ data:
     type: table
     path: proc/{revision}/met_ezc.pq
     depends: raw_{revision}_met_ezc
-    schema: TODO
+    schema:
+      <<: *schema_core
+      <<: *schema_met
+      esizecoarse:
+        desc: "Establishment size coarse. A categorical variable defined as the average of the establishment’s year t-1
+          and year t employment. Includes 3 broader size classes."
+        type: category
 
   2022_met_sec:
     mask: "{revision}_met_sec"
@@ -89,4 +238,10 @@ data:
     type: table
     path: proc/{revision}/met_sec.pq
     depends: raw_{revision}_met_sec
-    schema: TODO
+    schema:
+      <<: *schema_core
+      <<: *schema_met
+      sector:
+        desc: "2-digit NAICS 2017 Codes"
+        type: category
+

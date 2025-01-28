@@ -9,7 +9,7 @@ expect_close <- function(x, y, rel_tol = 0.001, abs_tol = Inf) {
 }
 
 test_that("invalid data key stops with error", {
-  expect_error(bea_io_meta("invalid_data_key"), "invalid_data_key is not a valid data key")
+  expect_error(meta("bea_io", "invalid_data_key", print = FALSE), "invalid_data_key is not a valid data key")
 })
 
 
@@ -23,11 +23,11 @@ test_that("naics lists expand correctly", {
 
 
 
-for (key in bea_io_ls()) {
+for (key in ls("bea_io")) {
 
   m <- NULL
   test_that(glue::glue("{key}: meta() gives no error"), {
-    expect_no_error({ m <<- bea_io_meta(key) })
+    expect_no_error({ m <<- meta("bea_io", key, print = FALSE) })
   })
 
   if (m$type == "raw") {
@@ -120,7 +120,7 @@ for (key in bea_io_ls()) {
         tidyr::replace_na(0)
       # use key from make key, e.g. "2022_mu_mak-bef_sec_2021" -> "2022_mu_use-bef-pro_sec_2021"
       use_key <- sub("_mak-(...)_", "_use-\\1-pro_", key)
-      tab2 <-bea_io_get(use_key)
+      tab2 <- bea_io_get(use_key)
       # use table rows are commodities
       com_names2 <- tab2 |>
         dplyr::filter(core_matrix) |>
@@ -128,7 +128,7 @@ for (key in bea_io_ls()) {
         dplyr::pull()
       total_use <- tab2 |>
         dplyr::filter(col_name == "Total Commodity Output", row_name %in% com_names2) |>
-        dplyr::pull(value) %>%
+        dplyr::pull(value) |>
         tidyr::replace_na(0)
       # absolute deviation less than small number - rounding error
       expect_close(total_make, total_use, abs_tol = 2, rel_tol = Inf)
