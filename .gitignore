@@ -3,8 +3,9 @@ datacache/
 tmp/
 man/
 
-# user settings
+# user settings and environment
 .Renviron
+renv/
 
 # quarto files
 *_files/
