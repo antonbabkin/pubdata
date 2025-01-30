@@ -1,0 +1,58 @@
+collection: naics
+desc: North American Industry Classification System (NAICS)
+urls:
+  "Home":
+    "https://www.census.gov/naics/"
+
+
+schema:
+  code: &schema_code
+    seq_no:
+      desc: "Line number"
+      type: number
+    code:
+      desc: "Industry code"
+      type: string
+    title:
+      desc: "Industry title"
+      type: string
+
+
+data:
+  raw_2007_code:
+    desc: 2-6 digit 2007 Code File
+    type: raw
+    path: raw/2007/codes.xls
+    url: "https://www.census.gov/naics/reference_files_tools/2007/naics07.xls"
+
+  raw_2012_code:
+    desc: 2-6 digit 2012 Code File
+    type: raw
+    path: raw/2012/codes.xls
+    url: "https://www.census.gov/naics/2012NAICS/2-digit_2012_Codes.xls"
+
+  raw_2017_code:
+    desc: 2-6 digit 2017 Code File
+    type: raw
+    path: raw/2017/codes.xlsx
+    url: "https://www.census.gov/naics/2017NAICS/2-6%20digit_2017_Codes.xlsx"
+
+  raw_2022_code:
+    desc: 2-6 digit 2022 Code File
+    type: raw
+    path: raw/2022/codes.xlsx
+    url: "https://www.census.gov/naics/2022NAICS/2-6%20digit_2022_Codes.xlsx"
+
+  2007_code: &code
+    mask: "{revision}_{table}"
+    desc: 2-6 digit {revision} NAICS codes
+    type: table
+    path: proc/{revision}/{table}.pq
+    depends: raw_{revision}_{table}
+    schema:
+      *schema_code
+
+  2012_code: *code
+  2017_code: *code
+  2022_code: *code
+

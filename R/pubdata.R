@@ -5,7 +5,8 @@ collections <- c(
   "bds",
   "bea_io",
   "bea_reg",
-  "ers_rural"
+  "ers_rural",
+  "naics"
 )
 
 

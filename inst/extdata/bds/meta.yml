@@ -9,8 +9,8 @@ urls:
     https://www.census.gov/programs-surveys/bds/documentation/codebook-glossary.html
 
 
-# shared variables
 schema:
+  # shared variables
   core: &schema_core
     year:
       desc: "Record year."
