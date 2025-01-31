@@ -91,7 +91,7 @@ bea_io_read_table <- function(path, meta) {
 #' @return Wide table.
 #' @export
 #' @examples
-#' bea_io_get("2023_use_sec_2017") |>
+#' get("bea_io", "2023_use_sec_2017") |>
 #'   bea_io_pivot_wider(core = TRUE, labels = "code")
 #'
 bea_io_pivot_wider <- function(data, core = FALSE, labels = c("code", "name")) {
@@ -112,12 +112,10 @@ bea_io_pivot_wider <- function(data, core = FALSE, labels = c("code", "name")) {
 }
 
 
-
-
 #' Read and tidy NAICS crosswalk
 #' @param path Path to unzipped spreadsheet
 #' @param meta Metadata list
-bea_io_read_naics <- function(path, meta) {
+bea_io_read_naics <- function(path, this_meta) {
 
   # read data section of sheet as text
   d <- readxl::read_excel(
@@ -125,14 +123,15 @@ bea_io_read_naics <- function(path, meta) {
     sheet = "NAICS Codes",
     col_names = c("sector", "summary", "u_summary", "detail", "title", "notes", "naics"),
     col_types = "text",
-    skip = meta$read$skip,
-    n_max = meta$read$rows,
+    skip = this_meta$read$skip,
+    n_max = this_meta$read$rows,
     .name_repair = "unique_quiet")
 
-
   d <- d |>
+    # drop empty rows
     dplyr::filter(dplyr::if_any(dplyr::everything(), \(x) !is.na(x))) |>
-    dplyr::mutate( # move titles to single column
+    # move titles to single column
+    dplyr::mutate(
       title = dplyr::coalesce(title, detail, u_summary, summary, sector),
       summary = dplyr::if_else(is.na(sector), summary, NA),
       u_summary = dplyr::if_else(is.na(summary), u_summary, NA),
@@ -162,11 +161,21 @@ bea_io_read_naics <- function(path, meta) {
     )
 
   # expand naics lists and create separate row for each naics code
-  # TODO: remove invalid NAICS codes that are created, e.g. 32192-9 must be only 32192 and 32199
   d <- d |>
     dplyr::rowwise() |>
     dplyr::mutate(naics = expand_naics_lists(naics)) |>
     tidyr::separate_longer_delim(naics, delim = ",")
+
+  # remove invalid NAICS codes that are created, e.g. 32192-9 must be only 32192 and 32199
+  naics_key <- switch(
+    this_meta$keys$revision,
+    "2022" = "2012_code",
+    "2023" = "2017_code"
+  )
+  stopifnot(!is.null(naics_key))
+  valid_naics_codes <- get("naics", naics_key)$code
+  d <- d |>
+    dplyr::filter(is.na(naics) | naics %in% valid_naics_codes)
 
   dplyr::select(d, !notes)
 }
