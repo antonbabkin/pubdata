@@ -21,7 +21,15 @@ bea_io_get <- function(key) {
     return(path)
   }
 
+
+  # raw is single spreadsheet
+  if (key == "curr_und_peq_det") {
+    return(bea_io_read_peq(this_meta))
+  }
+
+  # raw is Zip archive
   raw <- bea_io_get(this_meta$depends)
+  # TODO verify that raw file is a zip
   unzipped_spreadsheet <- utils::unzip(raw, this_meta$read$file, exdir = tempdir())
   on.exit(unlink(unzipped_spreadsheet))
   logger::log_debug("unzipped to {unzipped_spreadsheet}")
@@ -207,3 +215,29 @@ expand_naics_dash <- function(x) {
 }
 
 
+#' PEQ-IO commodity bridge
+bea_io_read_peq <- function(this_meta) {
+
+  raw_path <- bea_io_get(this_meta$depends)
+
+  # identify year sheets
+  years <- raw_path |>
+    readxl::excel_sheets() |>
+    stringr::str_subset("^[1-9][0-9]{3}$")
+
+  # read all year sheets in dataframes
+  df <- list()
+  for (year in years) {
+    df[[year]] <- raw_path |>
+      readxl::read_excel(
+        sheet = year,
+        skip = 5,
+        col_names = c("nipa_line", "peq_cat", "com_code", "com_desc", "pro_val", "transp", "trade_wh", "trade_re", "pur_val", "year")
+      )
+  }
+  # combine into single dataframe
+  df <- dplyr::bind_rows(df) |>
+    dplyr::relocate(year)
+
+  df
+}

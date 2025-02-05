@@ -5,6 +5,8 @@ urls:
     https://www.bea.gov/data/industries/input-output-accounts-data
   "Current - Industry File Download":
     https://apps.bea.gov/iTable/?isuri=1&reqid=151&step=1
+  "Current - Underlying Estimates":
+    https://www.bea.gov/products/industry-economic-accounts/underlying-estimates
   "Historical Data Archive":
     https://apps.bea.gov/histdatacore/
   "Gross Domestic Product by Industry and Input-Output Statistics":
@@ -145,10 +147,45 @@ schema:
     naics:
       desc: NAICS code
       type: string
-
+  peq: &schema_peq
+    year:
+      desc: Data year
+      type: number
+    nipa_line:
+      desc: "Line number of the commodity's PEQ category in published NIPA Table"
+      type: number
+    peq_cat:
+      desc: "Description of the PEQ category"
+      type: string
+    com_code:
+      desc: "Input-Output commodity code"
+      type: string
+    com_desc:
+      desc: "Input-Output commodity description"
+      type: string
+    pro_val:
+      desc: "Producers' value"
+      type: number
+    transp:
+      desc: "Transportation costs"
+      type: number
+    trade_wh:
+      desc: "Wholesale trade margin"
+      type: number
+    trade_re:
+      desc: "Retail trade margin"
+      type: number
+    pur_val:
+      desc: "Purchasers' value"
+      type: number
 
 
 data:
+  raw_curr_und_peq_det:
+    desc: Commodity composition of Private Fixed Investment in Equipment (PEQ) from the NIPA, detail level (402 Commodities), 2007, 2012, and 2017, current release
+    type: raw
+    path: raw/curr/und/PEQBridge_2017_DET.xlsx
+    url: https://apps.bea.gov/industry/xls/underlying-estimates/PEQBridge_2017_DET.xlsx
   raw_2023_mu:
     desc: Make-Use framework tables, 2023 Q2
     type: raw
@@ -174,6 +211,15 @@ data:
     type: raw
     path: raw/IoSupplemental_2022q2.zip
     url: https://apps.bea.gov/HistDataCore/wwwroot/Releases/Industry/2022/GDP_by_Industry/Q2/Annual_September-29-2022/IoSupplemental.zip
+
+
+  curr_und_peq_det:
+    mask: "{revision}_und_{table}_{level}"
+    desc: Commodity composition of Private Fixed Investment in Equipment (PEQ) from the NIPA, detail level (402 Commodities), 2007, 2012, and 2017, current release
+    type: table
+    path: "proc/{revision}/und/{table}_{level}.pq"
+    depends: "raw_{revision}_und_{table}_{level}"
+    schema: *schema_peq
 
   2023_mu_use-bef-pro_sec_2022: &2023_mu_use-bef-pro_sec
     mask: "{revision}_mu_{table}_{level}_{year}"
@@ -1569,3 +1615,7 @@ data:
       skip: 5
       rows: 1020
     schema: *schema_naics
+
+
+
+
