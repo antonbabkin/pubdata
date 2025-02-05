@@ -90,36 +90,6 @@ bea_io_read_table <- function(path, meta) {
 }
 
 
-#' Transform I-O table from long to wide format
-#'
-#' @param data Tidy table.
-#' @param core Core matrix or full table.
-#' @param labels "code" or "name"
-#'
-#' @return Wide table.
-#' @export
-#' @examples
-#' get("bea_io", "2023_use_sec_2017") |>
-#'   bea_io_pivot_wider(core = TRUE, labels = "code")
-#'
-bea_io_pivot_wider <- function(data, core = FALSE, labels = c("code", "name")) {
-  labels <- match.arg(labels)
-  if (core) {
-    data <- dplyr::filter(data, core_matrix)
-  }
-  if (labels == "code") {
-    data <- data |>
-      dplyr::select(row_code, col_code, value) |>
-      tidyr::pivot_wider(id_cols = "row_code", names_from = "col_code")
-  } else {
-    data <- data |>
-      dplyr::select(row_name, col_name, value) |>
-      tidyr::pivot_wider(id_cols = "row_name", names_from = "col_name")
-  }
-  data
-}
-
-
 #' Read and tidy NAICS crosswalk
 #' @param path Path to unzipped spreadsheet
 #' @param meta Metadata list
