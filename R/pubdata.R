@@ -3,6 +3,7 @@
 # list of existing data collections
 collections <- c(
   "bds",
+  "bea_fa",
   "bea_io",
   "bea_reg",
   "ers_rural",
