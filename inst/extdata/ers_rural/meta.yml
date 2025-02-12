@@ -18,13 +18,13 @@ data:
     desc: 2003 Rural-Urban Continuum Codes
     type: raw
     path: raw/ruralurbancodes2003.xls
-    url: https://www.ers.usda.gov/webdocs/DataFiles/53251/ruralurbancodes2003.xls?v=5203.2
+    url: https://ers.usda.gov/sites/default/files/_laserfiche/DataFiles/53251/ruralurbancodes2003.xls?v=30590
 
   raw_ruc_2023:
     desc: 2023 Rural-Urban Continuum Codes
     type: raw
     path: raw/Ruralurbancontinuumcodes2023.csv
-    url: https://www.ers.usda.gov/webdocs/DataFiles/53251/Ruralurbancontinuumcodes2023.csv?v=3273.6
+    url: https://ers.usda.gov/sites/default/files/_laserfiche/DataFiles/53251/Ruralurbancontinuumcodes2023.csv?v=21666
 
   ruc_2003:
     mask: "ruc_{year}"
