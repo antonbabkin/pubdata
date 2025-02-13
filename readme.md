@@ -2,6 +2,10 @@
 
 Describing, tidying and providing usage examples for publicly available datasets.
 
+# R Package installation
+
+Somebody please write the instructions here.
+
 # Installation
 
 1. Install [mamba](https://mamba.readthedocs.io/en/latest/index.html) and [Quarto](https://quarto.org/). Configure [SSH authentication](https://docs.github.com/en/authentication/connecting-to-github-with-ssh) with GitHub.
