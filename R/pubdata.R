@@ -11,6 +11,9 @@ collections <- c(
 )
 
 
+# memory cache object
+memory <- cachem::cache_mem()
+
 
 #' List available collections or datasets within a collection
 #'
@@ -98,6 +101,92 @@ meta <- function(collection, key = NULL, print = TRUE) {
 #' @returns Tidy table or path to raw data file.
 #' @export
 get <- function(collection, key) {
-  col_get <- base::get(paste0(collection, "_get"))
-  col_get(key)
+  # return from memory cache if exists
+  memkey <- paste0(collection, "_", key)
+  value <- memory$get(memkey)
+  if (!cachem::is.key_missing(value)) return(value)
+
+  # check if disk cache exists
+  value <- cache_read(collection, key)
+  if (is.null(value)) {
+    # calculate value from collection specific _get() function
+    col_get <- base::get(paste0(collection, "_get"))
+    value <- col_get(key)
+    # save to disk cache
+    cache_write(collection, key, value)
+  }
+  memory$set(memkey, value)
+  value
 }
+
+
+cache_read <- function(collection, key) {
+  me <- meta(collection, key, FALSE)
+  path <- pubdata_path(collection, me$path)
+  if (file.exists(path)) {
+    if (me$type == "raw") {
+      value <- path
+    } else if (me$type == "table") {
+      value <- arrow::read_parquet(path)
+    }
+    logger::log_debug("disk cache get \"{collection}:{key}\"")
+    return(value)
+  }
+}
+
+
+cache_write <- function(collection, key, value) {
+  me <- meta(collection, key, FALSE)
+  path <- pubdata_path(collection, me$path)
+  if (me$type == "table") {
+    arrow::write_parquet(value, mkdir(path))
+  }
+  logger::log_debug("disk cache set \"{collection}:{key}\"")
+}
+
+
+#' Pack data files into a zip archive
+#'
+#' @param zipfile Relative path to archive file
+#' @param col_keys List of keys of form list(collection1 = c(keys, ...), collection2 = ...)
+#' @param overwrite Overwrite existing zip file?
+#'
+#' @export
+cache_pack <- function(zipfile, col_keys, overwrite = FALSE) {
+
+  if (file.exists(zipfile)) {
+    if (overwrite) {
+      logger::log_info(paste("Replacing existing Zip file:", zipfile))
+      file.remove(zipfile)
+    }
+    else stop("Zip file already exists: ", zipfile)
+  }
+
+  # vector of relative paths to data files of specified keys
+  files <- col_keys |>
+    purrr::imap(\(keys, collection)
+                purrr::map_chr(keys, \(key) file.path(collection, meta(collection, key, FALSE)$path))) |>
+    purrr::list_c()
+
+  # change working dir to cache dir, zip and change back
+  zipfile_abs <- file.path(getwd(), zipfile)
+  cur_dir <- getwd()
+  setwd(pubdata_path())
+  utils::zip(mkdir(zipfile_abs), files)
+  setwd(cur_dir)
+}
+
+
+
+#' Unpack zipped data files to cache directory
+#'
+#' @param zipfile Relative path to archive file
+#' @param overwrite Overwrite existing data files?
+#'
+#' @export
+cache_unpack <- function(zipfile, overwrite = FALSE) {
+  utils::unzip(zipfile, overwrite = overwrite, exdir = pubdata_path())
+}
+
+
+

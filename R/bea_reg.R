@@ -5,32 +5,20 @@
 #' @return Tidy table or path to raw file.
 bea_reg_get <- function(key) {
   this_meta <- meta("bea_reg", key, print = FALSE)
-  path <- pubdata_path("bea_reg", this_meta$path)
-
-  if (file.exists(path)) {
-    if (this_meta$type == "raw") {
-      return(path)
-    } else if (this_meta$type == "table") {
-      logger::log_debug("{key} read from {path}")
-      return(arrow::read_parquet(path))
-    }
-  }
 
   if (this_meta$type == "raw") {
+    path <- pubdata_path("bea_reg", this_meta$path)
     utils::download.file(this_meta$url, mkdir(path))
     stopifnot(file.exists(path))
     return(path)
   }
 
-  raw <- bea_reg_get(this_meta$depends)
+  raw <- get("bea_reg", this_meta$depends)
   unzipped_file <- utils::unzip(raw, this_meta$read$file, exdir = tempdir())
   on.exit(unlink(unzipped_file))
   logger::log_debug("unzipped to {unzipped_file}")
 
   df <- bea_reg_read(unzipped_file, this_meta)
-
-  arrow::write_parquet(df, mkdir(path))
-  logger::log_debug("{key} saved to {path}")
   df
 }
 

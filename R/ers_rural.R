@@ -5,23 +5,15 @@
 #' @return Tidy table or path to raw file.
 ers_rural_get <- function(key) {
   this_meta <- meta("ers_rural", key, print = FALSE)
-  path <- pubdata_path("ers_rural", this_meta$path)
-
-  if (file.exists(path)) {
-    if (this_meta$type == "raw") {
-      return(path)
-    } else if (this_meta$type == "table") {
-      return(arrow::read_parquet(path))
-    }
-  }
 
   if (this_meta$type == "raw") {
+    path <- pubdata_path("ers_rural", this_meta$path)
     utils::download.file(this_meta$url, mkdir(path))
     stopifnot(file.exists(path))
     return(path)
   }
 
-  raw <- ers_rural_get(this_meta$depends)
+  raw <- get("ers_rural", this_meta$depends)
   ers_rural_read_ruc(raw, this_meta)
 
 }

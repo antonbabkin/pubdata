@@ -1,17 +1,9 @@
 
 bea_fa_get <- function(key) {
   this_meta <- meta("bea_fa", key, print = FALSE)
-  path <- pubdata_path("bea_fa", this_meta$path)
-
-  if (file.exists(path)) {
-    if (this_meta$type == "raw") {
-      return(path)
-    } else if (this_meta$type == "table") {
-      return(arrow::read_parquet(path))
-    }
-  }
 
   if (this_meta$type == "raw") {
+    path <- pubdata_path("bea_fa", this_meta$path)
     utils::download.file(this_meta$url, mkdir(path))
     stopifnot(file.exists(path))
     return(path)
@@ -24,7 +16,7 @@ bea_fa_get <- function(key) {
 
 
 bea_fa_read <- function(this_meta) {
-  raw_path <- bea_fa_get(this_meta$depends)
+  raw_path <- get("bea_fa", this_meta$depends)
 
   # read single industry sheet to use for long asset type descriptions
   df_oneind <- raw_path |>
