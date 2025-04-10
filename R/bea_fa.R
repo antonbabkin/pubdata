@@ -45,8 +45,8 @@ bea_fa_read <- function(this_meta) {
     ) |>
     dplyr::rename(line_code = ...1) |>
     # structure of the line code
-    # example: "I3N110C1EQ00.A"
-    # 1-3: "I3N" = non-residential investment
+    # examples: "K1N110C1EP1A.A", "M1N110C1SO02.A", "I3N110C1EQ00.A"
+    # 1-3: non-residential, current cost table type = "K1N" stock, "M1N" depreciation, "I3N" investment
     # 4-7: "110C" = 4-digit industry code
     # 8: "1" = always 1
     # 9-12: "EQ00" = 4-digit asset code
