@@ -115,6 +115,19 @@ schema:
         location such as employee leasing establishments. Cells designated as “U” (signifying
         “unclassified”) are assigned to establishments without a valid county code."
       type: category
+  stcty: &schema_stcty
+    st:
+      desc: "FIPS state code."
+      type: string
+    cty:
+      desc: "Three-character numeric code for county within a given state. Users can refer to the CBP county
+        reference files for listings of valid county codes (https://www.census.gov/programs-
+        surveys/cbp/technical-documentation/reference/state-county-geography-reference.html). The BDS
+        also includes statewide (999) and unclassified (998) county codes. Statewide county codes are
+        assigned to establishments without a fixed location such as employee leasing establishments.
+        Unclassified establishments are those with a county code that cannot be found in any of the CBP
+        county reference files."
+      type: string
 
 
 
@@ -130,6 +143,12 @@ data:
     type: raw
     path: raw/2022/bds2022_st_cty.csv
     url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2022/bds2022_st_cty.csv
+
+  raw_2022_st_cty_sec:
+    desc: BDS by county by sector, 2022 revision
+    type: raw
+    path: raw/2022/bds2022_st_cty_sec.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2022/bds2022_st_cty_sec.csv
 
   raw_2022_met_ea:
     desc: BDS by metro/non-metro and establishment age, 2022 revision
@@ -173,18 +192,20 @@ data:
     depends: raw_{revision}_st_cty
     schema:
       <<: *schema_core
-      st:
-        desc: "FIPS state code."
-        type: string
-      cty:
-        desc: "Three-character numeric code for county within a given state. Users can refer to the CBP county
-          reference files for listings of valid county codes (https://www.census.gov/programs-
-          surveys/cbp/technical-documentation/reference/state-county-geography-reference.html). The BDS
-          also includes statewide (999) and unclassified (998) county codes. Statewide county codes are
-          assigned to establishments without a fixed location such as employee leasing establishments.
-          Unclassified establishments are those with a county code that cannot be found in any of the CBP
-          county reference files."
-        type: string
+      <<: *schema_stcty
+
+  2022_st_cty_sec:
+    mask: "{revision}_st_cty_sec"
+    desc: BDS by county, {revision} revision
+    type: table
+    path: proc/{revision}/st_cty_sec.pq
+    depends: raw_{revision}_st_cty_sec
+    schema:
+      <<: *schema_core
+      <<: *schema_stcty
+      sector:
+        desc: "2-digit NAICS 2017 Codes"
+        type: category
 
   2022_met_ea:
     mask: "{revision}_met_ea"

@@ -1,6 +1,6 @@
 Package: pubdata
 Title: Public Use Datasets
-Version: 0.0.0.9000
+Version: 0.0.0.9001
 Authors@R: 
     person("Anton", "Babkin", , "babkin@wisc.edu", role = c("aut", "cre"))
 Description: Describing, tidying and providing usage examples for publicly available datasets.
