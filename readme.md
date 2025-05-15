@@ -49,8 +49,6 @@ The last command should return a tibble (data frame) that you can assign to a va
 
 If everything worked above, it would be great. Explore what other collections and data sets currently exist in the package, try to load them using the “get()” function with correct arguments.
 
-As you go through this process, try to remember what was happening - maybe keep notes. It will help when you are working on the install instructions in the future.
-
 # Installation
 
 1.  Install [mamba](https://mamba.readthedocs.io/en/latest/index.html) and [Quarto](https://quarto.org/). Configure [SSH authentication](https://docs.github.com/en/authentication/connecting-to-github-with-ssh) with GitHub.
