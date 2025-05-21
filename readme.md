@@ -25,6 +25,24 @@ You should see the path that you just entered. This is a temporary setting, and 
 
 Try to call the following functions from pub data. They should produce no errors, print respective outputs, and download some data to the folder you specified earlier.
 
+### Setting the `PUBDATA_CACHE_DIR` Environment Variable
+
+To specify where the pubdata cache is stored, you need to set the `PUBDATA_CACHE_DIR` environment variable. There are two ways to do this:
+
+**1. Set the environment variable directly in your R scripts:**\
+
+Add this line near the start of your script, replacing the path with your actual cache directory:
+`Sys.setenv(PUBDATA_CACHE_DIR = "/full/path/to/pubdata_cache")`
+
+**2. Create a `.Renviron` file in your project root directory:**\
+
+Add the following line to a file named `.Renviron` in the root folder of your project:
+
+`PUBDATA_CACHE_DIR="/full/path/to/pubdata_cache"`
+
+This file will be automatically read by R at startup to set environment variables.
+
+## Exploring available collections of the pubdata package
 Print list of all available collections
 
 `pubdata::ls()`
