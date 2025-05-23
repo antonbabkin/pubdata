@@ -1,19 +1,257 @@
+
 ---
-title: "R Notebook"
-output: html_notebook
+title: "BDS Dataset Exploration"
+output: html_document
 ---
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
-
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
-
-```{r}
-plot(cars)
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(pubdata)
 ```
 
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+```{r}
+Sys.setenv(PUBDATA_CACHE_DIR = "/Users/divi/Desktop/APL Research/pubdata_cache")
 
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+```
 
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+```{r}
+Sys.getenv("PUBDATA_CACHE_DIR")
+```
+
+```{r}
+library(pubdata)
+pubdata::ls("bds","raw_2022_met")
+pubdata::meta("bds", "raw_2022_met")
+
+```
+Steps:
+1) Look at metadata for all the datasets in bds -- gloassary website what each column means. 
+#Firms
+Values:
+Description: A simple count of the number of firms in the cell. For state level tables, a firm with establishments
+in multiple states be counted multiple times, once in each state, irrespective of the portion of the
+firm residing in that state.
+estabs
+
+#Estabs
+Values:
+Description: A simple count of the number of establishments in the cell.
+#Emp
+Values:
+Description: Paid employment consists of full and part-time employees, including salaried officers and
+executives of corporations, who are on the payroll in the pay period including March 12. Included
+are employees on paid sick leave, holidays, and vacations.
+#Denom
+Values:
+Description: Davis-Haltiwanger-Schuh (DHS) denominator. For time t, denom is the average of employment
+for times t and t-1. This variable attempts to prevent transitory shocks from creating a bias to the
+relationship between net growth from t-1 to t and size.
+#estabs_entry
+Values:
+Description: A count of establishments born within the cell during the last 12 months.
+#estabs_entry_rate
+Values:
+Description: 100 * (estabs_entry at time t divided by the average of estabs at t and t
+#estabs_exit
+Values:
+Description: A count of establishments exiting from within the cell during the last 12 months.
+#estabs_exit_rate
+Values:
+Description: 100 * (estabs_exit at time t divided by the average of estabs at t and t-1).
+#job_creation
+Values:
+Description: Count of all employment gains within the cell from expanding and opening establishments
+between the week of March 12 of the prior year to the current year.
+#job_creation_births
+Values:
+Description: Count of employment gains within the cell from establishment openings (births) between the week
+of March 12 of the prior year to the current year.
+#job_creation_continuers
+Values:
+Description: Count of employment gains within the cell from continuing establishments that expanded between
+the week of March 12 of the prior year to the current year.
+#job_creation_rate_births
+Values:
+Description: 100 * (job_creation_births / denom)
+#ob_creation_rate
+Values:
+Description: 100 * (job_creation / denom)
+#job_destruction
+Values:
+Description: Count of all employment losses with closing jobs. 
+#job_destruction_deaths
+Values:
+Description: Count of all employment losses within the cell from establishment closings (deaths) between the
+week of March 12 of the prior year to the current year.
+#job_destruction_continuers
+Values:
+Description: Count of employment losses within the cell from continuing establishments that contracted
+between the week of March 12 of the prior year to the current year.
+#job_destruction_rate_deaths
+Values:
+Description: 100 * (job_destruction_deaths / denom)
+#job_destruction_rate
+Values:
+Description: 100 * (job_destruction / denom)
+#Metro: 
+M=Metropolitan cities 
+N= Non metropolitan areas
+SW=Statewide with no location fixed. 
+U=Unclassified locations. 
+
+2) Explore the structure of 2-3 datasets and answer some questions like:
+    what each column means- datatype for each column 
+    trend in recent years before covid vs after covid 
+    for firms/employment/ entrey rate vs exit rate of establishments. 
+3) visualize the above. 
+4) yaml for each of the datasets and list possible relations
+
+
+
+
+```{r}
+df=pubdata::get("bds","raw_2022_met")
+df
+```
+
+```{r}
+library(readr)
+csv_url="/Users/divi/Desktop/APL Research/pubdata_cache/bds/raw/2022/bds2022_met.csv"
+df <- read_csv(csv_url)
+head(df)
+
+```
+
+```{r}
+str(df$estabs_exit_rate)
+```
+```{r}
+library(readr)
+csv_url="/Users/divi/Desktop/APL Research/pubdata_cache/bds/raw/2022/bds2022_met.csv"
+df <- read_csv(csv_url)
+head(df)
+```
+
+# Looking at pre/post covid for establishments exit rate in metro vs non metro areas. 
+Looking at years 2016-2020 vs 2020-2022.
+```{r}
+library(dplyr)
+library(readr)
+library(ggplot2)
+df <- df %>%
+  filter(year >= 2016 & year <= 2022) %>%
+  mutate(
+    covid_period = case_when(
+      year < 2020 ~ "pre_covid",
+      TRUE ~ "post_covid"
+    )
+  )
+#Checking if estabs_exit_rate is numeric
+str(df$estabs_exit_rate)
+# it is a chr--converting to numeric. 
+df <- df %>%
+  mutate(estabs_exit_rate = as.numeric(estabs_exit_rate))
+#cleaning: 
+#df <- df %>%
+  #mutate(estabs_exit_rate = parse_number(estabs_exit_rate))
+df <- df %>%
+  mutate(metro_status = case_when(
+    metro == "M" ~ "metro",
+    metro == "N" ~ "nonmetro",
+    metro == "U" ~ "unclassified",
+    metro == "SW"~"Statewide",
+  ))
+
+# Group by metro vs nonmetro and covid period, and summarize average exit rate
+summary_df=df %>%
+  group_by(year, metro) %>%
+  summarise(avg_exit_rate = mean(estabs_exit_rate, na.rm = TRUE), .groups = "drop")
+
+summary_df
+# Bar plot: Exit rate by year and metro/non-metro
+ggplot(summary_df, aes(x = factor(year), y = avg_exit_rate, fill = metro)) + geom_col(position = "dodge") + 
+   #side-by-side bars for metro and non-metro
+  geom_vline(xintercept = which(sort(unique(summary_df$year)) == 2020), linetype = "dashed", color = "red", size = 1) + labs( title = "Average Establishment Exit Rate by Year and Metro Status", x = "Year", y = "Average Exit Rate", fill = "Metro Status" ) + theme_minimal()
+
+```
+There was no signifcant change in establishment exit rates for metro vs metro pre and post covid. 
+```{r}
+library(readr)
+csv_url="/Users/divi/Desktop/APL Research/pubdata_cache/bds/raw/2022/bds2022_met.csv"
+df <- read_csv(csv_url)
+head(df)
+```
+
+# Look at relationship between job creation rate and establishments exit rate in metro vs non metro areas. 
+```{r}
+df_processed <- df %>%
+  mutate(
+    # First, ensure job_creation_rate and estabs_exit_rate are numeric
+    # suppressWarnings is used in case there are non-numeric values that become NA
+    job_creation_rate = suppressWarnings(as.numeric(job_creation_rate)),
+    estabs_exit_rate = suppressWarnings(as.numeric(estabs_exit_rate)),
+    # Now classify the metro column
+    metro_status = case_when(
+      metro == "M" ~ "Metro Area",       # Renaming for clarity in plot legend
+      metro == "N" ~ "Non-Metro Area",   # Renaming for clarity in plot legend
+      metro == "U" ~ "Unclassified",
+      metro == "SW" ~ "Statewide",
+      TRUE ~ "Other/Unknown" # Catches any other values not explicitly handled
+    )
+  ) %>%
+  # Remove rows where job_creation_rate or estabs_exit_rate might have become NA due to coercion
+  filter(!is.na(job_creation_rate) & !is.na(estabs_exit_rate))
+ggplot(df_processed, aes(x = job_creation_rate, y = estabs_exit_rate, color = metro)) +
+  geom_point(alpha = 0.6, size = 2) + # Add points for each data entry, with some transparency
+  geom_smooth(method = "lm", se = FALSE, aes(color = metro)) + # Add a linear trend line for each metro group
+  labs(
+    title = "Relationship Between Job Creation and Establishment Exit Rates",
+    subtitle = "Grouped by Metro Status",
+    x = "Job Creation Rate",
+    y = "Establishment Exit Rate",
+    color = "Metro Status" # Legend title for the color aesthetic
+  ) + scale_x_continuous()
+  scale_color_brewer(palette = "Set1") + # Use a colorblind-friendly palette
+  theme_minimal() + # Apply a minimalist theme for a clean look
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold"), # Center and bold the main title
+    plot.subtitle = element_text(hjust = 0.5), # Center the subtitle
+    legend.position = "bottom" # Place the legend at the bottom
+  )
+```
+For metro cities the job creation rate and teh establishment exit rate both seem low and the slope is neither negative or positive so there is no significant relationship between job creation rate and establishment exit rate. But for unclassified cities there seems to be an outlier and hence th ehigher establishment exit rates but there is also a slightly postive relationship between job creation rate adn establishment exit rates. This could be looked into further. 
+
+```{r}
+df
+```
+
+#BDS-Business dynamics statistics 
+```{r}
+pubdata::meta("bds", "raw_2022_met")
+
+```
+
+```{r}
+pubdata::meta("bds","raw_2022_st_cty")
+```
+
+```{r}
+pubdata::ls("bds")
+```
+
+```{r}
+install.packages("yaml")
+library(yaml)
+
+```
+
+```{r}
+meta_path <- system.file("extdata/bds/meta.yml", package = "pubdata")
+meta <- yaml::read_yaml(meta_path)
+
+```
+
+```{r}
+
+```
 
