@@ -17,6 +17,9 @@ Sys.setenv(PUBDATA_CACHE_DIR = "/Users/divi/Desktop/APL Research/pubdata_cache")
 ```{r}
 Sys.getenv("PUBDATA_CACHE_DIR")
 ```
+```{r}
+pubdata::ls()
+```
 
 ```{r}
 library(pubdata)
@@ -129,11 +132,13 @@ str(df$estabs_exit_rate)
 library(readr)
 csv_url="/Users/divi/Desktop/APL Research/pubdata_cache/bds/raw/2022/bds2022_met.csv"
 df <- read_csv(csv_url)
-head(df)
+df
 ```
 
 # Looking at pre/post covid for establishments exit rate in metro vs non metro areas. 
 Looking at years 2016-2020 vs 2020-2022.
+Unlcassified-- filter out. 
+Filter out statewide as well. 
 ```{r}
 library(dplyr)
 library(readr)
@@ -160,7 +165,8 @@ df <- df %>%
     metro == "N" ~ "nonmetro",
     metro == "U" ~ "unclassified",
     metro == "SW"~"Statewide",
-  ))
+  )) %>% 
+  filter(!metro_status %in% c("unclassified", "Statewide")) 
 
 # Group by metro vs nonmetro and covid period, and summarize average exit rate
 summary_df=df %>%
@@ -174,7 +180,7 @@ ggplot(summary_df, aes(x = factor(year), y = avg_exit_rate, fill = metro)) + geo
   geom_vline(xintercept = which(sort(unique(summary_df$year)) == 2020), linetype = "dashed", color = "red", size = 1) + labs( title = "Average Establishment Exit Rate by Year and Metro Status", x = "Year", y = "Average Exit Rate", fill = "Metro Status" ) + theme_minimal()
 
 ```
-There was no signifcant change in establishment exit rates for metro vs metro pre and post covid. 
+Looking at the bar graph above, we can see that the average exit rate fr non metropolitan counties has somewhat remained stagnant post Covid(and higher) while it was a little lower and was variable pre Covid. 
 ```{r}
 library(readr)
 csv_url="/Users/divi/Desktop/APL Research/pubdata_cache/bds/raw/2022/bds2022_met.csv"
@@ -184,47 +190,58 @@ head(df)
 
 # Look at relationship between job creation rate and establishments exit rate in metro vs non metro areas. 
 ```{r}
+library(dplyr)
+library(ggplot2)
+
+# Step 1: Clean and prepare the dataset
 df_processed <- df %>%
   mutate(
-    # First, ensure job_creation_rate and estabs_exit_rate are numeric
-    # suppressWarnings is used in case there are non-numeric values that become NA
     job_creation_rate = suppressWarnings(as.numeric(job_creation_rate)),
     estabs_exit_rate = suppressWarnings(as.numeric(estabs_exit_rate)),
-    # Now classify the metro column
     metro_status = case_when(
-      metro == "M" ~ "Metro Area",       # Renaming for clarity in plot legend
-      metro == "N" ~ "Non-Metro Area",   # Renaming for clarity in plot legend
+      metro == "M" ~ "Metro Area",
+      metro == "N" ~ "Non-Metro Area",
       metro == "U" ~ "Unclassified",
       metro == "SW" ~ "Statewide",
-      TRUE ~ "Other/Unknown" # Catches any other values not explicitly handled
+      TRUE ~ "Other/Unknown"
     )
   ) %>%
-  # Remove rows where job_creation_rate or estabs_exit_rate might have become NA due to coercion
-  filter(!is.na(job_creation_rate) & !is.na(estabs_exit_rate))
-ggplot(df_processed, aes(x = job_creation_rate, y = estabs_exit_rate, color = metro)) +
-  geom_point(alpha = 0.6, size = 2) + # Add points for each data entry, with some transparency
-  geom_smooth(method = "lm", se = FALSE, aes(color = metro)) + # Add a linear trend line for each metro group
+  # Step 2: Filter out NA and unwanted categories
+  filter(
+    !is.na(job_creation_rate),
+    !is.na(estabs_exit_rate),
+    !metro_status %in% c("Unclassified", "Statewide", "Other/Unknown")
+  )
+
+# Step 3: Plot
+ggplot(df_processed, aes(x = job_creation_rate, y = estabs_exit_rate, color = metro_status)) +
+  geom_point(alpha = 0.6, size = 2) +
+  geom_smooth(method = "lm", se = FALSE) +
   labs(
     title = "Relationship Between Job Creation and Establishment Exit Rates",
     subtitle = "Grouped by Metro Status",
     x = "Job Creation Rate",
     y = "Establishment Exit Rate",
-    color = "Metro Status" # Legend title for the color aesthetic
-  ) + scale_x_continuous()
-  scale_color_brewer(palette = "Set1") + # Use a colorblind-friendly palette
-  theme_minimal() + # Apply a minimalist theme for a clean look
+    color = "Metro Status"
+  ) +
+  scale_color_brewer(palette = "Set1") +
+  theme_minimal() +
   theme(
-    plot.title = element_text(hjust = 0.5, face = "bold"), # Center and bold the main title
-    plot.subtitle = element_text(hjust = 0.5), # Center the subtitle
-    legend.position = "bottom" # Place the legend at the bottom
+    plot.title = element_text(hjust = 0.5, face = "bold"),
+    plot.subtitle = element_text(hjust = 0.5),
+    legend.position = "bottom"
   )
+
 ```
-For metro cities the job creation rate and teh establishment exit rate both seem low and the slope is neither negative or positive so there is no significant relationship between job creation rate and establishment exit rate. But for unclassified cities there seems to be an outlier and hence th ehigher establishment exit rates but there is also a slightly postive relationship between job creation rate adn establishment exit rates. This could be looked into further. 
+For metro cities the job creation rate and teh establishment exit rate both seem low and the slope is neither negative or positive so there is no significant relationship between job creation rate and establishment exit rate. But for unclassified cities there seems to be an outlier and hence th ehigher establishment exit rates but there is also a slightly postive relationship between job creation rate adn establishment exit rates. This could be looked into further. While for metro areas there seems to be a linear relationship between job creation rate and establishment exit rate so we can run a linear regression model to establish a stronger relationship!
+
+Exit rates can be inflated so look out for it, run lin reg based on metro and non metro. 
 
 ```{r}
-df
+model <- lm(estabs_exit_rate ~ job_creation_rate + metro_status, data = df_processed)
+summary(model)
 ```
-
+Since the pvalue of this less than 0.01 we have significant evidence to say that there is a signifcant positive relationship between establishment exit rate and job creation rate. Also this model explains about 45.5% of the variability in establishment exit rate and on average the models prediction rate differes by 0.92% from teh actual exit rates.
 #BDS-Business dynamics statistics 
 ```{r}
 pubdata::meta("bds", "raw_2022_met")

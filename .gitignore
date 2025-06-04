@@ -29,3 +29,4 @@ pubdata/reseng
 .Rdata
 .httr-oauth
 .quarto
+enviroment.Renviron
