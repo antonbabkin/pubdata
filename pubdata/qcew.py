@@ -13,8 +13,8 @@ from .reseng.nbd import Nbd
 nbd = Nbd('pubdata')
 
 PATH = {
-    'source': nbd.root / 'data/source/qcew',
-    'proc': nbd.root / 'data/qcew.parquet'
+    'source': nbd.root / 'data/qcew/source',
+    'proc': nbd.root / 'data/qcew/qcew.parquet'
 }
 
 def _init_dirs():
@@ -39,7 +39,7 @@ def _get_src(year):
 
 def _test_get_src(redownload=False):
     cleanup(redownload)
-    for y in range(1990, 2022):
+    for y in range(1990, 2023):
         print(y, end=' ')
         _get_src(y)
 
@@ -128,7 +128,7 @@ def get_df(years, cols=None, filters=None):
 
 def _test_get_df(redownload=False):
     cleanup(redownload)
-    d = get_df(range(1990, 2022), 
+    d = get_df(range(1990, 2023), 
                ['year', 'area_fips', 'annual_avg_estabs', 'oty_annual_avg_estabs_pct_chg', 'disclosure_code'],
                [('agglvl_code', '==', '70')])
     assert len(d) > 0

@@ -1,0 +1,162 @@
+# BDS Collection Analysis Template
+# Author: Diveesha
+# Purpose: Document and explore the BDS collection datasets
+## 🗂️ BDS Collection Overview
+
+The **Business Dynamics Statistics (BDS)** is a dataset published by the U.S. Census Bureau that provides annual measures of business dynamics (e.g., job creation, job destruction, establishment openings/closings) in the U.S. economy, disaggregated by firm age, size, industry, and geography.
+
+BDS is compiled using the **Longitudinal Business Database (LBD)**, covering all employer businesses in the U.S. that have a valid EIN.
+
+🔗 Official documentation:  
+- [BDS Homepage](https://www.ers.usda.gov/data-products/rural-urban-continuum-codes)  
+- [Data Documentation](https://www.census.gov/programs-surveys/bds/technical-documentation/methodology.html)
+
+### 📦 Collection Structure in `pubdata`
+
+In the `pubdata` package, the BDS collection includes processed and raw datasets grouped by geography and revision year. Examples include:
+
+| Dataset Name       | Type    | Description                                       |
+|--------------------|---------|---------------------------------------------------|
+| `bds_2022_met`     | table   | BDS by metro/non-metro areas, 2022 revision      |
+| `raw_bds_2022_met` | raw     | Raw version of the above table                   |
+| `bds_2022_naics`   | table   | BDS by NAICS industry classification, 2022       |
+| `bds_2021_size`    | table   | BDS by firm size, 2021 revision                  |
+
+The goal of this notebook is to:
+- Document each dataset with structure, size, and contents
+- Provide variable-level metadata (codebooks)
+- Generate summary statistics
+- Explore usage and reproducibility templates for future research
+
+
+
+
+
+
+```{r}
+library(pubdata)
+library(readr)
+library(purrr)
+
+# Step 1: Get all dataset keys in the raw_2022_met collection
+dataset_keys <- pubdata::ls("bds", "raw_2022_met")
+
+# Step 2: Use pubdata::get() to get file paths, then read with read_csv
+df_list <- dataset_keys %>%
+  set_names() %>%
+  map(~ {
+    csv_path <- pubdata::get("bds", .x)  # assuming this returns a file path
+    read_csv(csv_path)
+  })
+
+# ✅ Check what's inside
+names(df_list)
+df_list[["raw_2022_met"]]
+
+
+```
+
+
+
+```{r}
+descriptions <- dataset_keys %>%
+  set_names() %>%
+  map_chr(~ pubdata::meta("bds", .x)$desc)
+  
+desc_df <- tibble(
+  key = names(descriptions),
+  description = descriptions
+)
+desc_df
+```
+
+
+# Dataset summary
+```{r}
+dataset_summary <- map_dfr(names(df_list), function(name) {
+  df <- df_list[[name]]
+  tibble(
+    Key = name,
+    Type = ifelse(grepl("^raw", name), "raw", "table"),
+    Description = desc_df$description,
+    Num_Variables = ifelse(is.null(dim(df)), NA, ncol(df)),
+    Num_Observations = ifelse(is.null(dim(df)), NA, nrow(df))
+  )
+})
+print("Dataset Summary:")
+print(dataset_summary)
+```
+
+# Generate codebook for a dataset
+
+```{r}
+generate_codebook <- function(df) {
+  tibble(
+    Variable = names(df),
+    Type = map_chr(df, ~ class(.x)[1]),
+    Description =  desc_df$description,
+  )
+}
+codebook_2022_met <- generate_codebook(dataset_keys)
+print("Codebook for bds_2022_met:")
+print(codebook_2022_met)
+```
+
+
+
+
+```{r}
+install.packages("collapsibleTree")
+```
+```{r}
+df_list
+```
+```{r}
+make_variable_skeleton <- function(df_list, file_path) {
+  df <- read_csv(file_path, show_col_types = FALSE)
+  tibble(
+    dataset_key = dataset_key,
+    variable = names(df),
+    description = NA_character_
+  )
+}
+```
+
+```{r}
+library(dplyr)
+library(purrr)
+library(collapsibleTree)
+
+generate_codebook <- function(df, desc_df, dataset_name) {
+  tibble(
+    Dataset = dataset_name,
+    Variable = names(df),
+    Description = map_chr(names(df), function(var) {
+      matched <- desc_df %>% filter(key == var)
+      if (nrow(matched) > 0) matched$description else "No description available"
+    })
+  )
+}
+
+codebook_bds_2022 <- generate_codebook(desc_df, desc_df$description, "raw_2022_met")
+
+```
+
+# Basic summary statistics for numeric columns
+
+```{r}
+basic_stats <- function(df) {
+  df %>%
+    summarise(across(where(is.numeric), list(
+      mean = ~mean(.x, na.rm = TRUE),
+      sd = ~sd(.x, na.rm = TRUE),
+      min = ~min(.x, na.rm = TRUE),
+      max = ~max(.x, na.rm = TRUE)
+    ), .names = "{.col}_{.fn}")) %>%
+    pivot_longer(cols = everything(), names_to = "stat", values_to = "value")
+}
+summary_stats_2022_met <- basic_stats(pubdata::bds_2022_met)
+print("Summary Stats for bds_2022_met:")
+print(summary_stats_2022_met)
+
+```

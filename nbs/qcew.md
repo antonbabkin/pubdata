@@ -5,7 +5,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.14.4
+    jupytext_version: 1.16.1
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -41,8 +41,8 @@ from pubdata.reseng.nbd import Nbd
 nbd = Nbd('pubdata')
 
 PATH = {
-    'source': nbd.root / 'data/source/qcew',
-    'proc': nbd.root / 'data/qcew.parquet'
+    'source': nbd.root / 'data/qcew/source',
+    'proc': nbd.root / 'data/qcew/qcew.parquet'
 }
 
 def _init_dirs():
@@ -77,20 +77,18 @@ def _get_src(year):
 
 def _test_get_src(redownload=False):
     cleanup(redownload)
-    for y in range(1990, 2022):
+    for y in range(1990, 2023):
         print(y, end=' ')
         _get_src(y)
 ```
 
 ```{code-cell} ipython3
-:tags: []
-
 _test_get_src()
 ```
 
 # Parquet dataset
 
-Save all years (1990-2021) as a single parquet dataset.
+Save all years (1990-2022) as a single parquet dataset.
 
 ```{code-cell} ipython3
 :tags: [nbd-module]
@@ -150,8 +148,6 @@ def _build_pq(year):
     df.to_parquet(path, engine='pyarrow', index=False)
 ```
 
-+++ {"tags": []}
-
 # Load dataset
 
 `disclosure_code` column exists in all years, but is has values only beginning in 2001.
@@ -189,7 +185,7 @@ def get_df(years, cols=None, filters=None):
 
 def _test_get_df(redownload=False):
     cleanup(redownload)
-    d = get_df(range(1990, 2022), 
+    d = get_df(range(1990, 2023), 
                ['year', 'area_fips', 'annual_avg_estabs', 'oty_annual_avg_estabs_pct_chg', 'disclosure_code'],
                [('agglvl_code', '==', '70')])
     assert len(d) > 0
@@ -200,9 +196,7 @@ def _test_get_df(redownload=False):
 Total employment in Dane county, Wisconsin.
 
 ```{code-cell} ipython3
-:tags: []
-
-get_df(range(1990, 2022), ['year', 'annual_avg_emplvl'], 
+get_df(range(1990, 2023), ['year', 'annual_avg_emplvl'], 
        [('agglvl_code', '==', '70'), ('area_fips', '==', '55025')])\
     .set_index('year').plot()
 ```
@@ -217,15 +211,11 @@ def test_all(redownload=False):
 ```
 
 ```{code-cell} ipython3
-:tags: []
-
 test_all(redownload=False)
 ```
 
 # Build this module
 
 ```{code-cell} ipython3
-:tags: []
-
 nbd.nb2mod('qcew.ipynb')
 ```

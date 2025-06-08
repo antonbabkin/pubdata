@@ -15,13 +15,14 @@ nbd = Nbd('pubdata')
 
 
 PATH = {
-    'source': nbd.root / 'data/source/agcensus',
-    'proc': nbd.root / 'data/agcensus',
+    'source': nbd.root / 'data/agcensus/source',
+    'proc': nbd.root / 'data/agcensus/agcensus.parquet',
     'pq_part': {
-        2002: nbd.root / 'data/agcensus/2002/part.pq',
-        2007: nbd.root / 'data/agcensus/2007/part.pq',
-        2012: nbd.root / 'data/agcensus/2012/part.pq',
-        2017: nbd.root / 'data/agcensus/2017/part.pq'
+        2002: nbd.root / 'data/agcensus/agcensus.parquet/2002/part.pq',
+        2007: nbd.root / 'data/agcensus/agcensus.parquet/2007/part.pq',
+        2012: nbd.root / 'data/agcensus/agcensus.parquet/2012/part.pq',
+        2017: nbd.root / 'data/agcensus/agcensus.parquet/2017/part.pq',
+        2022: nbd.root / 'data/agcensus/agcensus.parquet/2022/part.pq'
     }
 }
 
@@ -64,9 +65,10 @@ def _proc_qs_to_pq(year):
     del df['YEAR']
 
     # VALUE: convert to numeric and create flag variable
-    df['VALUE_F'] = df['VALUE'].astype(pd.CategoricalDtype(['NUM', '(D)', '(Z)'])).fillna('NUM')
+    df['VALUE_F'] = df['VALUE'].astype(pd.CategoricalDtype(['NUM', '(D)', '(Z)', '(X)'])).fillna('NUM')
     df['VALUE'] = pd.to_numeric(df['VALUE'].str.replace(',', ''), 'coerce')
-    assert (df['VALUE'].notna() == (df['VALUE_F'] == 'NUM')).all()
+    df.loc[df['VALUE_F'] == '(Z)', 'VALUE'] = 0
+    assert (df['VALUE'].notna() == df['VALUE_F'].isin(['NUM', '(Z)'])).all()
 
     # CV_%: convert to numeric and create flag variable
     df['CV_%_F'] = df['CV_%'].astype(pd.CategoricalDtype(['NUM', '(H)', '(D)', '(L)']))
@@ -212,7 +214,7 @@ def get_df(years, cols=None, filters=None):
 
 def test_get_df(redownload=False):
     cleanup(redownload)
-    d = get_df([2002, 2007, 2012, 2017], ['YEAR', 'SECTOR_DESC', 'VALUE'])
+    d = get_df([2002, 2007, 2012, 2017, 2022], ['YEAR', 'SECTOR_DESC', 'VALUE'])
     assert len(d) > 0
 
 
