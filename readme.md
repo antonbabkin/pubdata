@@ -4,70 +4,98 @@ Describing, tidying and providing usage examples for publicly available datasets
 
 # R package installation
 
-Ensure Rstudio is installed on to your computer if not install it. Follow the steps below on you Rstudio console to install the packages.
+Ensure Rstudio is installed on to your computer if not install it.
+Follow the steps below on you Rstudio console to install the packages.
 
 ```         
 install.packages("remotes")
 remotes::install_github("antonbabkin/pubdata@rpkg")
 ```
 
-Installation will likely request you to install and/or update additional packages. This is normal, as pubdata depends on a few packages such as tidyverse or arrow.
+Installation will likely request you to install and/or update additional packages.
+This is normal, as `pubdata` depends on a few packages such as `dplyr` or `arrow`.
 
-Pub data needs to know where you want to store the data that it downloads. To configure this location, run the following command in RStudio console:
+`pubdata` needs to know where you want to store the data that it downloads.
+To configure this location, run the following command in RStudio console.
 
-`Sys.setenv(PUBDATA_CACHE_DIR = "path/to/pubdata_cache")` Choose your preferred location on your computer while setting the pub data directory.
 
-This path can be any folder on your computer that you can write files to. Verify that the environment variable is set: `Sys.getenv("PUBDATA_CACHE_DIR")`
+```
+Sys.setenv(PUBDATA_CACHE_DIR = "path/to/pubdata_cache")
+``` 
 
-You should see the path that you just entered. This is a temporary setting, and you will need to redo it every time you restart your R session. We will configure it in a more persistent way later.
+Choose your preferred location on your computer while setting the `pubdata` directory.
+This path can be any folder on your computer that you can write files to.
+Verify that the environment variable is set: `Sys.getenv("PUBDATA_CACHE_DIR")`. 
+You should see the path that you just entered.
+This is a temporary setting, and you will need to redo it every time you restart your R session.
 
-# Checking R package is installed properly
+## Setting the `PUBDATA_CACHE_DIR` Environment Variable
 
-Try to call the following functions from pub data. They should produce no errors, print respective outputs, and download some data to the folder you specified earlier.
+To specify where the `pubdata` cache is stored, you need to set the `PUBDATA_CACHE_DIR` environment variable.
+There are two ways to do this:
 
-### Setting the `PUBDATA_CACHE_DIR` Environment Variable
-
-To specify where the pubdata cache is stored, you need to set the `PUBDATA_CACHE_DIR` environment variable. There are two ways to do this:
-
-**1. Set the environment variable directly in your R scripts:**\
-
+1. Set the environment variable directly in your R scripts.  
 Add this line near the start of your script, replacing the path with your actual cache directory:
 `Sys.setenv(PUBDATA_CACHE_DIR = "/full/path/to/pubdata_cache")`
 
-**2. Create a `.Renviron` file in your project root directory:**\
-
+2. Save the variable in the `.Renviron` file.
 Add the following line to a file named `.Renviron` in the root folder of your project:
-
-`PUBDATA_CACHE_DIR="/full/path/to/pubdata_cache"`
-
+`PUBDATA_CACHE_DIR="/full/path/to/pubdata_cache"`.
 This file will be automatically read by R at startup to set environment variables.
 
-## Exploring available collections of the pubdata package
-Print list of all available collections
 
-`pubdata::ls()`
+## Verifying the installation
 
-Print it with additional details `pubdata::ls(details=True)` Print metadata about the “ers_rural” collection `pubdata::meta("ers_rural")` Print all keys available in the “ers_rural” collection
+Try to call the following functions from `pubdata`.
+They should produce no errors, print respective outputs, and download some data to the folder you specified earlier.
 
-`pubdata::ls("ers_rural")`
+Print list of all available collections.
 
-print all keys in naics collection that match a regex pattern, with details
+```
+pubdata::ls()
+```
 
-`pubdata::ls("ers_rural", pattern = "2023", detail = TRUE)`
+Print it with additional details.
 
-print metadata about “ruc_2023” dataset in the “ers_rural” collection
+```
+pubdata::ls(details=True)
+```
 
-`pubdata::meta("ers_rural", key = "ruc_2023")`
+Print metadata about the “ers_rural” collection.
 
-download and read the “ruc_2023” dataset in the “ers_rural” collection
+```
+pubdata::meta("ers_rural")
+```
 
-`pubdata::get("ers_rural", key = "ruc_2023")`
+Print all keys available in the “ers_rural” collection.
 
-The last command should return a tibble (data frame) that you can assign to a variable and use in your code.
+```
+pubdata::ls("ers_rural")
+```
 
-If everything worked above, it would be great. Explore what other collections and data sets currently exist in the package, try to load them using the “get()” function with correct arguments.
+Print all keys in "naics" collection that match a regex pattern, with details.
 
-# Installation
+```
+pubdata::ls("ers_rural", pattern = "2023", detail = TRUE)
+```
+
+Print metadata about “ruc_2023” dataset in the “ers_rural” collection.
+
+```
+pubdata::meta("ers_rural", key = "ruc_2023")
+```
+
+Download and read the “ruc_2023” dataset in the “ers_rural” collection.
+This command returns a tibble (data frame) that you can assign to a variable and use in your code.
+
+```
+pubdata::get("ers_rural", key = "ruc_2023")
+```
+
+
+
+
+# Legacy Python installation
 
 1.  Install [mamba](https://mamba.readthedocs.io/en/latest/index.html) and [Quarto](https://quarto.org/). Configure [SSH authentication](https://docs.github.com/en/authentication/connecting-to-github-with-ssh) with GitHub.
 2.  Clone this repository with sub modules: `git clone --recurse-submodules git@github.com:antonbabkin/pubdata.git`
