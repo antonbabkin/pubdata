@@ -9,7 +9,7 @@ Follow the steps below on you Rstudio console to install the packages.
 
 ```         
 install.packages("remotes")
-remotes::install_github("antonbabkin/pubdata@rpkg")
+remotes::install_github("antonbabkin/pubdata")
 ```
 
 Installation will likely request you to install and/or update additional packages.
