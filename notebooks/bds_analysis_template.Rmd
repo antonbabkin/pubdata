@@ -1,44 +1,49 @@
 # BDS Collection Analysis Template
+
 # Author: Diveesha
+
 # Purpose: Document and explore the BDS collection datasets
+
 ## 🗂️ BDS Collection Overview
 
 The **Business Dynamics Statistics (BDS)** is a dataset published by the U.S. Census Bureau that provides annual measures of business dynamics (e.g., job creation, job destruction, establishment openings/closings) in the U.S. economy, disaggregated by firm age, size, industry, and geography.
 
 BDS is compiled using the **Longitudinal Business Database (LBD)**, covering all employer businesses in the U.S. that have a valid EIN.
 
-🔗 Official documentation:  
-- [BDS Homepage](https://www.ers.usda.gov/data-products/rural-urban-continuum-codes)  
+🔗 Official documentation:\
+- [BDS Homepage](https://www.ers.usda.gov/data-products/rural-urban-continuum-codes)\
 - [Data Documentation](https://www.census.gov/programs-surveys/bds/technical-documentation/methodology.html)
 
 ### 📦 Collection Structure in `pubdata`
 
 In the `pubdata` package, the BDS collection includes processed and raw datasets grouped by geography and revision year. Examples include:
 
-| Dataset Name       | Type    | Description                                       |
-|--------------------|---------|---------------------------------------------------|
-| `bds_2022_met`     | table   | BDS by metro/non-metro areas, 2022 revision      |
-| `raw_bds_2022_met` | raw     | Raw version of the above table                   |
-| `bds_2022_naics`   | table   | BDS by NAICS industry classification, 2022       |
-| `bds_2021_size`    | table   | BDS by firm size, 2021 revision                  |
+| Dataset Name       | Type  | Description                                 |
+|--------------------|-------|---------------------------------------------|
+| `bds_2022_met`     | table | BDS by metro/non-metro areas, 2022 revision |
+| `raw_bds_2022_met` | raw   | Raw version of the above table              |
+| `bds_2022_naics`   | table | BDS by NAICS industry classification, 2022  |
+| `bds_2021_size`    | table | BDS by firm size, 2021 revision             |
 
-The goal of this notebook is to:
-- Document each dataset with structure, size, and contents
-- Provide variable-level metadata (codebooks)
-- Generate summary statistics
-- Explore usage and reproducibility templates for future research
-
-
-
-
-
+The goal of this notebook is to: - Document each dataset with structure, size, and contents - Provide variable-level metadata (codebooks) - Generate summary statistics - Explore usage and reproducibility templates for future research
 
 ```{r}
 library(pubdata)
 library(readr)
 library(purrr)
+library(dplyr)
+library(tidyr)
+```
 
+
+```{r}
+Sys.getenv("PUBDATA_CACHE_DIR")
+
+```
+
+```{r}
 # Step 1: Get all dataset keys in the raw_2022_met collection
+library(tidyverse)
 dataset_keys <- pubdata::ls("bds", "raw_2022_met")
 
 # Step 2: Use pubdata::get() to get file paths, then read with read_csv
@@ -52,11 +57,7 @@ df_list <- dataset_keys %>%
 # ✅ Check what's inside
 names(df_list)
 df_list[["raw_2022_met"]]
-
-
 ```
-
-
 
 ```{r}
 descriptions <- dataset_keys %>%
@@ -70,8 +71,8 @@ desc_df <- tibble(
 desc_df
 ```
 
-
 # Dataset summary
+
 ```{r}
 dataset_summary <- map_dfr(names(df_list), function(name) {
   df <- df_list[[name]]
@@ -102,15 +103,14 @@ print("Codebook for bds_2022_met:")
 print(codebook_2022_met)
 ```
 
-
-
-
 ```{r}
 install.packages("collapsibleTree")
 ```
+
 ```{r}
 df_list
 ```
+
 ```{r}
 make_variable_skeleton <- function(df_list, file_path) {
   df <- read_csv(file_path, show_col_types = FALSE)
@@ -120,6 +120,39 @@ make_variable_skeleton <- function(df_list, file_path) {
     description = NA_character_
   )
 }
+```
+
+```{r}
+library(tidyverse)
+df_variables %>%
+  bind_rows(.id = "key") %>%
+  relocate(key, variable, description) %>%
+  mutate(value = TRUE) %>%
+  pivot_wider(id_cols = key, names_from = variable) %>%
+  select(key, metro:esizecoarse)
+
+```
+
+```{r}
+df_variables <- list()
+for (key in pubdata::ls("bds")) {
+  df_variables[[key]] <- tibble(
+    variable = names(pubdata::meta("bds", key, print = FALSE)$schema),
+    description = pubdata::meta("bds", key, print = FALSE)$schema %>% map_chr(~ .x$desc)
+  )
+}
+df_variables %>%
+  bind_rows(.id = "key") %>%
+  relocate(key, variable, description)
+
+df_variables <- list()
+for (key in pubdata::ls("bds")) {
+  df_variables[[key]] <- tibble(
+    variable = names(pubdata::meta("bds", key, print = FALSE)$schema),
+    description = pubdata::meta("bds", key, print = FALSE)$schema %>% map_chr(~ .x$desc)
+  )
+}
+
 ```
 
 ```{r}
@@ -159,4 +192,49 @@ summary_stats_2022_met <- basic_stats(pubdata::bds_2022_met)
 print("Summary Stats for bds_2022_met:")
 print(summary_stats_2022_met)
 
+```
+
+```{r}
+library(pubdata)
+library(tidyverse)
+
+# Step 1: Get variable metadata for each dataset
+df_variables <- map(pubdata::ls("bds"), function(key) {
+  meta <- pubdata::meta("bds", key, print = FALSE)$schema
+  tibble(
+    variable = names(meta),
+    description = map_chr(meta, ~ .x$desc)
+  )
+}) %>%
+  set_names(pubdata::ls("bds"))  # name the list by dataset
+
+# Step 2: Combine into a long dataframe
+df_all_vars <- bind_rows(df_variables, .id = "key")
+
+# Step 3: (Optional) Make a wide matrix: which dataset has which variable
+df_wide <- df_all_vars %>%
+  mutate(value = TRUE) %>%
+  pivot_wider(id_cols = key, names_from = variable, values_from = value, values_fill = FALSE)
+
+df_all_vars
+df_wide
+```
+
+```{r}
+df_tree <- df_all_vars %>%
+  mutate(Collection = "bds") %>%
+  select(Collection, Dataset = key, Variable = variable, Description = description)
+df_tree
+```
+
+```{r}
+library(collapsibleTree)
+
+collapsibleTree(
+  df_tree,
+  hierarchy = c("Collection", "Dataset", "Variable"),
+  tooltip = TRUE,
+  collapsed = FALSE
+)
+#
 ```
