@@ -1,5 +1,5 @@
 Version: 1.0
-ProjectId: 7211d1eb-b1e1-4838-8847-b9f8dd206723
+ProjectId: ed4d20bf-4a6e-4ece-a226-b9681c29f319
 
 RestoreWorkspace: No
 SaveWorkspace: No
@@ -21,3 +21,5 @@ BuildType: Package
 PackageUseDevtools: Yes
 PackageInstallArgs: --no-multiarch --with-keep.source
 PackageRoxygenize: rd,collate,namespace
+
+MarkdownWrap: Sentence

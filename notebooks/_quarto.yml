@@ -1,0 +1,24 @@
+project:
+  type: website
+  render:
+    - index.qmd
+    - bds.qmd
+  post-render: touch _site/.nojekyll
+
+website:
+  title: "pubdata"
+  navbar:
+    background: primary
+    left:
+      - text: Home
+        href: index.qmd
+      - text: BDS
+        href: bds.qmd
+
+format:
+  html:
+    theme: cosmo
+    toc: true
+
+
+

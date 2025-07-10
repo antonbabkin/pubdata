@@ -1,0 +1,34 @@
+---
+title: "BDS: Business Dynamics Database"
+format:
+  html:
+    toc: true
+    code-overflow: wrap
+    embed-resources: true
+    df-print: paged
+---
+
+```{r}
+#| code-fold: true
+#| output: false
+library(tidyverse)
+```
+
+
+Placeholder page for `bds` collection.
+
+## datasets
+
+```{r}
+pubdata::ls("bds", detail = TRUE)
+```
+
+## example
+
+```{r}
+pubdata::get("bds", "2022_met") %>%
+  filter(metro %in% c("M", "N")) %>%
+  ggplot() +
+  geom_line(aes(year, estabs_entry_rate, color = metro))
+```
+
