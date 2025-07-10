@@ -2,26 +2,20 @@ data/
 datacache/
 tmp/
 man/
-
 # user settings and environment
 .Renviron
 renv/
-
 # quarto files
 *_files/
 *.html
 _site/
-
 .ipynb_checkpoints/
 *.pyc
-
 # version notebooks in markdown format with jupytext
 *.ipynb
-
 # symbolic links to packages: OS dependent, created on init
 nbs/pubdata
 pubdata/reseng
-
 # other
 .DS_Store
 .Rproj.user
@@ -30,3 +24,5 @@ pubdata/reseng
 .httr-oauth
 .quarto
 enviroment.Renviron
+renv.lock
+cache
