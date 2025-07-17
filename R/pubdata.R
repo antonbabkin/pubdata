@@ -7,12 +7,13 @@ collections <- c(
   "bea_io",
   "bea_reg",
   "ers_rural",
-  "naics"
+  "naics",
+  "qcew"
 )
 
 
-# memory cache object
-memory <- cachem::cache_mem()
+# memory cache object, limit = 4gb
+memory <- cachem::cache_mem(max_size = 4 * 1024^3)
 
 
 #' List available collections or datasets within a collection
@@ -95,7 +96,6 @@ meta <- function(collection, key = NULL, print = TRUE) {
 
 #' Get data object
 #'
-#'
 #' @param collection Name of a collection.
 #' @param key Data object key.
 #' @returns Tidy table or path to raw data file.
@@ -104,7 +104,10 @@ get <- function(collection, key) {
   # return from memory cache if exists
   memkey <- paste0(collection, "_", key)
   value <- memory$get(memkey)
-  if (!cachem::is.key_missing(value)) return(value)
+  if (!cachem::is.key_missing(value)) {
+    logger::log_debug("memory cache get: \"{collection}:{key}\"")
+    return(value)
+  }
 
   # check if disk cache exists
   value <- cache_read(collection, key)
@@ -116,7 +119,21 @@ get <- function(collection, key) {
     cache_write(collection, key, value)
   }
   memory$set(memkey, value)
+  logger::log_debug("memory cache set: \"{collection}:{key}\"")
   value
+}
+
+#' Absolute path to data object on disk
+#'
+#' If the file does not exist, a warning will be given.
+#' @param collection Name of a collection.
+#' @param key Data object key.
+#' @returns Character absolute path to file.
+#' @export
+path <- function(collection, key) {
+  p <- pubdata_path(collection, meta(collection, key, print = FALSE)$path)
+  if (!file.exists(p)) logger::log_warn("file for \"{collection}:{key}\" does not exist yet, call get(\"{collection}\", \"{key}\") to create it")
+  p
 }
 
 

@@ -13,6 +13,7 @@ Imports:
     cachem,
     dplyr,
     glue,
+    httr2,
     logger,
     magrittr,
     purrr,

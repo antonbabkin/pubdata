@@ -1,0 +1,299 @@
+collection: qcew
+desc: Quarterly Census of Employment and Wages (QCEW)
+urls:
+  "Home":
+    "https://www.bls.gov/cew/"
+  "Data Files":
+    "https://www.bls.gov/cew/downloadable-data-files.htm"
+  "Methods":
+    "https://www.bls.gov/cew/methods-overview.htm"
+
+
+
+data:
+  # ---- code titles
+  raw_meta_naics_area:
+    desc: Geographic Area Codes and Titles, NAICS-based
+    type: raw
+    path: raw/meta_naics/area-titles-csv.csv
+    url: https://www.bls.gov/cew/classifications/areas/area-titles-csv.csv
+  raw_meta_naics_own:
+    desc: Ownership Codes, NAICS-based
+    type: raw
+    path: raw/meta_naics/ownership-titles-csv.csv
+    url: https://www.bls.gov/cew/classifications/ownerships/ownership-titles-csv.csv
+  raw_meta_naics_ind:
+    desc: Industry Codes and Titles, NAICS-based
+    type: raw
+    path: raw/meta_naics/industry-titles.csv
+    url: https://www.bls.gov/cew/classifications/industry/industry-titles.csv
+  raw_meta_naics_agg:
+    desc: Aggregation Level Codes, NAICS-based
+    type: raw
+    path: raw/meta_naics/agg-level-titles-csv.csv
+    url: https://www.bls.gov/cew/classifications/aggregation/agg-level-titles-csv.csv
+  raw_meta_naics_size:
+    desc: Establishment Size Classes, NAICS-based
+    type: raw
+    path: raw/meta_naics/size-titles-csv.csv
+    url: https://www.bls.gov/cew/classifications/size/size-titles-csv.csv
+
+  meta_naics_area:
+    desc: Geographic Area Codes and Titles, NAICS-based
+    type: table
+    path: proc/meta_naics/area.pq
+    depends: raw_meta_naics_area
+    schema:
+      area_fips:
+        desc: Area code
+        type: character
+      area_title:
+        desc: Area title
+        type: character
+  meta_naics_own:
+    desc: Ownership Codes, NAICS-based
+    type: table
+    path: proc/meta_naics/own.pq
+    depends: raw_meta_naics_own
+    schema:
+      own_code:
+        desc: Ownership code
+        type: character
+      own_title:
+        desc: Ownership title
+        type: character
+  meta_naics_ind:
+    desc: Industry Codes and Titles, NAICS-based
+    type: table
+    path: proc/meta_naics/ind.pq
+    depends: raw_meta_naics_ind
+    schema:
+      industry_code:
+        desc: Industry code
+        type: character
+      industry_title:
+        desc: Industry title
+        type: character
+  meta_naics_agg:
+    desc: Aggregation Level Codes, NAICS-based
+    type: table
+    path: proc/meta_naics/agg.pq
+    depends: raw_meta_naics_agg
+    schema:
+      agglvl_code:
+        desc: Aggregation level code
+        type: character
+      agglvl_title:
+        desc: Aggregation level title
+        type: character
+  meta_naics_size:
+    desc: Establishment Size Classes, NAICS-based
+    type: table
+    path: proc/meta_naics/size.pq
+    depends: raw_meta_naics_size
+    schema:
+      size_code:
+        desc: Establishment size class code
+        type: character
+      size_title:
+        desc: Establishment size class title
+        type: character
+
+
+  # ---- annual NAICS files
+  raw_naics_ann_2024: &raw_naics_ann
+    mask: "raw_naics_ann_{year}"
+    desc: "NAICS-based, single file, annual averages, {year}"
+    type: raw
+    path: "raw/naics/annual_singlefile/{year}.zip"
+    url: "https://data.bls.gov/cew/data/files/{year}/csv/{year}_annual_singlefile.zip"
+  raw_naics_ann_2023: *raw_naics_ann
+  raw_naics_ann_2022: *raw_naics_ann
+  raw_naics_ann_2021: *raw_naics_ann
+  raw_naics_ann_2020: *raw_naics_ann
+  raw_naics_ann_2019: *raw_naics_ann
+  raw_naics_ann_2018: *raw_naics_ann
+  raw_naics_ann_2017: *raw_naics_ann
+  raw_naics_ann_2016: *raw_naics_ann
+  raw_naics_ann_2015: *raw_naics_ann
+  raw_naics_ann_2014: *raw_naics_ann
+  raw_naics_ann_2013: *raw_naics_ann
+  raw_naics_ann_2012: *raw_naics_ann
+  raw_naics_ann_2011: *raw_naics_ann
+  raw_naics_ann_2010: *raw_naics_ann
+  raw_naics_ann_2009: *raw_naics_ann
+  raw_naics_ann_2008: *raw_naics_ann
+  raw_naics_ann_2007: *raw_naics_ann
+  raw_naics_ann_2006: *raw_naics_ann
+  raw_naics_ann_2005: *raw_naics_ann
+  raw_naics_ann_2004: *raw_naics_ann
+  raw_naics_ann_2003: *raw_naics_ann
+  raw_naics_ann_2002: *raw_naics_ann
+  raw_naics_ann_2001: *raw_naics_ann
+  raw_naics_ann_2000: *raw_naics_ann
+  raw_naics_ann_1999: *raw_naics_ann
+  raw_naics_ann_1998: *raw_naics_ann
+  raw_naics_ann_1997: *raw_naics_ann
+  raw_naics_ann_1996: *raw_naics_ann
+  raw_naics_ann_1995: *raw_naics_ann
+  raw_naics_ann_1994: *raw_naics_ann
+  raw_naics_ann_1993: *raw_naics_ann
+  raw_naics_ann_1992: *raw_naics_ann
+  raw_naics_ann_1991: *raw_naics_ann
+  raw_naics_ann_1990: *raw_naics_ann
+
+  naics_ann_2024: &naics_ann
+    mask: "naics_ann_{year}"
+    desc: "NAICS-based, single file, annual averages, {year}"
+    type: table
+    path: proc/naics/annual_singlefile/{year}.pq
+    depends: "raw_naics_ann_{year}"
+    schema:
+      area_fips:
+        desc: 5-character FIPS code
+        type: character
+      own_code:
+        desc: 1-character Ownership code
+        type: character
+      industry_code:
+        desc: 6-character Industry Code (NAICS, SuperSector)
+        type: character
+      agglvl_code:
+        desc: 2-character aggregation level code
+        type: character
+      size_code:
+        desc: 1-character size code
+        type: character
+      year:
+        desc: 4-character year
+        type: integer
+      qtr:
+        desc: 1-character quarter (always A for annual)
+        type: character
+      disclosure_code:
+        desc: 1-character disclosure code (either ' '(blank) or 'N' not disclosed)
+        type: character
+      annual_avg_estabs:
+        desc: Annual average of quarterly establishment counts for a given year
+        type: number
+      annual_avg_emplvl:
+        desc: Annual average of monthly employment levels for a given year
+        type: number
+      total_annual_wages:
+        desc: Sum of the four quarterly total wage levels for a given year
+        type: number
+      taxable_annual_wages:
+        desc: Sum of the four quarterly total taxable wage totals for a given year
+        type: number
+      annual_contributions:
+        desc: Sum of the four quarterly contribution totals for a given year
+        type: number
+      annual_avg_wkly_wage:
+        desc: Average weekly wage based on the 12-monthly employment levels and total annual wage levels
+        type: number
+      avg_annual_pay:
+        desc: Average annual pay based on employment and wage levels for a given year
+        type: number
+      lq_disclosure_code:
+        desc: 1-character location-quotient disclosure code (either '' (blank) or 'N' not disclosed)
+        type: character
+      lq_annual_avg_estabs:
+        desc: Location quotient of annual average establishment count relative to the U.S. (Rounded to hundredths place)
+        type: number
+      lq_annual_avg_emplvl:
+        desc: Location quotient of annual average employment relative to the U.S. (Rounded to hundredths place)
+        type: number
+      lq_total_annual_wages:
+        desc: Location quotient of total annual wages relative to the U.S. (Rounded to hundredths place)
+        type: number
+      lq_taxable_annual_wages:
+        desc: Location quotient of taxable annual wages relative to the U.S. (Rounded to hundredths place)
+        type: number
+      lq_annual_contributions:
+        desc: Location quotient of total annual contributions relative to the U.S. (Rounded to hundredths place)
+        type: number
+      lq_annual_avg_wkly_wage:
+        desc: Location quotient of annual average weekly wage relative to the U.S. (Rounded to hundredths place)
+        type: number
+      lq_avg_annual_pay:
+        desc: Location quotient of annual average pay relative to the U.S. (Rounded to hundredths place)
+        type: number
+      oty_disclosure_code:
+        desc: 1-character over-the-year disclosure code (either ' '(blank) or 'N' not disclosed)
+        type: character
+      oty_annual_avg_estabs_chg:
+        desc: Over-the-year change in annual average establishments for a given year
+        type: number
+      oty_annual_avg_estabs_pct_chg:
+        desc: Over-the-year percent change in annual average establishments for a given year (Rounded to the tenths place)
+        type: number
+      oty_annual_avg_emplvl_chg:
+        desc: Over-the-year change in annual average employment for a given year
+        type: number
+      oty_annual_avg_emplvl_pct_chg:
+        desc: Over-the-year percent change in annual average employment for a given year (Rounded to the tenths place)
+        type: number
+      oty_total_annual_wages_chg:
+        desc: Over-the-year change in the total annual wages for a given year
+        type: number
+      oty_total_annual_wages_pct_chg:
+        desc: Over-the-year percent change in total annual wages for a given year (Rounded to the tenths place)
+        type: number
+      oty_taxable_annual_wages_chg:
+        desc: Over-the-year change in taxable annual wages for a given year
+        type: number
+      oty_taxable_annual_wages_pct_chg:
+        desc: Over-the-year percent change in taxable annual wages for a given year (Rounded to the tenths place)
+        type: number
+      oty_annual_contributions_chg:
+        desc: Over-the-year change in annual contributions for a given year
+        type: number
+      oty_annual_contributions_pct_chg:
+        desc: Over-the-year percent change in annual contributions for a given year (Rounded to the tenths place)
+        type: number
+      oty_annual_avg_wkly_wage_chg:
+        desc: Over-the-year change in annual average weekly wage for a given year
+        type: number
+      oty_annual_avg_wkly_wage_pct_chg:
+        desc: Over-the-year percent change in annual average weekly wage for a given year (Rounded to the tenths place)
+        type: number
+      oty_avg_annual_pay_chg:
+        desc: Over-the-year change in average annual pay for a given year
+        type: number
+      oty_avg_annual_pay_pct_chg:
+        desc: Over-the-year percent change in average annual pay for a given year (Rounded to the tenths place)
+        type: number
+  naics_ann_2023: *naics_ann
+  naics_ann_2022: *naics_ann
+  naics_ann_2021: *naics_ann
+  naics_ann_2020: *naics_ann
+  naics_ann_2019: *naics_ann
+  naics_ann_2018: *naics_ann
+  naics_ann_2017: *naics_ann
+  naics_ann_2016: *naics_ann
+  naics_ann_2015: *naics_ann
+  naics_ann_2014: *naics_ann
+  naics_ann_2013: *naics_ann
+  naics_ann_2012: *naics_ann
+  naics_ann_2011: *naics_ann
+  naics_ann_2010: *naics_ann
+  naics_ann_2009: *naics_ann
+  naics_ann_2008: *naics_ann
+  naics_ann_2007: *naics_ann
+  naics_ann_2006: *naics_ann
+  naics_ann_2005: *naics_ann
+  naics_ann_2004: *naics_ann
+  naics_ann_2003: *naics_ann
+  naics_ann_2002: *naics_ann
+  naics_ann_2001: *naics_ann
+  naics_ann_2000: *naics_ann
+  naics_ann_1999: *naics_ann
+  naics_ann_1998: *naics_ann
+  naics_ann_1997: *naics_ann
+  naics_ann_1996: *naics_ann
+  naics_ann_1995: *naics_ann
+  naics_ann_1994: *naics_ann
+  naics_ann_1993: *naics_ann
+  naics_ann_1992: *naics_ann
+  naics_ann_1991: *naics_ann
+  naics_ann_1990: *naics_ann

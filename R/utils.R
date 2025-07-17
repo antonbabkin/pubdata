@@ -28,6 +28,25 @@ mkdir <- function(p) {
 }
 
 
+
+#' Custom download function for instances where download.file() does not work
+download_file <- function(url, path) {
+  mkdir(path)
+  download_status <- try(utils::download.file(url, path))
+  if (download_status == 0) {
+    logger::log_info("download success: ", url, " to ", path)
+  } else {
+    logger::log_warn("download failed, attempting alternative method... ", url)
+    req <- httr2::request(url) |>
+      httr2::req_headers(
+        `User-Agent` = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:139.0) Gecko/20100101 Firefox/139.0",
+      )
+    resp <- httr2::req_perform(req, path)
+    logger::log_info("download success: ", url, " to ", path)
+  }
+}
+
+
 #' Fill placeholders in meta nodes with values parsed from key
 #'
 #' Parse key components from using mask.
@@ -70,4 +89,7 @@ glue_meta <- function(key, meta) {
   meta$keys <- keys
   meta
 }
+
+
+
 

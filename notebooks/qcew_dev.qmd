@@ -1,0 +1,106 @@
+---
+title: "QCEW development"
+format: html
+---
+
+Development notebook for QCEW.
+
+
+```{r}
+library(tidyverse)
+```
+
+
+# downloadable files
+
+"By Area" and "By Industry" downloads are zipped collections of individual area/industry files.
+It is easier to work with the single file instead.
+
+
+```{r}
+df <- read_csv("tmp/qcew/2024_annual_singlefile.zip")
+df %>% head()
+```
+
+```{r}
+ls("qcew")
+
+meta("qcew", "raw_naics_ann_1990")
+
+
+
+```
+
+
+# schema
+
+File layout is downloadable.
+Use to construct schema section for YAML file.
+
+```{r}
+# download_file("https://www.bls.gov/cew/about-data/downloadable-file-layouts/annual/naics-based-annual-layout-csv.csv", "tmp/qcew/naics-based-annual-layout-csv.csv")
+
+df <- read_csv("tmp/qcew/naics-based-annual-layout-csv.csv", show_col_types = FALSE)
+s <- list()
+for (i in 1:nrow(df)) {
+  r <- df[i, ]
+  if (grepl("Excluded from singlefile", r$field_description)) next
+  s1 <- list(
+    desc = r$field_description,
+    type = switch(r$data_type, Text = "character", Numeric = "number")
+  )
+  if (r$field_name == "year") s1$type = "integer"
+  s[[r$field_name]] <- s1
+}
+cat(yaml::as.yaml(s))
+
+```
+
+
+# categoricals
+
+Classification codes and titles are available as downloadable files.
+Prepare them as dataframes as well.
+
+```{r}
+ls("qcew", "meta")
+
+qcew_get("raw_meta_naics_size") |>
+  readr::read_csv()
+
+qcew_get("meta_naics_size")
+
+
+```
+
+
+# main tables
+
+
+```{r}
+
+for (y in 1990:2024) {
+  x <- get("qcew", paste0("naics_ann_", y))
+  cat(y, dim(x), "\n")
+}
+
+```
+
+
+```{r}
+# full dataset takes a few seconds to read from disk cache
+logger::log_threshold(logger::DEBUG)
+get("qcew", "naics_ann_2020")
+```
+
+```{r}
+# quering from parquet path is fast
+path("qcew", "naics_ann_2020") %>%
+  arrow::open_dataset() %>%
+  filter(own_code == "5", agglvl_code == "51") %>%
+  select(area_fips, annual_avg_estabs) %>%
+  collect()
+
+path("qcew", "naics_ann_1990")
+```
+
