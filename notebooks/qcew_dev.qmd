@@ -68,8 +68,11 @@ ls("qcew", "meta")
 qcew_get("raw_meta_naics_size") |>
   readr::read_csv()
 
+qcew_get("meta_naics_area")
+qcew_get("meta_naics_own")
+qcew_get("meta_naics_ind")
+qcew_get("meta_naics_agg")
 qcew_get("meta_naics_size")
-
 
 ```
 
@@ -87,14 +90,16 @@ for (y in 1990:2024) {
 ```
 
 
+Full dataset takes a few seconds to read from disk cache.
+
 ```{r}
-# full dataset takes a few seconds to read from disk cache
 logger::log_threshold(logger::DEBUG)
 get("qcew", "naics_ann_2020")
 ```
 
+Quering from parquet path is fast.
+
 ```{r}
-# quering from parquet path is fast
 path("qcew", "naics_ann_2020") %>%
   arrow::open_dataset() %>%
   filter(own_code == "5", agglvl_code == "51") %>%
@@ -103,4 +108,18 @@ path("qcew", "naics_ann_2020") %>%
 
 path("qcew", "naics_ann_1990")
 ```
+
+
+All years can be also accessed as a single parquet dataset.
+
+```{r}
+path("qcew", "naics_ann_2020") %>%
+  dirname() %>%
+  arrow::open_dataset() %>%
+  filter(agglvl_code == "10") %>%
+  select(year, annual_avg_estabs, annual_avg_emplvl) %>%
+  collect()
+
+```
+
 
