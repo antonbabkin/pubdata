@@ -1,0 +1,126 @@
+---
+title: "ERS Rural Database"
+format: html
+editor: visual
+---
+
+```{r}
+#| results: hide
+#| echo: false
+#| message: false
+#| warning: false
+library(dplyr)
+library(tidyverse)
+library(knitr)
+```
+
+# Rural-Urban Continuum Codes
+
+[Data source from the Economic Research Services](https://www.ers.usda.gov/data-products/rural-urban-continuum-codes)
+
+## Overview
+
+The 2023 Rural-Urban Continuum Codes distinguish U.S. metropolitan (metro) counties by the population size of their metro area, and nonmetropolitan (nonmetro) counties by their degree of urbanization and adjacency to a metro area. The division of counties as either metro or nonmetro, based on the 2023 Office of Management and Budget (OMB) delineation of metro areas, is further subdivided into three metro and six nonmetro categories. Each county and census-designated county-equivalent in the United States, including those in outlying territories, is assigned one of these nine codes. The codes allow researchers, policy makers, and others to view county-level data by finer residential groups—beyond metro and nonmetro—when analyzing trends related to population density and metro influence.
+
+Developed in 1974, the Rural-Urban Continuum Codes have been updated each decade since (1983, 1993, 2003, 2013, 2023). Changes in the criteria used to define urban and metro areas over time has reduced the comparability of the Rural-Urban Continuum Codes over each of the past five decades. For the 2023 version, the threshold for urban area population was raised from at least 2,500 to 5,000 people, reflecting changes to urban area qualification introduced by the U.S. Census Bureau in 2020.
+
+See the [Documentation](https://www.ers.usda.gov/data-products/rural-urban-continuum-codes/documentation) for details and a map of the codes.
+
+(Overview from [ERS](https://www.ers.usda.gov/data-products/rural-urban-continuum-codes/documentation))
+
+Datasets are available for 2003 and 2023.
+
+## ruc_2003
+
+#### Load Data
+
+```{r}
+#| results: hide
+ruc_2003 = pubdata::get("ers_rural", "ruc_2003")
+```
+
+```{r}
+#| echo: false
+```
+
+This returns a tibble.
+
+#### Schema
+| Field | Type | Description |
+|-------------------|-------------------|----------------------------------|
+| `fips` | string | County FIPS Code |
+| `state` | string | State abbreviation |
+| `county_name` | string | County Name |
+| `ruc_code_1993` | number | 1993 Rural-urban Continuum Code |
+| `ruc_code_2003` | number | 2003 Rural-urban Continuum Code |
+| `population_2000` | number | 2000 Population |
+| `commute_pct` | number | Percent of workers in nonmetro counties commuting to metro central counties |
+| `ruc_desc_2003` | string | Description for 2003 codes |
+
+#### Dimensions
+ruc_2003 has `r nrow(ruc_2003)` rows and `r ncol(ruc_2003)` columns.
+
+#### A Glimpse at the Data
+```{r}
+#| results: hide
+head(ruc_2003)
+```
+```{r}
+#| echo: false
+#| column: page
+kable(head(ruc_2003))
+```
+
+#### Summary Statistics
+```{r}
+ggplot(ruc_2003, aes(x = factor(ruc_code_2003))) + 
+  geom_bar() + 
+  labs(
+    x = "2003 Rural-Urban Continuum Codes",
+    y = "Frequency",
+    title = "Counting Counties in Each RUCC Code"
+  )
+```
+
+```{r}
+metro_level <- function(code) {
+  if (code >= 1 & code <= 3) {return("Metro county")}
+  else if (code %% 2 == 0) {return("Non-metro county adjacent to a metro area")}
+  else {return("Non-metro county not adjacent to a metro area")}
+}
+
+m <- sapply(as.numeric(ruc_2003$ruc_code_2003), FUN = metro_level)
+prop.table(table(m))
+
+```
+```{r}
+metro <- filter(ruc_2003, as.numeric(ruc_code_2003) >= 1, as.numeric(ruc_code_2003) <= 3)
+prop.table(table(metro$ruc_desc_2003))
+```
+```{r}
+nonmetros <- c(
+  "Nonmetro county with urban population of less than 2,500",
+  "Nonmetro county with urban population of 2,500-19,999",
+  "Nonmetro county with urban population of 20,000 or more"
+)
+ruc_2003 |>
+  filter(as.numeric(ruc_code_2003) > 3)|>
+  mutate(nonmetro = nonmetros[(ruc_code_2003 - ruc_code_2003 %% 2)/2 - 1]) |>
+  count(nonmetro)
+```
+
+```{r}
+
+
+```
+
+**ruc_2023 Schema**
+
+| Field | Type | Description |
+|-------------|-------------|----------------------------------------------|
+| `fips` | string | County FIPS code. |
+| `state` | string | State abbreviation. |
+| `county_name` | string | County name. |
+| `attribute` | string | One of `"Population_2020"`, `"RUCC_2023"` or `"Description"`. |
+| `value` | string | County value of the given attribute. |
+
