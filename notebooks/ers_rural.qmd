@@ -32,7 +32,7 @@ Datasets are available for 2003 and 2023.
 
 ## ruc_2003
 
-#### Load Data
+#### Loading the Data
 
 ```{r}
 #| results: hide
@@ -42,8 +42,6 @@ ruc_2003 = pubdata::get("ers_rural", "ruc_2003")
 ```{r}
 #| echo: false
 ```
-
-This returns a tibble.
 
 #### Schema
 | Field | Type | Description |
@@ -56,6 +54,17 @@ This returns a tibble.
 | `population_2000` | number | 2000 Population |
 | `commute_pct` | number | Percent of workers in nonmetro counties commuting to metro central counties |
 | `ruc_desc_2003` | string | Description for 2003 codes |
+
+#### Description of Codes
+```{r}
+#| column: page
+ruc_2003 %>% 
+  select(ruc_code_2003, ruc_desc_2003) %>% 
+  distinct() %>%
+  arrange(ruc_code_2003) %>%
+  rename(Code=ruc_code_2003, Description=ruc_desc_2003) %>%
+  kable()
+```
 
 #### Dimensions
 ruc_2003 has `r nrow(ruc_2003)` rows and `r ncol(ruc_2003)` columns.
@@ -72,6 +81,138 @@ kable(head(ruc_2003))
 ```
 
 #### Summary Statistics
+##### fips
+```{r}
+ruc_2003 %>% 
+  summarize(count=n(), distinct=n_distinct(fips), first=first(fips), last=last(fips), count_null=sum(is.na(fips))) %>%
+  kable()
+```
+Sample
+```{r}
+ruc_2003["fips"] %>%
+  sample_n(size=5, replace = FALSE) %>%
+  kable()
+```
+##### state
+```{r}
+ruc_2003 %>% 
+  summarize(count=n(), distinct=n_distinct(state), first=first(state), last=last(state), count_null=sum(is.na(state))) %>%
+  kable()
+```
+Most Frequent
+```{r}
+ruc_2003 %>%
+  count(state, sort=TRUE) %>%
+  head() %>%
+  kable()
+```
+
+##### county_name
+```{r}
+ruc_2003 %>% 
+  summarize(count=n(), distinct=n_distinct(county_name), first=first(county_name), last=last(county_name), count_null=sum(is.na(county_name))) %>%
+  kable()
+```
+Most Frequent
+```{r}
+ruc_2003 %>%
+  count(county_name, sort=TRUE) %>%
+  head() %>%
+  kable()
+```
+##### ruc_code_1993
+```{r}
+ruc_2003 %>% 
+  summarize(count=n(), distinct=n_distinct(ruc_code_1993), mean=mean(ruc_code_1993), sd=sd(ruc_code_1993), count_null=sum(is.na(ruc_code_1993))) %>%
+  kable()
+```
+Quantile
+```{r}
+quantile(ruc_2003$ruc_code_1993, probs = seq(0, 1, 0.25))
+```
+Frequency Table
+```{r}
+ruc_2003 %>%
+  count(ruc_code_1993, sort=TRUE) %>%
+  kable()
+```
+##### ruc_code_2003
+```{r}
+ruc_2003 %>% 
+  summarize(count=n(), distinct=n_distinct(ruc_code_2003), mean=mean(ruc_code_2003), sd=sd(ruc_code_2003), count_null=sum(is.na(ruc_code_2003))) %>%
+  kable()
+```
+Quantile
+```{r}
+quantile(ruc_2003$ruc_code_2003, probs = seq(0, 1, 0.25))
+```
+Frequency Table
+```{r}
+ruc_2003 %>%
+  count(ruc_code_2003, sort=TRUE) %>%
+  kable()
+```
+##### population_2000
+Number of Null Values
+```{r}
+sum(is.na(ruc_2003$population_2000))
+```
+```{r}
+ruc_2003 %>% 
+  drop_na() |>
+  summarize(count=n(), mean=mean(population_2000), sd=sd(population_2000)) %>%
+  kable()
+```
+Quantile
+```{r}
+quantile(drop_na(ruc_2003)$population_2000, probs = seq(0, 1, 0.25))
+```
+##### commute_pct
+```{r}
+ruc_2003 %>% 
+  drop_na() |>
+  summarize(count=n(), mean=mean(commute_pct), sd=sd(commute_pct), count_null=sum(is.na(ruc_2003$commute_pct))) %>%
+  kable()
+```
+Quantile
+```{r}
+quantile(ruc_2003$commute_pct, probs = seq(0, 1, 0.25))
+```
+##### ruc_desc_2003
+```{r}
+ruc_2003 %>% 
+  summarize(count=n(), distinct=n_distinct(ruc_desc_2003), first=first(ruc_desc_2003), last=last(ruc_desc_2003), count_null=sum(is.na(ruc_desc_2003))) %>%
+  kable()
+```
+Frequency Table
+```{r}
+ruc_2003 %>%
+  count(ruc_desc_2003, sort=TRUE) %>%
+  kable()
+```
+
+```{r}
+metro_level <- function(code) {
+  if (code >= 1 & code <= 3) {return("Metro county")}
+  else if (code %% 2 == 0) {return("Non-metro county adjacent to a metro area")}
+  else {return("Non-metro county not adjacent to a metro area")}
+}
+```
+```{r}
+ruc_2003$metro <- sapply(as.numeric(ruc_2003$ruc_code_2003), FUN = metro_level)
+metro_groups <- ruc_2003 |> group_by(metro)
+
+
+metro_groups %>% 
+  summarize(count=n(), mean=mean(commute_pct), sd=sd(commute_pct)) %>%
+  kable()
+```
+```{r}
+ruc_2003 %>% 
+  summarize(count=n(), distinct=n_distinct(state), first=first(state), last=last(state)) %>%
+  kable()
+```
+
 ```{r}
 ggplot(ruc_2003, aes(x = factor(ruc_code_2003))) + 
   geom_bar() + 
@@ -81,13 +222,10 @@ ggplot(ruc_2003, aes(x = factor(ruc_code_2003))) +
     title = "Counting Counties in Each RUCC Code"
   )
 ```
+##### 
+
 
 ```{r}
-metro_level <- function(code) {
-  if (code >= 1 & code <= 3) {return("Metro county")}
-  else if (code %% 2 == 0) {return("Non-metro county adjacent to a metro area")}
-  else {return("Non-metro county not adjacent to a metro area")}
-}
 
 m <- sapply(as.numeric(ruc_2003$ruc_code_2003), FUN = metro_level)
 prop.table(table(m))
@@ -107,11 +245,6 @@ ruc_2003 |>
   filter(as.numeric(ruc_code_2003) > 3)|>
   mutate(nonmetro = nonmetros[(ruc_code_2003 - ruc_code_2003 %% 2)/2 - 1]) |>
   count(nonmetro)
-```
-
-```{r}
-
-
 ```
 
 **ruc_2023 Schema**
