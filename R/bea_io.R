@@ -5,22 +5,13 @@
 #' @return Tidy table or path to raw file.
 bea_io_get <- function(key) {
   this_meta <- meta("bea_io", key, print = FALSE)
-  path <- pubdata_path("bea_io", this_meta$path)
-
-  if (file.exists(path)) {
-    if (this_meta$type == "raw") {
-      return(path)
-    } else if (this_meta$type == "table") {
-      return(arrow::read_parquet(path))
-    }
-  }
 
   if (this_meta$type == "raw") {
+    path <- pubdata_path("bea_io", this_meta$path)
     utils::download.file(this_meta$url, mkdir(path))
     stopifnot(file.exists(path))
     return(path)
   }
-
 
   # raw is single spreadsheet
   if (key == "curr_und_peq_det") {
@@ -28,7 +19,7 @@ bea_io_get <- function(key) {
   }
 
   # raw is Zip archive
-  raw <- bea_io_get(this_meta$depends)
+  raw <- get("bea_io", this_meta$depends)
   # TODO verify that raw file is a zip
   unzipped_spreadsheet <- utils::unzip(raw, this_meta$read$file, exdir = tempdir())
   on.exit(unlink(unzipped_spreadsheet))
@@ -188,7 +179,7 @@ expand_naics_dash <- function(x) {
 #' PEQ-IO commodity bridge
 bea_io_read_peq <- function(this_meta) {
 
-  raw_path <- bea_io_get(this_meta$depends)
+  raw_path <- get("bea_io", this_meta$depends)
 
   # identify year sheets
   years <- raw_path |>

@@ -1,17 +1,9 @@
 
 bea_fa_get <- function(key) {
   this_meta <- meta("bea_fa", key, print = FALSE)
-  path <- pubdata_path("bea_fa", this_meta$path)
-
-  if (file.exists(path)) {
-    if (this_meta$type == "raw") {
-      return(path)
-    } else if (this_meta$type == "table") {
-      return(arrow::read_parquet(path))
-    }
-  }
 
   if (this_meta$type == "raw") {
+    path <- pubdata_path("bea_fa", this_meta$path)
     utils::download.file(this_meta$url, mkdir(path))
     stopifnot(file.exists(path))
     return(path)
@@ -24,7 +16,7 @@ bea_fa_get <- function(key) {
 
 
 bea_fa_read <- function(this_meta) {
-  raw_path <- bea_fa_get(this_meta$depends)
+  raw_path <- get("bea_fa", this_meta$depends)
 
   # read single industry sheet to use for long asset type descriptions
   df_oneind <- raw_path |>
@@ -53,8 +45,8 @@ bea_fa_read <- function(this_meta) {
     ) |>
     dplyr::rename(line_code = ...1) |>
     # structure of the line code
-    # example: "I3N110C1EQ00.A"
-    # 1-3: "I3N" = non-residential investment
+    # examples: "K1N110C1EP1A.A", "M1N110C1SO02.A", "I3N110C1EQ00.A"
+    # 1-3: non-residential, current cost table type = "K1N" stock, "M1N" depreciation, "I3N" investment
     # 4-7: "110C" = 4-digit industry code
     # 8: "1" = always 1
     # 9-12: "EQ00" = 4-digit asset code

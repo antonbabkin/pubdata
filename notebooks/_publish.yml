@@ -1,0 +1,4 @@
+- source: project
+  quarto-pub:
+    - id: 01545840-78ee-4b0e-846c-384415062c68
+      url: https://antonbabkin.quarto.pub/pubdata

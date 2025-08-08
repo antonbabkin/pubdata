@@ -5,12 +5,62 @@ urls:
     https://www.bea.gov/itable/fixed-assets
 
 
+schema:
+  det: &schema_det
+    line_code:
+      desc: Line code on the Datasets sheet
+      type: string
+    ind_code:
+      desc: 4-character industry code
+      type: string
+    asset_code:
+      desc: 4-character asset code
+      type: string
+    asset_type:
+      desc: Asset type description
+      type: string
+    year:
+      desc: Year
+      type: number
+    value:
+      desc: Table value, millions of dollars
+      type: number
+
 data:
+  raw_det_nonres_stk-cc:
+    desc: Net Stock of Private Nonresidential Fixed Assets, detailed estimates by industry and by type of asset, current cost
+    type: raw
+    path: raw/det/nonres_stk1.xlsx
+    url: https://apps.bea.gov/national/FA2004/Details/xls/detailnonres_stk1.xlsx
+
+  raw_det_nonres_dep-cc:
+    desc: Depreciation of Private Nonresidential Fixed Assets, detailed estimates by industry and by type of asset, current cost
+    type: raw
+    path: raw/det/nonres_dep1.xlsx
+    url: https://apps.bea.gov/national/FA2004/Details/xls/detailnonres_dep1.xlsx
+
   raw_det_nonres_inv-cc:
     desc: Investment in Private Nonresidential Fixed Assets, detailed estimates by industry and by type of asset, current cost
     type: raw
     path: raw/det/nonres_inv1.xlsx
     url: https://apps.bea.gov/national/FA2004/Details/xls/detailnonres_inv1.xlsx
+
+
+  det_nonres_stk-cc:
+    mask: "det_{table}"
+    desc: Net Stock of Private Nonresidential Fixed Assets, detailed estimates by industry and by type of asset, current cost
+    type: table
+    path: proc/det/{table}.pq
+    depends: raw_det_{table}
+    schema: *schema_det
+
+  det_nonres_dep-cc:
+    mask: "det_{table}"
+    desc: Depreciation of Private Nonresidential Fixed Assets, detailed estimates by industry and by type of asset, current cost
+    type: table
+    path: proc/det/{table}.pq
+    depends: raw_det_{table}
+    schema: *schema_det
 
   det_nonres_inv-cc:
     mask: "det_{table}"
@@ -18,23 +68,5 @@ data:
     type: table
     path: proc/det/{table}.pq
     depends: raw_det_{table}
-    schema:
-      line_code:
-        desc: Line code on the Datasets sheet
-        type: string
-      ind_code:
-        desc: 4-character industry code
-        type: string
-      asset_code:
-        desc: 4-character asset code
-        type: string
-      asset_type:
-        desc: Asset type description
-        type: string
-      year:
-        desc: Year
-        type: number
-      value:
-        desc: Table value, millions of dollars
-        type: number
+    schema: *schema_det
 

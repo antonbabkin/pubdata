@@ -36,7 +36,7 @@ for (key in ls("bea_io")) {
 
   tab <- NULL
   test_that(glue::glue("{key}: get() gives no error"), {
-    expect_no_error({ tab <<- bea_io_get(key) })
+    expect_no_error({ tab <<- get("bea_io", key) })
   })
 
   test_that(glue::glue("{key}: columns cosistent with schema"), {
@@ -96,7 +96,7 @@ for (key in ls("bea_io")) {
         dplyr::pull(value) |>
         tidyr::replace_na(0)
       # use table rows are all commodities, total and extras
-      total_use <- bea_io_get(sub("_sup_", "_use_", key)) |>
+      total_use <- get("bea_io", sub("_sup_", "_use_", key)) |>
         dplyr::filter(col_name == "Total use of products") |>
         dplyr::pull(value) %>%
         `[`(1:length(total_supply)) |> # only keep commodities and total, ignore extras
@@ -120,7 +120,7 @@ for (key in ls("bea_io")) {
         tidyr::replace_na(0)
       # use key from make key, e.g. "2022_mu_mak-bef_sec_2021" -> "2022_mu_use-bef-pro_sec_2021"
       use_key <- sub("_mak-(...)_", "_use-\\1-pro_", key)
-      tab2 <- bea_io_get(use_key)
+      tab2 <- get("bea_io", use_key)
       # use table rows are commodities
       com_names2 <- tab2 |>
         dplyr::filter(core_matrix) |>
@@ -138,7 +138,7 @@ for (key in ls("bea_io")) {
 
   if (grepl("_naics", key)) {
     test_that(glue::glue("{key}: naics tables pass basic tests"), {
-      d <- bea_io_get(key)
+      d <- get("bea_io", key)
       # title never missing
       expect_equal(is.na(d$title), rep(FALSE, nrow(d)))
       # no naics code for non-detail rows
