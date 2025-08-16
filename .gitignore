@@ -1,28 +1,46 @@
+tmp/
+
+# data files
 data/
 datacache/
-tmp/
-man/
+cache/
+*.csv
+*.txt
+*.xls
+*.xlsx
+*.pq
+*.parquet
+*.zip
+
 # user settings and environment
 .Renviron
+enviroment.Renviron
 renv/
-# quarto files
-*_files/
-*.html
-_site/
-.ipynb_checkpoints/
-*.pyc
-# version notebooks in markdown format with jupytext
-*.ipynb
-# symbolic links to packages: OS dependent, created on init
-nbs/pubdata
-pubdata/reseng
-# other
-.DS_Store
+renv.lock
 .Rproj.user
 .Rhistory
 .Rdata
-.httr-oauth
+
+# R package
+man/
+
+# quarto files
 .quarto
-enviroment.Renviron
-renv.lock
-cache
+*_files/
+*.html
+_site/
+*.docx
+
+# Python and Jupyter
+*.ipynb
+.ipynb_checkpoints/
+*.pyc
+
+# symbolic links to packages: OS dependent, created on init
+nbs/pubdata
+pubdata/reseng
+
+# other
+.DS_Store
+.httr-oauth
+
