@@ -1,0 +1,39 @@
+---
+title: "QCEW: Quarterly Census of Employment and Wages"
+format:
+  html:
+    toc: true
+    code-overflow: wrap
+    embed-resources: true
+    df-print: paged
+---
+
+```{r}
+#| code-fold: true
+#| output: false
+library(tidyverse)
+```
+
+
+Placeholder page for `qcew` collection.
+
+## Datasets
+
+```{r}
+pubdata::ls("qcew", detail = TRUE)
+```
+
+## Examples of analysis
+
+10 smallest states by employment in 2024.
+
+```{r}
+pubdata::get("qcew", "naics_ann_2024") %>%
+  filter(agglvl_code == "50") %>%
+  left_join(pubdata::get("qcew", "meta_naics_area"), by = "area_fips") %>%
+  select(state = area_title, employment = annual_avg_emplvl) %>%
+  mutate(state = str_remove(state, " -- Statewide")) %>%
+  arrange(employment) %>%
+  head(10)
+```
+
