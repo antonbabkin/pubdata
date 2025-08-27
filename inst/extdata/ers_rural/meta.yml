@@ -34,29 +34,37 @@ data:
     depends: raw_ruc_2003
     schema:
       fips:
-        desc: County FIPS Code.
-        type: string
+        desc: County FIPS Code
+        orig: FIPS Code
+        type: character
       state:
-        desc: State abbreviation.
-        type: string
+        desc: State abbreviation
+        orig: State
+        type: character
       county_name:
-        desc: County Name.
-        type: string
+        desc: County Name
+        orig: County Name
+        type: character
       ruc_code_1993:
-        desc: 1993 Rural-urban Continuum Code.
-        type: number
+        desc: 1993 Rural-urban Continuum Code
+        orig: 1993 Rural-urban Continuum Code
+        type: character
       ruc_code_2003:
-        desc: 2003 Rural-urban Continuum Code.
-        type: number
+        desc: 2003 Rural-urban Continuum Code
+        orig: 2003 Rural-urban Continuum Code
+        type: character
       population_2000:
-        desc: 2000 Population.
-        type: number
+        desc: 2000 Population
+        orig: "2000 Population "
+        type: integer
       commute_pct:
-        desc: Percent of workers in nonmetro counties commuting to central counties of adjacent metro areas.
-        type: number
+        desc: Percent of workers in nonmetro counties commuting to central counties of adjacent metro areas
+        orig: Percent of workers in nonmetro counties commuting to central counties of adjacent metro areas
+        type: double
       ruc_desc_2003:
-        desc: Description for 2003 codes.
-        type: string
+        desc: Description for 2003 codes
+        orig: Description for 2003 codes
+        type: character
 
   ruc_2023:
     mask: "ruc_{year}"
@@ -66,18 +74,23 @@ data:
     depends: raw_ruc_2023
     schema:
       fips:
-        desc: County FIPS code.
-        type: string
+        desc: County FIPS code
+        orig: FIPS
+        type: character
       state:
-        desc: State abbreviation.
-        type: string
+        desc: State abbreviation
+        orig: State
+        type: character
       county_name:
-        desc: County name.
-        type: string
+        desc: County name
+        orig: County_Name
+        type: character
       attribute:
-        desc: One of "Population_2020", "RUCC_2023" or "Description".
-        type: string
+        desc: One of "Population_2020", "RUCC_2023" or "Description"
+        orig: Attribute
+        type: character
       value:
-        desc: County value of a given attribute.
-        type: string
+        desc: County value of a given attribute
+        orig: Value
+        type: character
 
