@@ -14,27 +14,51 @@ urls:
 
 
 data:
-  raw_ruc_2003:
-    desc: 2003 Rural-Urban Continuum Codes
+  raw_ruc_1974:
+    desc: 1974 Rural-Urban Continuum Codes
     type: raw
-    path: raw/ruralurbancodes2003.xls
-    url: https://ers.usda.gov/sites/default/files/_laserfiche/DataFiles/53251/ruralurbancodes2003.xls?v=30590
-
+    path: raw/ruc_1974.xls
+    url: https://ers.usda.gov/sites/default/files/_laserfiche/DataFiles/53251/ruralurbancodes1974.xls
+  raw_ruc_1983:
+    desc: 1983 and 1993 Rural-Urban Continuum Codes
+    type: raw
+    path: raw/ruc_1983.xls
+    url: https://ers.usda.gov/sites/default/files/_laserfiche/DataFiles/53251/cd8393.xls
+  raw_ruc_1993:
+    desc: 1993 Rural-Urban Continuum Codes
+    type: raw
+    path: raw/ruc_1993.xls
+    url: https://ers.usda.gov/sites/default/files/_laserfiche/DataFiles/53251/code93.xls
+  raw_ruc_2003:
+    desc: 2003 and 1993 Rural-Urban Continuum Codes
+    type: raw
+    path: raw/ruc_2003.xls
+    url: https://ers.usda.gov/sites/default/files/_laserfiche/DataFiles/53251/ruralurbancodes2003.xls
+  raw_ruc_2003pr:
+    desc: 2003 Rural-Urban Continuum Codes for Puerto Rico
+    type: raw
+    path: raw/ruc_2003pr.xls
+    url: https://ers.usda.gov/sites/default/files/_laserfiche/DataFiles/53251/pr2003.xls
+  raw_ruc_2013:
+    desc: 2013 Rural-Urban Continuum Codes
+    type: raw
+    path: raw/ruc_2013.xls
+    url: https://ers.usda.gov/sites/default/files/_laserfiche/DataFiles/53251/ruralurbancodes2013.xls
   raw_ruc_2023:
     desc: 2023 Rural-Urban Continuum Codes
     type: raw
-    path: raw/Ruralurbancontinuumcodes2023.csv
-    url: https://ers.usda.gov/sites/default/files/_laserfiche/DataFiles/53251/Ruralurbancontinuumcodes2023.csv?v=21666
+    path: raw/ruc_2023.xlsx
+    url: https://ers.usda.gov/sites/default/files/_laserfiche/DataFiles/53251/Ruralurbancontinuumcodes2023.xlsx
 
-  ruc_2003:
-    mask: "ruc_{year}"
-    desc: 2003 Rural-Urban Continuum Codes
+
+  ruc_1974:
+    desc: 1974 Rural-Urban Continuum Codes
     type: table
-    path: proc/ruc_2003.pq
-    depends: raw_ruc_2003
+    path: proc/ruc_1974.pq
+    depends: raw_ruc_1974
     schema:
       fips:
-        desc: County FIPS Code
+        desc: State+county FIPS code
         orig: FIPS Code
         type: character
       state:
@@ -42,19 +66,92 @@ data:
         orig: State
         type: character
       county_name:
-        desc: County Name
+        desc: County name
+        orig: County Name
+        type: character
+      ruc_code_1974:
+        desc: 1974 Rural-Urban Continuum Code
+        orig: 1974 Rural-urban Continuum Code
+        type: character
+
+  ruc_1983:
+    desc: 1983 and 1993 Rural-Urban Continuum Codes
+    type: table
+    path: proc/ruc_1983.pq
+    depends: raw_ruc_1983
+    schema:
+      fips:
+        desc: State+county FIPS code
+        orig: FIPS Code
+        type: character
+      state:
+        desc: State abbreviation
+        orig: State
+        type: character
+      county_name:
+        desc: County name
+        orig: County Name
+        type: character
+      ruc_code_1983:
+        desc: 1983 Rural-Urban Continuum Code
+        orig: Rural-urban Continuuum Code, 1983
+        type: character
+      ruc_code_1993:
+        desc: 1993 Rural-Urban Continuum Code
+        orig: Rural-urban Continuuum Code, 1993
+        type: character
+
+  ruc_1993:
+    desc: 1993 Rural-Urban Continuum Codes
+    type: table
+    path: proc/ruc_1993.pq
+    depends: raw_ruc_1993
+    schema:
+      fips:
+        desc: State+county FIPS code
+        orig: FIPS Code
+        type: character
+      state:
+        desc: State abbreviation
+        orig: State
+        type: character
+      county_name:
+        desc: County name
         orig: County Name
         type: character
       ruc_code_1993:
-        desc: 1993 Rural-urban Continuum Code
+        desc: 1993 Rural-Urban Continuum Code
+        orig: Rural-urban Continuuum Code, 1993
+        type: character
+
+  ruc_2003:
+    desc: 2003 and 1993 Rural-Urban Continuum Codes
+    type: table
+    path: proc/ruc_2003.pq
+    depends: raw_ruc_2003
+    schema:
+      fips:
+        desc: State+county FIPS code
+        orig: FIPS Code
+        type: character
+      state:
+        desc: State abbreviation
+        orig: State
+        type: character
+      county_name:
+        desc: County name
+        orig: County Name
+        type: character
+      ruc_code_1993:
+        desc: 1993 Rural-Urban Continuum Code
         orig: 1993 Rural-urban Continuum Code
         type: character
       ruc_code_2003:
-        desc: 2003 Rural-urban Continuum Code
+        desc: 2003 Rural-Urban Continuum Code
         orig: 2003 Rural-urban Continuum Code
         type: character
       population_2000:
-        desc: 2000 Population
+        desc: 2000 population
         orig: "2000 Population "
         type: integer
       commute_pct:
@@ -66,31 +163,96 @@ data:
         orig: Description for 2003 codes
         type: character
 
-  ruc_2023:
-    mask: "ruc_{year}"
-    desc: 2023 Rural-Urban Continuum Codes
+  ruc_2003pr:
+    desc: 2003 Rural-Urban Continuum Codes for Puerto Rico
     type: table
-    path: proc/ruc_2023.pq
-    depends: raw_ruc_2023
+    path: proc/ruc_2003pr.pq
+    depends: raw_ruc_2003pr
     schema:
       fips:
-        desc: County FIPS code
-        orig: FIPS
+        desc: State+county FIPS code
+        orig: FIPS Code
         type: character
       state:
         desc: State abbreviation
         orig: State
         type: character
       county_name:
-        desc: County name
+        desc: Municipio name
+        orig: Municipio Name
+        type: character
+      population_2003:
+        desc: 2003 population
+        orig: "Population 2003 "
+        type: integer
+      ruc_code_2003:
+        desc: 2003 Rural-Urban Continuum Code
+        orig: Rural-urban Continuum Code, 2003
+        type: character
+      ruc_desc_2003:
+        desc: Description for 2003 codes
+        orig: Description of the 2003 Code
+        type: character
+
+  ruc_2013:
+    desc: 2013 Rural-Urban Continuum Codes
+    type: table
+    path: proc/ruc_2013.pq
+    depends: raw_ruc_2013
+    schema:
+      fips:
+        desc: State+county FIPS code
+        orig: FIPS
+        type: character
+      state:
+        desc: State or territory abbreviation
+        orig: State
+        type: character
+      county_name:
+        desc: County or county-equivalent name
         orig: County_Name
         type: character
-      attribute:
-        desc: One of "Population_2020", "RUCC_2023" or "Description"
-        orig: Attribute
+      population_2010:
+        desc: Total population 2010
+        orig: Population_2010
+        type: integer
+      ruc_code_2013:
+        desc: 2013 Rural-Urban Continuum Code
+        orig: RUCC_2013
         type: character
-      value:
-        desc: County value of a given attribute
-        orig: Value
+      ruc_desc_2013:
+        desc: Description for 2013 codes
+        orig: Description
+        type: character
+
+  ruc_2023:
+    desc: 2023 Rural-Urban Continuum Codes
+    type: table
+    path: proc/ruc_2023.pq
+    depends: raw_ruc_2023
+    schema:
+      fips:
+        desc: State+county FIPS code
+        orig: FIPS
+        type: character
+      state:
+        desc: State or territory abbreviation
+        orig: State
+        type: character
+      county_name:
+        desc: County or county-equivalent name
+        orig: County_Name
+        type: character
+      population_2020:
+        desc: Total population 2020
+        orig: Population_2020
+        type: integer
+      ruc_code_2023:
+        desc: 2023 Rural-Urban Continuum Code
+        orig: RUCC_2023
+        type: character
+      ruc_desc_2023:
+        desc: Description for 2023 codes
+        orig: Description
         type: character
 
