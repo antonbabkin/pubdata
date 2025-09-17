@@ -12,8 +12,8 @@ format:
 #| code-fold: true
 #| output: false
 library(tidyverse)
+library(scales)
 ```
-
 
 Placeholder page for `qcew` collection.
 
@@ -35,5 +35,94 @@ pubdata::get("qcew", "naics_ann_2024") %>%
   mutate(state = str_remove(state, " -- Statewide")) %>%
   arrange(employment) %>%
   head(10)
+```
+
+Top 10 industries by annual average pay in 2024 (5-Digit NAICS).
+
+```{r}
+pubdata::get("qcew", "naics_ann_2024") %>% 
+  filter(agglvl_code == "17") %>% 
+  left_join(pubdata::get("qcew", "meta_naics_ind"), by = "industry_code") %>%
+  select(industry_title = industry_title, avg_annual_pay = avg_annual_pay) %>%
+  arrange(desc(avg_annual_pay)) %>% 
+  head(10)
+```
+
+
+The annual average pay trends of top 3 supersectors in 2024 (2020-2024).
+
+```{r}
+#preload data
+for (y in 2020:2024) {
+  pubdata::get("qcew", paste0("naics_ann_", y))
+}
+options(timeout = 800)
+
+top3_industries <- pubdata::get("qcew", "naics_ann_2024") %>%
+  filter(agglvl_code == "13") %>%
+  arrange(desc(avg_annual_pay)) %>%
+  slice_head(n = 3) %>%
+  pull(industry_code)
+
+df_top3 <- map_dfr(2020:2024, function(y) {
+  pubdata::get("qcew", paste0("naics_ann_", y)) %>%
+    filter(agglvl_code == "13", industry_code %in% top3_industries) %>%
+    group_by(year = y, industry_code) %>% 
+    summarize(avg_annual_pay = mean(avg_annual_pay, na.rm = TRUE)) %>% 
+    left_join(pubdata::get("qcew", "meta_naics_ind"), by = "industry_code") %>%
+    select(year, industry_code, industry_title, avg_annual_pay)
+})
+
+ggplot(df_top3, aes(x = year, y = avg_annual_pay, color = industry_title)) +
+  geom_line() +
+  geom_point() +
+  scale_y_continuous(labels = dollar) +
+  labs(
+    title = "Average Annual Pay Trends for 2024's Top 3 Supersectors (2020–2024)",
+    x = "Year",
+    y = "Average Annual Pay",
+    color = "Supersector"
+  ) +
+  theme_minimal()
+```
+
+
+Employment growth rate by ownership (2020-2024)
+
+```{r}
+
+df <- map_dfr(2020:2024, function(y) {
+  pubdata::get("qcew", paste0("naics_ann_", y)) %>%
+    filter(agglvl_code == "11") %>%
+    filter(stringr::str_detect(own_code, "^[1-3|5]$")) %>% 
+    left_join(pubdata::get("qcew", "meta_naics_own"), by = "own_code") %>%
+    select(year, own_title, oty_annual_avg_emplvl_pct_chg)
+})
+
+ggplot(df, aes(x = year, y = oty_annual_avg_emplvl_pct_chg, color = own_title)) +
+  geom_line() +
+  geom_point() + 
+  labs(
+    title = "Employment Growth Rate by Ownership (2020–2024)",
+    x = "Year",
+    y = "Annual Average Employment \n Percentage Change (%)",
+    color = "Ownership Type"
+  ) +
+  theme_minimal()
+```
+
+Linear association between annual average annual pay and establishments (2020–2024)
+
+```{r}
+df_pay_estabs <- map_dfr(2020:2024, function(y) {
+  pubdata::get("qcew", paste0("naics_ann_", y)) %>%
+    filter(agglvl_code == "10") %>%
+    mutate(year = y) %>%
+    select(year, avg_annual_pay, annual_avg_estabs)
+})
+
+lm_pay_estabs <- lm(avg_annual_pay ~ annual_avg_estabs, data = df_pay_estabs)
+
+lm_pay_estabs %>% summary()
 ```
 
