@@ -162,6 +162,40 @@ cache_write <- function(collection, key, value) {
 }
 
 
+#' Clear cached object files with keys matching a given pattern
+#'
+#' @param collection Collection name. Leave NULL to clear all collections.
+#' @param pattern Regex pattern for object keys.
+#' @export
+cache_clear <- function(collection = NULL, pattern = ".") {
+  if (is.null(collection)) {
+    for (col in collections) {
+      cache_clear(col, pattern)
+    }
+  }
+
+  stopifnot(collection %in% collections)
+  full_meta <- pubdata_meta_path(collection) |>
+    yaml::read_yaml()
+  all_keys <- names(full_meta$data)
+  keys <- grep(pattern, all_keys, value = TRUE)
+  counter <- 0
+  for (key in keys) {
+    memkey <- paste0(collection, "_", key)
+    memory$remove(memkey)
+    me <- meta(collection, key, FALSE)
+    path <- pubdata_path(collection, me$path)
+    if (file.exists(path)) {
+      counter <- counter + 1
+      unlink(path)
+      logger::log_debug("disk cache clear \"{collection}:{key}\"")
+    }
+  }
+  logger::log_info("Removed {counter} file(s) from \"{collection}\" collection")
+}
+
+
+
 #' Pack data files into a zip archive
 #'
 #' @param zipfile Relative path to archive file
