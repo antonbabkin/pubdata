@@ -6,6 +6,9 @@ format:
     code-overflow: wrap
     embed-resources: true
     df-print: paged
+editor: 
+  markdown: 
+    wrap: 72
 ---
 
 ```{r}
@@ -14,6 +17,9 @@ format:
 library(tidyverse)
 ```
 
+```{r}
+getwd()
+```
 
 Placeholder page for `bds` collection.
 
@@ -31,4 +37,442 @@ pubdata::get("bds", "2022_met") %>%
   ggplot() +
   geom_line(aes(year, estabs_entry_rate, color = metro))
 ```
+
+# BDS Collection Analysis Template
+
+**Author: Diveesha**
+
+## Purpose
+
+Document and explore the BDS collection datasets. This includes: -
+Structural overview - Codebooks - Variable summaries - Trends
+(Pre/Post-COVID) - Visualizations - Basic linear regression
+
+------------------------------------------------------------------------
+
+##  Overview of the BDS Collection
+
+The **Business Dynamics Statistics (BDS)**, published by the U.S. Census
+Bureau, captures annual measures of job creation, job destruction,
+establishment births/deaths, firm dynamics, and employment.
+
+🔗 Official Links:\
+- [BDS
+Homepage](https://www.ers.usda.gov/data-products/rural-urban-continuum-codes)\
+-
+[Methodology](https://www.census.gov/programs-surveys/bds/technical-documentation/methodology.html)
+
+##Dataset Organization in `pubdata`
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(pubdata)
+library(readr)
+library(dplyr)
+library(tidyr)
+library(purrr)
+library(ggplot2)
+library(yaml)
+library(collapsibleTree)
+```
+
+### Dataset Keys and Metadata
+
+```{r}
+#| include: false
+dataset_keys <- pubdata::ls("bds", "raw_2022_met")
+df_list <- dataset_keys %>%
+  set_names() %>%
+  map(~ read_csv(pubdata::get("bds", .x)))
+descriptions <- dataset_keys %>%
+  set_names() %>%
+  map_chr(~ pubdata::meta("bds", .x)$desc)
+desc_df <- tibble(key = names(descriptions), description = descriptions)
+```
+
+## Dataset Summaries
+
+
+
+
+```{r}
+library(pubdata)
+library(readr)
+library(dplyr)
+library(purrr)
+
+keys <- pubdata::ls("bds", "raw_2022_met")
+
+summary_tbl <- map_dfr(keys, function(k) {
+  m <- meta("bds", k)
+  df <- read_csv(pubdata::get("bds", k), show_col_types = FALSE)
+  
+  tibble(
+    key = k,
+    description = m$desc,
+    n_rows = nrow(df),
+    n_cols = ncol(df),
+
+  )
+})
+
+summary_tbl
+
+```
+
+```{r}
+library(pubdata)
+library(dplyr)
+library(purrr)
+
+collection <- "bds"
+keys <- pubdata::ls(collection)
+
+summary_tbl <- map_dfr(keys, function(k) {
+  m <- meta(collection, k)
+  
+  if (m$type == "table") {
+    df <- pubdata::get(collection, k)
+    tibble(
+      key = k,
+      type = m$type,
+      description = m$desc,
+      n_rows = nrow(df),
+      n_cols = ncol(df)
+    )
+  } else {
+    tibble(
+      key = k,
+      type = m$type,
+      description = m$desc,
+      n_rows = NA_integer_,
+      n_cols = NA_integer_
+    )
+  }
+})
+
+summary_tbl
+
+```
+
+
+## Variable Codebook (raw_2022_met)
+
+```{r}
+library(pubdata)
+library(dplyr)
+library(purrr)
+
+
+
+collection <- "bds"
+keys <- pubdata::ls(collection)
+
+codebook <- map_dfr(keys, function(k) {
+  m <- meta(collection, k)
+  schema <- m$schema
+  
+  if (m$type == "table") {
+    tibble(
+      key = k,
+      variable_name = names(schema),
+      variable_description = map_chr(schema, ~ .x$desc %||% NA_character_),
+      variable_type = map_chr(schema, ~ .x$type %||% NA_character_)
+    )
+  } else {
+    NULL
+  }
+})
+
+codebook
+
+```
+## Dataset × Variable Matrix (Wide)
+
+```{r}
+library(pubdata)
+library(dplyr)
+library(purrr)
+library(tidyr)
+
+collection <- "bds"
+keys <- pubdata::ls(collection)
+
+# build a long data frame of key-variable pairs from meta
+meta_long <- map_dfr(keys, function(k) {
+  m <- meta(collection, k)
+  schema <- m$schema
+  if (m$type == "table") {
+    tibble(
+      key = k,
+      variable = names(schema)
+    )
+  } else {
+    NULL
+  }
+})
+
+# pivot to wide presence/absence table
+df_wide <- meta_long %>%
+  mutate(value = TRUE) %>%
+  pivot_wider(
+    id_cols = key,
+    names_from = variable,
+    values_from = value,
+    values_fill = FALSE
+  )
+
+df_wide
+
+```
+
+## Summary Statistics
+```{r}
+basic_stats <- function(df) {
+  df %>%
+    summarise(across(where(is.numeric), list(
+      mean = ~mean(.x, na.rm = TRUE),
+      sd = ~sd(.x, na.rm = TRUE),
+      min = ~min(.x, na.rm = TRUE),
+      max = ~max(.x, na.rm = TRUE)
+    ), .names = "{.col}_{.fn}")) %>%
+    pivot_longer(cols = everything(), names_to = "stat", values_to = "value")
+}
+basic_stats(df_list[["raw_2022_met"]])
+```
+##Analysis Questions
+```{r}
+#| eval: false
+#| include: false
+pubdata::get("bds","2022_met")
+```
+##Q1How do the exit rates of establishments differ pre and post coivid in metro vs non metros?
+```{r}
+library(pubdata)
+library(dplyr)
+library(ggplot2)
+
+# load the processed metro/nonmetro dataset
+df <- pubdata::get("bds", "2022_met") %>%
+  mutate(
+    year = as.integer(year),
+    estabs_exit_rate = as.numeric(estabs_exit_rate),
+    metro_status = case_when(
+      metro == "M" ~ "metro",
+      metro == "N" ~ "nonmetro",
+      TRUE ~ NA_character_
+    ),
+    covid_period = ifelse(year < 2020, "pre_covid", "post_covid")
+  ) %>%
+  filter(year >= 2016 & year <= 2022, !is.na(metro_status))
+
+# summarise
+summary_df <- df %>%
+  group_by(year, metro_status) %>%
+  summarise(avg_exit_rate = mean(estabs_exit_rate, na.rm = TRUE), .groups = "drop")
+
+# plot
+ggplot(summary_df, aes(x = factor(year), y = avg_exit_rate, fill = metro_status)) +
+  geom_col(position = "dodge") +
+  geom_vline(
+    xintercept = which(sort(unique(summary_df$year)) == 2020),
+    linetype = "dashed", color = "red", size = 1
+  ) +
+  labs(
+    title = "Exit Rate of Establishments (Metro vs Nonmetro, 2016–2022)",
+    y = "Average Exit Rate",
+    x = "Year"
+  ) +
+  theme_minimal()
+
+```
+The data indicate that metro establishments were more vulnerable to pandemic-related shocks, hence we see a larger establishment exit rate.  Nonmetro establishments showed a smaller relative increase.This suggests that rural economies may have been somewhat more protected from pandemic disruptions which is an important factor to consider when working with business dynamics in rural areas.
+## Q2 How does the job creation rate differ with establishment exit rate
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(broom)
+
+# Load and preprocess correctly
+df <- pubdata::get("bds", "2022_met") %>%
+  mutate(
+    job_creation_rate = as.numeric(job_creation_rate),
+    establishment_exit_rate = as.numeric(estabs_exit_rate),
+    metro_status = case_when(
+      metro == "M" ~ "metro",
+      metro == "N" ~ "nonmetro",
+      TRUE ~ NA_character_
+    ),
+  ) %>%
+  filter(
+    metro_status %in% c("metro", "nonmetro"),  # keep only metro and nonmetro
+    !is.na(job_creation_rate),
+    !is.na(establishment_exit_rate)
+  )
+
+# Summarize the relationship (linear regression by metro status)
+relationship_summary <- df %>%
+  group_by(metro_status) %>%
+  do(tidy(lm(establishment_exit_rate ~ job_creation_rate, data = .))) %>%
+  filter(term == "job_creation_rate") %>%
+  select(metro_status, estimate, std.error, p.value)
+
+print(relationship_summary)
+
+# Scatterplot with regression lines
+ggplot(df, aes(x = job_creation_rate, y = establishment_exit_rate, color = metro_status)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(
+    title = "Job Creation Rate vs Establishment Exit Rate",
+    subtitle = "Separate regression lines for Metro (Urban) and Nonmetro (Rural) Areas",
+    x = "Job Creation Rate",
+    y = "Establishment Exit Rate",
+    caption = "Printed table shows slope estimates by area type"
+  ) +
+  theme_minimal()
+
+```
+The linear model above shows that in there is positive relationship between job creation rate and the establishment exit rate in both  metro areas and non metro areas but the slope of non metro areas is higher than metro areas which signifies that there is higher instability in rural areas compared to urban areas. 
+
+##3 What is the share of total employment in rural vs metro areas? 
+```{r}
+library(pubdata)
+library(dplyr)
+
+df_met <- pubdata::get("bds", "2022_met") %>%
+  mutate(
+    emp = as.numeric(emp),  # total employment
+    metro_status = case_when(
+      metro == "M" ~ "metro",
+      metro == "N" ~ "nonmetro",
+      TRUE ~ NA_character_
+    )
+  ) %>%
+  filter(metro_status %in% c("metro","nonmetro"))
+
+# Summed employment by type
+emp_summary <- df_met %>%
+  group_by(metro_status) %>%
+  summarise(total_emp = sum(emp, na.rm = TRUE), .groups = "drop")
+
+# Add share
+total_us_emp <- sum(emp_summary$total_emp, na.rm = TRUE)
+
+emp_summary %>%
+  mutate(share = total_emp / total_us_emp)
+
+```
+We can see that most of the jobs are concentrated in the metro areas with the employment share being 96% and the non metro's share of employment being 3%
+##4 Which area is growing more(firms,employment) in metro vs non metro areas? This also accounts for the change before and after the COVID pand
+```{r}
+library(dplyr)
+library(ggplot2)
+
+# Load data (replace year key if needed)
+df <- pubdata::get("bds", "2022_met") %>%
+  mutate(
+    metro_status = case_when(
+      metro == "M" ~ "metro",
+      metro == "N" ~ "nonmetro",
+      TRUE ~ NA_character_
+    )
+  ) %>%
+  filter(!is.na(metro_status))
+
+# Summarize total firms and employment by metro status and year
+summary_df <- df %>%
+  group_by(year, metro_status) %>%
+  summarise(
+    total_firms = sum(firms, na.rm = TRUE),
+    total_emp   = sum(emp, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Plot trends
+p1 <- ggplot(summary_df, aes(x = year, y = total_firms, color = metro_status)) +
+  geom_line(size = 1.2) +
+  labs(title = "Firm Growth: Metro vs Nonmetro", y = "Number of Firms", x = "Year") +
+  theme_minimal()
+
+p2 <- ggplot(summary_df, aes(x = year, y = total_emp, color = metro_status)) +
+  geom_line(size = 1.2) +
+  labs(title = "Employment Growth: Metro vs Nonmetro", y = "Total Employment", x = "Year") +
+  theme_minimal()
+
+print(p1)
+print(p2)
+
+# Compute growth rates pre vs post COVID
+growth_summary <- summary_df %>%
+  group_by(metro_status) %>%
+  summarise(
+    firms_growth = (last(total_firms) - first(total_firms)) / first(total_firms) * 100,
+    emp_growth   = (last(total_emp) - first(total_emp)) / first(total_emp) * 100,
+    .groups = "drop"
+  )
+
+print(growth_summary)
+
+```
+We can see that in metro areas the firms grew by 60% post pandemic and only 2.5% where as for the employment rate in non metro areas there has been a 92% growth and only a 32% growth in non metro areas. 
+
+
+##5Do rural areas have more single establishment firms vs multi-establishment firms? 
+```{r}
+library(dplyr)
+library(ggplot2)
+
+df <- pubdata::get("bds", "2022_met") %>%
+  mutate(
+    metro_status = case_when(
+      metro == "M" ~ "metro",
+      metro == "N" ~ "nonmetro",
+      TRUE ~ NA_character_
+    )
+  ) %>%
+  filter(!is.na(metro_status))
+
+# Calculate single vs multi establishment counts
+df_summary <- df %>%
+  group_by(year, metro_status) %>%
+  summarise(
+    total_firms = sum(firms, na.rm = TRUE),
+    total_estabs = sum(estabs, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    single_estab_firms = total_firms,                     # every firm has at least one estab
+    multi_estab_extra  = total_estabs - total_firms,      # establishments beyond 1 per firm
+    share_single_estab = total_firms / total_estabs * 100 # % of establishments that are single-unit
+  )
+
+print(df_summary)
+
+# Visualization: share of single-unit establishments
+ggplot(df_summary, aes(x = year, y = share_single_estab, color = metro_status)) +
+  geom_line(size = 1.2) +
+  labs(
+    title = "Share of Single-Establishment Firms",
+    y = "Percent Single-Establishment",
+    x = "Year"
+  ) +
+  theme_minimal()
+
+
+```
+Rural areas continue to depend more on small, independent firms, while metros are more dominated by multi-location businesses. But both areas are trending toward fewer single-establishment firms over time, reflecting a national shift toward consolidation and chain expansion.
+
+
+
+
+
+------------------------------------------------------------------------
+
+##Summary: BDS Dataset Exploration
+
+This QMD provides an end-to-end walkthrough to understand, summarize,
+and explore the BDS dataset collection using `pubdata`.
+
 
