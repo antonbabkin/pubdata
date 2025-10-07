@@ -13,14 +13,41 @@ format:
 #| output: false
 library(tidyverse)
 library(scales)
+library(arrow)
 ```
 
 Placeholder page for `qcew` collection.
 
-## Datasets
+## Dataset
 
 ```{r}
 pubdata::ls("qcew", detail = TRUE)
+```
+
+## Comparing data access methods
+
+-   Reading an full year of QCEW data using `pubdata::get()` takes a few seconds, which adds up doing multiple analysis over multiple years.
+-   To improve efficiency, we can combine `pubdata::path()`(returns the exact disk path for a given table table) and `arrow::open_dataset` (analyze large, multifile dataset directly from disk without reading them fully into memory)
+
+```{r}
+# Reading an entire year and filter (2020)
+time_entire <- system.time({
+  df_full <- pubdata::get("qcew", "naics_ann_2020") %>%
+    filter(agglvl_code == "10", own_code == "5") %>%
+    select(area_fips, annual_avg_emplvl, avg_annual_pay)})
+
+# arrow + filter
+time_arrow <- system.time({
+  df_arrow <- pubdata::path("qcew", "naics_ann_2020") %>%
+    arrow::open_dataset() %>%
+    filter(agglvl_code == "10", own_code == "5") %>%
+    select(area_fips, annual_avg_emplvl) %>%
+    collect()})
+
+tibble(
+  Method = c("Load entire table into memory", "Query subset using Arrow Dataset"),
+  Runtime = c(time_entire[["elapsed"]], time_arrow[["elapsed"]])
+)
 ```
 
 ## Examples of analysis
@@ -48,10 +75,34 @@ pubdata::get("qcew", "naics_ann_2024") %>%
   head(10)
 ```
 
+Employment growth rate by ownership (2020-2024) (Using `pubdata::path()` with `arrow::open_dataset()` for faster multiyear querying.)
+
+```{r}
+df_arrow <- pubdata::path("qcew", "naics_ann_2020") %>% dirname() %>%
+  arrow::open_dataset() %>%
+  filter(
+    agglvl_code == "11",
+    year %in% 2020:2024,
+    stringr::str_detect(own_code, "^[1-3|5]$")) %>%
+  left_join(pubdata::get("qcew", "meta_naics_own"), by = "own_code") %>%
+  select(year, own_title, oty_annual_avg_emplvl_pct_chg) %>%
+  collect()
+
+ggplot(df_arrow, aes(x = year, y = oty_annual_avg_emplvl_pct_chg, color = own_title)) +
+  geom_line() +
+  geom_point() + 
+  labs(
+    title = "Employment Growth Rate by Ownership (2020–2024)",
+    x = "Year",
+    y = "Annual Average Employment \n Percentage Change (%)",
+    color = "Ownership Type"
+  ) +
+  theme_minimal()
+```
 
 The annual average pay trends of top 3 supersectors in 2024 (2020-2024).
 
-```{r}
+```{r message=FALSE}
 #preload data
 for (y in 2020:2024) {
   pubdata::get("qcew", paste0("naics_ann_", y))
@@ -86,31 +137,6 @@ ggplot(df_top3, aes(x = year, y = avg_annual_pay, color = industry_title)) +
   theme_minimal()
 ```
 
-
-Employment growth rate by ownership (2020-2024)
-
-```{r}
-
-df <- map_dfr(2020:2024, function(y) {
-  pubdata::get("qcew", paste0("naics_ann_", y)) %>%
-    filter(agglvl_code == "11") %>%
-    filter(stringr::str_detect(own_code, "^[1-3|5]$")) %>% 
-    left_join(pubdata::get("qcew", "meta_naics_own"), by = "own_code") %>%
-    select(year, own_title, oty_annual_avg_emplvl_pct_chg)
-})
-
-ggplot(df, aes(x = year, y = oty_annual_avg_emplvl_pct_chg, color = own_title)) +
-  geom_line() +
-  geom_point() + 
-  labs(
-    title = "Employment Growth Rate by Ownership (2020–2024)",
-    x = "Year",
-    y = "Annual Average Employment \n Percentage Change (%)",
-    color = "Ownership Type"
-  ) +
-  theme_minimal()
-```
-
 Linear association between annual average annual pay and establishments (2020–2024)
 
 ```{r}
@@ -125,4 +151,3 @@ lm_pay_estabs <- lm(avg_annual_pay ~ annual_avg_estabs, data = df_pay_estabs)
 
 lm_pay_estabs %>% summary()
 ```
-
