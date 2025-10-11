@@ -42,11 +42,11 @@ The **Business Dynamics Statistics (BDS)**, published by the U.S. Census
 Bureau, captures annual measures of job creation, job destruction,
 establishment births/deaths, firm dynamics, and employment.
 
-🔗 Official Links: - [BDS
-Homepage](https://www.ers.usda.gov/data-products/rural-urban-continuum-codes)\
--[Methodology](https://www.census.gov/programs-surveys/bds/technical-documentation/methodology.html)
 
-------------------------------------------------------------------------
+[BDS Homepage](https://www.ers.usda.gov/data-products/rural-urban-continuum-codes)
+[Methodology](https://www.census.gov/programs-surveys/bds/technical-documentation/methodology.html)
+
+------------------------------------------------------------------
 
 # Dataset Organization in `pubdata`
 
@@ -93,10 +93,11 @@ library(purrr)
 library(DT)
 library(stringr)
 
+
 keys <- pubdata::ls("bds", "raw_2022_met")
 
 summary_tbl <- map_dfr(keys, function(k) {
-  m <- suppressMessages(meta("bds", "raw_2022_met"))
+  m <- meta("bds", k,print = FALSE)
   df <- read_csv(pubdata::get("bds", k), show_col_types = FALSE)
   
   tibble(
@@ -137,7 +138,7 @@ collection <- "bds"
 keys <- pubdata::ls(collection)
 
 summary_tbl <- map_dfr(keys, function(k) {
-  m <- suppressMessages(meta("bds", "raw_2022_met"))
+  m <- meta("bds", k,print = FALSE)
   
   if (m$type == "table") {
     df <- pubdata::get(collection, k)
@@ -188,23 +189,23 @@ datatable(
     whiteSpace = 'normal',  # wrap long text
     lineHeight = '20px'
   )
+```
+```{r}
+collection <- "bds"
+keys <- pubdata::ls(collection)
 
-
+codebook <- map_dfr(keys, function(k) {
+  m <-  meta(collection, k,print = FALSE)})
 ```
 
 ## Variable Codebook (raw_2022_met)
 
 ```{r,include=TRUE,message=FALSE}
-
 collection <- "bds"
 keys <- pubdata::ls(collection)
 
 codebook <- map_dfr(keys, function(k) {
-  m <-  suppressMessages({
-    capture.output(meta_obj <- meta(collection, k))
-    meta_obj
-  })
-  
+  m <-  meta(collection, k,print = FALSE)
   schema <- m$schema
   
   if (m$type == "table") {
@@ -229,9 +230,11 @@ datatable(
     pageLength = 25
   ),
   rownames = FALSE,
-  escape = FALSE
-)
-
+  escape = FALSE,
+class = "display nowrap"  # prevent wrapping
+) %>%
+  formatStyle(columns = names(codebook), 
+              `white-space` = "nowrap")
 
 ```
 
@@ -245,10 +248,7 @@ keys <- pubdata::ls(collection)
 # build a long data frame of key-variable pairs from meta
 meta_long <- purrr::map_dfr(keys, function(k) {
   # Capture all printed output from meta() and suppress messages
-  m <- suppressMessages({
-    tmp <- capture.output(res <- meta(collection, k))
-    res
-  })
+  m <-  meta(collection, k,print = FALSE)
   schema <- m$schema
   if (m$type == "table") {
      invisible(
@@ -276,7 +276,7 @@ vars <- setdiff(names(df_wide), "key")
 true_counts <- colSums(df_wide[vars])
 vars_ordered <- names(sort(true_counts, decreasing = TRUE))
 
-specific_cols <- names(true_counts[true_counts == 1])          # columns with all FALSE
+specific_cols <- names(true_counts[true_counts < nrow(df_wide)])    # columns with some FALSE's included
 common_cols   <- setdiff(vars, specific_cols) 
 
 df_wide_ordered <- df_wide %>% select(key, all_of(specific_cols), all_of(common_cols))
@@ -303,9 +303,6 @@ datatable(
   ),
   rownames = FALSE
 )
-
-
-
 ```
 
 ## Summary Statistics
