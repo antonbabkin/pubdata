@@ -1,0 +1,27 @@
+---
+title: "ers_rural_dev"
+format: html
+---
+
+```{r}
+library(tidyverse)
+logger::log_threshold(logger::DEBUG)
+```
+
+# RUC
+
+Data file URLs have a portion `v=...` in the end (e.g. `https://ers.usda.gov/sites/default/files/_laserfiche/DataFiles/53251/Ruralurbancontinuumcodes2023.xlsx?v=31091`).
+This portion is changes sometime when the page with links is refreshed, and the download works even without it.
+
+2023 data is available in two formats, XLSX and CSV.
+We use XLSX format because it has the same structure as all previous years.
+CSV is in long form.
+
+
+```{r}
+
+ers_rural_get("ruc_1974")
+
+```
+
+

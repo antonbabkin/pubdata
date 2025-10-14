@@ -8,27 +8,33 @@ ers_rural_get <- function(key) {
 
   if (this_meta$type == "raw") {
     path <- pubdata_path("ers_rural", this_meta$path)
-    utils::download.file(this_meta$url, mkdir(path))
-    stopifnot(file.exists(path))
+    download_file(this_meta$url, path)
     return(path)
   }
 
   raw <- get("ers_rural", this_meta$depends)
-  ers_rural_read_ruc(raw, this_meta)
+  types <- purrr::map(this_meta$schema, \(x) x$type)
+  # read_excel() uses different type names and does not distinguish integer and double
+  excel_types <- purrr::map_chr(types, \(x) switch(
+    x,
+    logical = "logical",
+    character = "text",
+    integer = "numeric",
+    double = "numeric"
+  ))
 
-}
-
-
-#' Read RUC table
-ers_rural_read_ruc <- function(raw, meta) {
-  year <- as.integer(meta$keys$year)
-  if (year == 2003) {
-    df <- readxl::read_excel(raw)
-    names(df) <- names(meta$schema)
-  } else if (year == 2023) {
-    df <- readr::read_csv(raw, col_types = "c")
-    names(df) <- tolower(names(df))
+  # read RUC tables
+  if (key %in% c("ruc_1974", "ruc_1983", "ruc_1993", "ruc_2003", "ruc_2003pr", "ruc_2013", "ruc_2023")) {
+    df <- readxl::read_excel(raw, col_names = names(types), skip = 1, col_types = excel_types)
+    for (col in names(df)) {
+      if (types[[col]] == "integer") {
+        df[[col]] <- as.integer(df[[col]])
+      }
+    }
   }
+
   df
 }
+
+
 

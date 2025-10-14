@@ -18,8 +18,12 @@ qcew_get <- function(key) {
 
   raw <- get("qcew", this_meta$depends)
   types <- purrr::map(this_meta$schema, \(x) x$type)
-  readr::read_csv(raw, col_types = types)
-
+  if (stringr::str_detect(key, "^sic_ann_[:digit:]{4}$")) {
+    y <- readr::read_csv(raw, col_types = types, na = c("", "NA", "Infinity"))
+  } else {
+    y <- readr::read_csv(raw, col_types = types)
+  }
+  y
 }
 
 

@@ -8,6 +8,7 @@ Development notebook for QCEW.
 
 ```{r}
 library(tidyverse)
+logger::log_threshold(logger::DEBUG)
 ```
 
 
@@ -31,15 +32,20 @@ meta("qcew", "raw_naics_ann_1990")
 
 ```
 
+# NAICS years
 
-# schema
+## schema
 
 File layout is downloadable.
 Use to construct schema section for YAML file.
 
+
+
+
 ```{r}
 # download_file("https://www.bls.gov/cew/about-data/downloadable-file-layouts/annual/naics-based-annual-layout-csv.csv", "tmp/qcew/naics-based-annual-layout-csv.csv")
 
+int_cols <- c("year", "annual_avg_estabs", "annual_avg_emplvl", "annual_avg_wkly_wage", "avg_annual_pay", "oty_annual_avg_estabs_chg", "oty_annual_avg_emplvl_chg", "oty_annual_avg_wkly_wage_chg", "oty_avg_annual_pay_chg")
 df <- read_csv("tmp/qcew/naics-based-annual-layout-csv.csv", show_col_types = FALSE)
 s <- list()
 for (i in 1:nrow(df)) {
@@ -47,9 +53,9 @@ for (i in 1:nrow(df)) {
   if (grepl("Excluded from singlefile", r$field_description)) next
   s1 <- list(
     desc = r$field_description,
-    type = switch(r$data_type, Text = "character", Numeric = "number")
+    type = switch(r$data_type, Text = "character", Numeric = "double")
   )
-  if (r$field_name == "year") s1$type = "integer"
+  if (r$field_name %in% int_cols) s1$type = "integer"
   s[[r$field_name]] <- s1
 }
 cat(yaml::as.yaml(s))
@@ -57,7 +63,7 @@ cat(yaml::as.yaml(s))
 ```
 
 
-# categoricals
+## categoricals
 
 Classification codes and titles are available as downloadable files.
 Prepare them as dataframes as well.
@@ -77,15 +83,20 @@ qcew_get("meta_naics_size")
 ```
 
 
-# main tables
+## main tables
 
 
 ```{r}
+# cache_clear("qcew", "^naics_ann_")
 
 for (y in 1990:2024) {
-  x <- get("qcew", paste0("naics_ann_", y))
+  # get without caching
+  # x <- qcew_get(paste0("naics_ann_", y))
+  # get and cache
+  x <- qcew_get(paste0("naics_ann_", y))
   cat(y, dim(x), "\n")
 }
+
 
 ```
 
@@ -93,11 +104,11 @@ for (y in 1990:2024) {
 Full dataset takes a few seconds to read from disk cache.
 
 ```{r}
-logger::log_threshold(logger::DEBUG)
+
 get("qcew", "naics_ann_2020")
 ```
 
-Quering from parquet path is fast.
+Querying from parquet path is fast.
 
 ```{r}
 path("qcew", "naics_ann_2020") %>%
@@ -122,4 +133,112 @@ path("qcew", "naics_ann_2020") %>%
 
 ```
 
+
+# SIC years
+
+## schema
+
+[SIC file layout](https://www.bls.gov/cew/about-data/downloadable-file-layouts/annual/sic-based-annual-layout.htm) gives different types than in NAICS layout for same field, e.g. agglvl_code is numeric.
+It is worth overriding this to text for consistency with NAICS and because in the case of agg level lookup table still lists values as "01", "02" etc.
+
+Numerical columns are integers.
+Exceptions are some dollar values that exceed R's integer type limit of `2^31`.
+
+
+```{r}
+# download_file("https://www.bls.gov/cew/about-data/downloadable-file-layouts/annual/sic-based-annual-layout-csv.csv", "tmp/qcew/sic-based-annual-layout-csv.csv")
+
+df <- read_csv("tmp/qcew/sic-based-annual-layout-csv.csv", show_col_types = FALSE)
+s <- list()
+for (i in 1:nrow(df)) {
+  r <- df[i, ]
+  if (grepl("Excluded from singlefile", r$field_description)) next
+  s1 <- list(
+    desc = r$field_description,
+    type = switch(r$data_type, Text = "character", Numeric = "integer")
+  )
+  # dollar values can exceed integer limit of 2^31
+  if (r$field_name %in% c("total_annual_wages", "taxable_annual_wages", "annual_contributions")) s1$type = "double"
+  if (r$field_name %in% c("own_code", "agglvl_code", "size_code")) s1$type = "character"
+  s[[r$field_name]] <- s1
+}
+cat(yaml::as.yaml(s))
+
+```
+
+
+## categoricals
+
+Classification codes and titles are available as downloadable files.
+Prepare them as dataframes as well.
+
+```{r}
+ls("qcew", "meta_sic")
+
+qcew_get("raw_meta_sic_size") |>
+  readr::read_csv()
+
+qcew_get("meta_sic_area")
+qcew_get("meta_sic_own")
+qcew_get("meta_sic_ind")
+qcew_get("meta_sic_agg")
+qcew_get("meta_sic_size")
+
+```
+
+
+
+## main tables
+
+### parsing issues
+
+Columns `annual_avg_wkly_wage` and `annual_avg_pay` in SIC year CSV files have value `Infinity` when denominator (employment) is zero.
+To address this, we read them as `NA` values.
+Parsing a storing an actual `Inf` numerical value is possible, but such values make no sense for wage and payroll.
+
+```{r}
+raw <- get("qcew", "raw_sic_ann_2000")
+types <- purrr::map(meta("qcew", "sic_ann_2000", print = FALSE)$schema, \(x) x$type)
+# problems warning
+x <- readr::read_csv(raw, col_types = types)
+
+x1 <- vroom::problems(x)
+x1
+x1 |> count(expected, actual, col)
+x1 |> distinct(row) |> count()
+
+x[4475:4479, ]
+
+# no warning
+x2 <- readr::read_csv(raw, col_types = types, na = c("", "NA", "Infinity"))
+
+# try all years to see if other parsing errors occur
+for (y in 2000:1975) {
+  raw <- get("qcew", paste0("raw_sic_ann_", y))
+  # x <- readr::read_csv(raw, col_types = types)
+  x <- readr::read_csv(raw, col_types = types, na = c("", "NA", "Infinity"))
+  cat(y, nrow(vroom::problems(x)), "\n")
+}
+
+```
+
+### try all
+
+```{r}
+ls("qcew", "sic_ann") |>
+  grep("^raw", x = _, value = TRUE, invert = TRUE)
+# cache_clear("qcew", "sic_ann_")
+cache_clear("qcew", "^sic_ann_")
+
+for (y in 2000:1975) {
+  x <- qcew_get(paste0("sic_ann_", y))
+  cat(y, dim(x), "\n")
+}
+
+```
+
+
+```{r}
+vroom::problems(x) %>% count(col)
+```
 
