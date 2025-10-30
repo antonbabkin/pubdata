@@ -1,0 +1,56 @@
+---
+title: "CHRR development"
+format: html
+---
+
+Development notebook for CHRR
+
+```{r}
+library(tidyverse)
+library(yaml)
+library(readxl)
+logger::log_threshold(logger::DEBUG)
+```
+
+# Downloadable files
+
+The County Health Rankings & Roadmaps (CHRR) analytic dataset contains county-level measures for health outcomes, health behaviors, social and economic factors, and demographics, etc.
+
+Start working with a single file (2024 analytic data)
+
+```{r}
+df <- read_csv("tmp/chrr/analytic_data2024.csv", show_col_types = FALSE, skip = 1)
+df %>% head()
+```
+
+
+# schema (all CHRR)
+
+File layout and relevant measure/description are downloadable, using it to construct schema for YAML file (all CHRR analytic and trend data share the same schema in the official data dictionary).
+
+```{r}
+#download_file("https://www.countyhealthrankings.org/sites/default/files/media/document/DataDictionary_2024.xlsx", "tmp/chrr/DataDictionary_2024.xlsx")
+
+df_layout <- read_excel("tmp/chrr/DataDictionary_2024.xlsx") |> filter(!is.na(`Variable Name`))
+s <- list()
+for (i in 1:nrow(df_layout)) {
+  r <- df_layout[i, ]
+  var <- r$`Variable Name`
+  measure <- r$Measure
+  desc <- r$Description
+  if (is.na(var) || var == "") next
+  col_meta <- list( measure = measure, type = "character")
+  if (!is.na(desc) && desc != "") col_meta$description <- desc
+  if (grepl("flag", var, ignore.case = TRUE)) col_meta$type <- "integer"
+  if (grepl("value|numerator|denominator|ci", var, ignore.case = TRUE)) col_meta$type <- "double"
+  s[[var]] <- col_meta
+}
+cat(yaml::as.yaml(s))
+```
+
+
+
+
+
+
+
