@@ -24,7 +24,9 @@ df %>% head()
 ```
 
 
-# schema (all CHRR)
+# Analytic data
+
+## schema 
 
 File layout and relevant measure/description are downloadable, using it to construct schema for YAML file (all CHRR analytic and trend data share the same schema in the official data dictionary).
 
@@ -36,11 +38,9 @@ s <- list()
 for (i in 1:nrow(df_layout)) {
   r <- df_layout[i, ]
   var <- r$`Variable Name`
-  measure <- r$Measure
-  desc <- r$Description
+  desc <- gsub("\n", " ", r$Measure)
   if (is.na(var) || var == "") next
-  col_meta <- list( measure = measure, type = "character")
-  if (!is.na(desc) && desc != "") col_meta$description <- desc
+  col_meta <- list(desc = desc, type = "character")
   if (grepl("flag", var, ignore.case = TRUE)) col_meta$type <- "integer"
   if (grepl("value|numerator|denominator|ci", var, ignore.case = TRUE)) col_meta$type <- "double"
   s[[var]] <- col_meta
@@ -48,6 +48,84 @@ for (i in 1:nrow(df_layout)) {
 cat(yaml::as.yaml(s))
 ```
 
+
+
+## Variable-year table
+
+```{r}
+# find data dictionary files and extract year
+files <- list.files("tmp/chrr", pattern = "DataDictionary.*\\.xlsx$", full.names = TRUE)
+f_yr_extract <- tibble(path = files, year = str_extract(files, "\\d{4}")) |> filter(!is.na(year))
+f_yr_extract
+
+# read variables
+vars_by_year <- list()
+for (i in 1:nrow(f_yr_extract)) {
+  year <- f_yr_extract$year[i]
+  path <- f_yr_extract$path[i]
+  df_year <- read_excel(path)
+  var_names <- df_year$`Variable Name` |> na.omit() |> unique()
+  vars_by_year[[year]] <- var_names
+}
+
+# create list and build presence matrix
+variables <- unlist(vars_by_year) |> sort() |> unique()
+var_change_df <- data.frame(variable = variables)
+for (yr in names(vars_by_year)) { 
+  var_change_df[[yr]] <- var_change_df$variable %in% vars_by_year[[yr]]
+}
+
+head(var_change_df, 10)
+write_csv(var_change_df, "tmp/chrr/variable_year_presence.csv")
+```
+
+# Trend data
+
+## schema
+
+[2024 CHR Trends Data Documentation](https://www.countyhealthrankings.org/sites/default/files/media/document/Trends%20documentation%202024.pdf) Unlike the analytic datasets (wide format), trend data are in long format, where each row corresponds to a measure and period combination. 
+The schema has remained consistent across releases since 2021.
+
+Numeric columns are read as doubles or integers where applicable.
+
+```{r}
+# download_file("https://www.countyhealthrankings.org/sites/default/files/media/document/Trends%20documentation%202024.pdf","tmp/chrr/Trends_documentation_2024.pdf")
+
+df <- read_csv("tmp/chrr/chr_trends_csv_2024.csv", show_col_types = FALSE)
+s <- list()
+for (colname in names(df)) {
+  s1 <- list(
+    desc = "",
+    type = "character"
+  )
+
+  # numeric types
+  if (colname %in% c("numerator", "denominator", "rawvalue", "cilow", "cihigh"))
+    s1$type <- "double"
+  if (colname %in% c("measureid", "chrreleaseyear", "differflag", "trendbreak"))
+    s1$type <- "integer"
+
+  # column descriptions
+  if (colname %in% c("yearspan")) s1$desc <- "The years of data this estimate represents"
+  if (colname %in% c("measurename")) s1$desc <- "The name of the measure"
+  if (colname %in% c("statecode")) s1$desc <- "The two-digit FIPS code for the state"
+  if (colname %in% c("countycode")) s1$desc <- "The three-digit FIPS code for the county"
+  if (colname %in% c("county")) s1$desc <- "The name of the county"
+  if (colname %in% c("state")) s1$desc <- "The two-letter abbreviation for the state"
+  if (colname %in% c("numerator")) s1$desc <- "The measure numerator"
+  if (colname %in% c("denominator")) s1$desc <- "The measure denominator"
+  if (colname %in% c("rawvalue")) s1$desc <- "The value of the measure"
+  if (colname %in% c("cilow")) s1$desc <- "The lower bound of the confidence interval"
+  if (colname %in% c("cihigh")) s1$desc <- "The upper bound of the confidence interval"
+  if (colname %in% c("measureid")) s1$desc <- "The County Health Rankings measure identifier"
+  if (colname %in% c("chrreleaseyear")) s1$desc <- "The County Health Rankings release year the data was included in"
+  if (colname %in% c("differflag")) s1$desc <- "A flag to indicate that the estimate included in this release differs from the data included in the corresponding Annual Data Release."
+  if (colname %in% c("trendbreak")) s1$desc <- "A flag to indicate that the year of the estimate represents the start of a new trend. The data from that point forward should not be used with prior years of data to estimate trends."
+  s[[colname]] <- s1
+}
+
+cat(yaml::as.yaml(s))
+```
 
 
 
