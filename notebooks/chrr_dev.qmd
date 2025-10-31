@@ -52,7 +52,14 @@ cat(yaml::as.yaml(s))
 
 ## Variable-year table
 
+[2023 Data Dictionary](https://www.countyhealthrankings.org/sites/default/files/media/document/2023%20Data%20Dictionary%20(XLSX).xlsx) uses a slightly different filename pattern than other years.
+Manually renamed file to align with other years.
+
 ```{r}
+# 2023 Data Dictionary uses a slightly different file pattern than other years
+# download_file(https://www.countyhealthrankings.org/sites/default/files/media/document/2023%20Data%20Dictionary%20(XLSX).xlsx, "tmp/chrr/DataDictionary_2023.xlsx")
+
+
 # find data dictionary files and extract year
 files <- list.files("tmp/chrr", pattern = "DataDictionary.*\\.xlsx$", full.names = TRUE)
 f_yr_extract <- tibble(path = files, year = str_extract(files, "\\d{4}")) |> filter(!is.na(year))
@@ -76,7 +83,7 @@ for (yr in names(vars_by_year)) {
 }
 
 head(var_change_df, 10)
-write_csv(var_change_df, "tmp/chrr/variable_year_presence.csv")
+write_csv(var_change_df, "tmp/chrr/variable_year.csv")
 ```
 
 # Trend data
