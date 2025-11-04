@@ -1,0 +1,37 @@
+collection: chrr
+desc: County Health Rankings and Roadmaps (CHRR)
+urls:
+  "Home":
+    # todo
+  "Data Files":
+    # todo
+
+
+
+data:
+  # ---- Annual Analytic Data files
+  raw_2025:
+    desc: #
+    type: raw
+    path: raw/analytic/2025.csv
+    url: #
+  raw_2024:
+    desc: #
+    type: raw
+    path: raw/analytic/2024.csv
+    url: #
+
+  2025:
+    desc: #
+    type: table
+    path: proc/analytic/2025.pq
+    depends: raw_2025
+    schema:
+      #
+  2024:
+    desc: #
+    type: table
+    path: proc/analytic/2024.pq
+    depends: raw_2024
+    schema:
+      #
