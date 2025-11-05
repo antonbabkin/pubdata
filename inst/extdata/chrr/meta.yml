@@ -2,36 +2,4740 @@ collection: chrr
 desc: County Health Rankings and Roadmaps (CHRR)
 urls:
   "Home":
-    # todo
+    "https://www.countyhealthrankings.org/"
   "Data Files":
-    # todo
+    "https://www.countyhealthrankings.org/health-data/methodology-and-sources/data-documentation"
+  "Methods":
+    "https://www.countyhealthrankings.org/health-data/methodology-and-sources/methods"
 
 
 
 data:
   # ---- Annual Analytic Data files
   raw_2025:
-    desc: #
+    desc: 2025 County Health Rankings Analytic Data
     type: raw
     path: raw/analytic/2025.csv
-    url: #
+    url: https://www.countyhealthrankings.org/sites/default/files/media/document/analytic_data2025.csv
   raw_2024:
-    desc: #
+    desc: 2024 County Health Rankings Analytic Data
     type: raw
     path: raw/analytic/2024.csv
-    url: #
+    url: https://www.countyhealthrankings.org/sites/default/files/media/document/analytic_data2024.csv
 
   2025:
-    desc: #
+    desc: 2025 County Health Rankings Analytic Data
     type: table
     path: proc/analytic/2025.pq
     depends: raw_2025
     schema:
-      #
+      statecode:
+        desc: State FIPS Code
+        type: character
+      countycode:
+        desc: County FIPS Code
+        type: character
+      fipscode:
+        desc: 5-digit FIPS Code
+        type: character
+      state:
+        desc: State Abbreviation
+        type: character
+      county:
+        desc: Name
+        type: character
+      year:
+        desc: Release Year
+        type: character
+      county_clustered:
+        desc: County Clustered (Yes=1/No=0)
+        type: character
+      v001_rawvalue:
+        desc: Premature Death raw value
+        type: double
+      v001_numerator:
+        desc: Premature Death numerator
+        type: double
+      v001_denominator:
+        desc: Premature Death denominator
+        type: double
+      v001_cilow:
+        desc: Premature Death CI low
+        type: double
+      v001_cihigh:
+        desc: Premature Death CI high
+        type: double
+      v001_flag:
+        desc: Premature Death flag (0 = No Flag/1=Unreliable/2=Suppressed)
+        type: integer
+      v001_race_aian:
+        desc: Premature Death (AIAN)
+        type: character
+      v001_race_aian_cilow:
+        desc: Premature Death CI low (AIAN)
+        type: double
+      v001_race_aian_cihigh:
+        desc: Premature Death CI high (AIAN)
+        type: double
+      v001_race_aian_flag:
+        desc: Premature Death flag (AIAN) (. = No Flag/1=Unreliable/2=Suppressed)
+        type: integer
+      v001_race_asian:
+        desc: Premature Death (Asian)
+        type: character
+      v001_race_asian_cilow:
+        desc: Premature Death CI low (Asian)
+        type: double
+      v001_race_asian_cihigh:
+        desc: Premature Death CI high (Asian)
+        type: double
+      v001_race_asian_flag:
+        desc: Premature Death flag (Asian) (. = No Flag/1=Unreliable/2=Suppressed)
+        type: integer
+      v001_race_black:
+        desc: Premature Death (Black)
+        type: character
+      v001_race_black_cilow:
+        desc: Premature Death CI low (Black)
+        type: double
+      v001_race_black_cihigh:
+        desc: Premature Death CI high (Black)
+        type: double
+      v001_race_black_flag:
+        desc: Premature Death flag (Black) (. = No Flag/1=Unreliable/2=Suppressed)
+        type: integer
+      v001_race_hispanic:
+        desc: Premature Death (Hispanic)
+        type: character
+      v001_race_hispanic_cilow:
+        desc: Premature Death CI low (Hispanic)
+        type: double
+      v001_race_hispanic_cihigh:
+        desc: Premature Death CI high (Hispanic)
+        type: double
+      v001_race_hispanic_flag:
+        desc: Premature Death flag (Hispanic) (. = No Flag/1=Unreliable/2=Suppressed)
+        type: integer
+      v001_race_white:
+        desc: Premature Death (White)
+        type: character
+      v001_race_white_cilow:
+        desc: Premature Death CI low (White)
+        type: double
+      v001_race_white_cihigh:
+        desc: Premature Death CI high (White)
+        type: double
+      v001_race_white_flag:
+        desc: Premature Death flag (White) (. = No Flag/1=Unreliable/2=Suppressed)
+        type: integer
+      v001_race_nhopi:
+        desc: Premature Death (NHOPI)
+        type: character
+      v001_race_nhopi_cilow:
+        desc: Premature Death CI low (NHOPI)
+        type: double
+      v001_race_nhopi_cihigh:
+        desc: Premature Death CI high (NHOPI)
+        type: double
+      v001_race_nhopi_flag:
+        desc: Premature Death flag (NHOPI) (. = No Flag/1=Unreliable/2=Suppressed)
+        type: integer
+      v001_race_tom_flag:
+        desc: Premature Death flag (Two or more races) (. = No Flag/1=Unreliable/2=Suppressed)
+        type: integer
+      v036_rawvalue:
+        desc: Poor Physical Health Days raw value
+        type: double
+      v036_numerator:
+        desc: Poor Physical Health Days numerator
+        type: double
+      v036_denominator:
+        desc: Poor Physical Health Days denominator
+        type: double
+      v036_cilow:
+        desc: Poor Physical Health Days CI low
+        type: double
+      v036_cihigh:
+        desc: Poor Physical Health Days CI high
+        type: double
+      v037_rawvalue:
+        desc: Low Birth Weight raw value
+        type: double
+      v037_numerator:
+        desc: Low Birth Weight numerator
+        type: double
+      v037_denominator:
+        desc: Low Birth Weight denominator
+        type: double
+      v037_cilow:
+        desc: Low Birth Weight CI low
+        type: double
+      v037_cihigh:
+        desc: Low Birth Weight CI high
+        type: double
+      v037_flag:
+        desc: LBW unreliable indicator (Unreliable = Numerator < 20 or relative standard
+          error > 20%)
+        type: integer
+      v037_race_aian:
+        desc: Low Birth Weight (AIAN)
+        type: character
+      v037_race_aian_cilow:
+        desc: Low Birth Weight CI low (AIAN)
+        type: double
+      v037_race_aian_cihigh:
+        desc: Low Birth Weight CI high (AIAN)
+        type: double
+      v037_race_asian:
+        desc: Low Birth Weight (Asian)
+        type: character
+      v037_race_asian_cilow:
+        desc: Low Birth Weight CI low (Asian)
+        type: double
+      v037_race_asian_cihigh:
+        desc: Low Birth Weight CI high (Asian)
+        type: double
+      v037_race_black:
+        desc: Low Birth Weight (Black)
+        type: character
+      v037_race_black_cilow:
+        desc: Low Birth Weight CI low (Black)
+        type: double
+      v037_race_black_cihigh:
+        desc: Low Birth Weight CI high (Black)
+        type: double
+      v037_race_hispanic:
+        desc: Low Birth Weight (Hispanic)
+        type: character
+      v037_race_hispanic_cilow:
+        desc: Low Birth Weight CI low (Hispanic)
+        type: double
+      v037_race_hispanic_cihigh:
+        desc: Low Birth Weight CI high (Hispanic)
+        type: double
+      v037_race_white:
+        desc: Low Birth Weight (White)
+        type: character
+      v037_race_white_cilow:
+        desc: Low Birth Weight CI low (White)
+        type: double
+      v037_race_white_cihigh:
+        desc: Low Birth Weight CI high (White)
+        type: double
+      v037_race_nhopi:
+        desc: Low Birth Weight (NHOPI)
+        type: character
+      v037_race_nhopi_cilow:
+        desc: Low Birth Weight CI low (NHOPI)
+        type: double
+      v037_race_nhopi_cihigh:
+        desc: Low Birth Weight CI high (NHOPI)
+        type: double
+      v037_race_tom:
+        desc: Low Birth Weight (Two or more races)
+        type: character
+      v037_race_tom_cilow:
+        desc: Low Birth Weight CI low (Two or more races)
+        type: double
+      v037_race_tom_cihigh:
+        desc: Low Birth Weight CI high (Two or more races)
+        type: double
+      v042_rawvalue:
+        desc: Poor Mental Health Days raw value
+        type: double
+      v042_numerator:
+        desc: Poor Mental Health Days numerator
+        type: double
+      v042_denominator:
+        desc: Poor Mental Health Days denominator
+        type: double
+      v042_cilow:
+        desc: Poor Mental Health Days CI low
+        type: double
+      v042_cihigh:
+        desc: Poor Mental Health Days CI high
+        type: double
+      v002_rawvalue:
+        desc: Poor or Fair Health raw value
+        type: double
+      v002_numerator:
+        desc: Poor or Fair Health numerator
+        type: double
+      v002_denominator:
+        desc: Poor or Fair Health denominator
+        type: double
+      v002_cilow:
+        desc: Poor or Fair Health CI low
+        type: double
+      v002_cihigh:
+        desc: Poor or Fair Health CI high
+        type: double
+      v155_rawvalue:
+        desc: Flu Vaccinations raw value
+        type: double
+      v155_numerator:
+        desc: Flu Vaccinations numerator
+        type: double
+      v155_denominator:
+        desc: Flu Vaccinations denominator
+        type: double
+      v155_cilow:
+        desc: Flu Vaccinations CI low
+        type: double
+      v155_cihigh:
+        desc: Flu Vaccinations CI high
+        type: double
+      v155_race_aian:
+        desc: Flu Vaccinations (AIAN)
+        type: character
+      v155_race_asian:
+        desc: Flu Vaccinations (Asian/Pacific Islander)
+        type: character
+      v155_race_black:
+        desc: Flu Vaccinations (Black)
+        type: character
+      v155_race_hispanic:
+        desc: Flu Vaccinations (Hispanic)
+        type: character
+      v155_race_white:
+        desc: Flu Vaccinations (White)
+        type: character
+      v132_rawvalue:
+        desc: Access to Exercise Opportunities raw value
+        type: double
+      v132_numerator:
+        desc: Access to Exercise Opportunities numerator
+        type: double
+      v132_denominator:
+        desc: Access to Exercise Opportunities denominator
+        type: double
+      v132_cilow:
+        desc: Access to Exercise Opportunities CI low
+        type: double
+      v132_cihigh:
+        desc: Access to Exercise Opportunities CI high
+        type: double
+      v133_rawvalue:
+        desc: Food Environment Index raw value
+        type: double
+      v133_numerator:
+        desc: Food Environment Index numerator
+        type: double
+      v133_denominator:
+        desc: Food Environment Index denominator
+        type: double
+      v133_cilow:
+        desc: Food Environment Index CI low
+        type: double
+      v133_cihigh:
+        desc: Food Environment Index CI high
+        type: double
+      v004_rawvalue:
+        desc: Primary Care Physicians raw value
+        type: double
+      v004_numerator:
+        desc: Primary Care Physicians numerator
+        type: double
+      v004_denominator:
+        desc: Primary Care Physicians denominator
+        type: double
+      v004_cilow:
+        desc: Primary Care Physicians CI low
+        type: double
+      v004_cihigh:
+        desc: Primary Care Physicians CI high
+        type: double
+      v004_other_data_1:
+        desc: Ratio of population to primary care physicians.
+        type: character
+      v062_rawvalue:
+        desc: Mental Health Providers raw value
+        type: double
+      v062_numerator:
+        desc: Mental Health Providers numerator
+        type: double
+      v062_denominator:
+        desc: Mental Health Providers denominator
+        type: double
+      v062_cilow:
+        desc: Mental Health Providers CI low
+        type: double
+      v062_cihigh:
+        desc: Mental Health Providers CI high
+        type: double
+      v062_other_data_1:
+        desc: Ratio of population to mental health providers.
+        type: character
+      v088_rawvalue:
+        desc: Dentists raw value
+        type: double
+      v088_numerator:
+        desc: Dentists numerator
+        type: double
+      v088_denominator:
+        desc: Dentists denominator
+        type: double
+      v088_cilow:
+        desc: Dentists CI low
+        type: double
+      v088_cihigh:
+        desc: Dentists CI high
+        type: double
+      v088_other_data_1:
+        desc: Ratio of population to dentists.
+        type: character
+      v005_rawvalue:
+        desc: Preventable Hospital Stays raw value
+        type: double
+      v005_numerator:
+        desc: Preventable Hospital Stays numerator
+        type: double
+      v005_denominator:
+        desc: Preventable Hospital Stays denominator
+        type: double
+      v005_cilow:
+        desc: Preventable Hospital Stays CI low
+        type: double
+      v005_cihigh:
+        desc: Preventable Hospital Stays CI high
+        type: double
+      v005_race_aian:
+        desc: Preventable Hospital Stays (AIAN)
+        type: character
+      v005_race_asian:
+        desc: Preventable Hospital Stays (Asian/Pacific Islander)
+        type: character
+      v005_race_black:
+        desc: Preventable Hospital Stays (Black)
+        type: character
+      v005_race_hispanic:
+        desc: Preventable Hospital Stays (Hispanic)
+        type: character
+      v005_race_white:
+        desc: Preventable Hospital Stays (White)
+        type: character
+      v050_rawvalue:
+        desc: Mammography Screening raw value
+        type: double
+      v050_numerator:
+        desc: Mammography Screening numerator
+        type: double
+      v050_denominator:
+        desc: Mammography Screening denominator
+        type: double
+      v050_cilow:
+        desc: Mammography Screening CI low
+        type: double
+      v050_cihigh:
+        desc: Mammography Screening CI high
+        type: double
+      v050_race_aian:
+        desc: Mammography Screening (AIAN)
+        type: character
+      v050_race_asian:
+        desc: Mammography Screening (Asian/Pacific Islander)
+        type: character
+      v050_race_black:
+        desc: Mammography Screening (Black)
+        type: character
+      v050_race_hispanic:
+        desc: Mammography Screening (Hispanic)
+        type: character
+      v050_race_white:
+        desc: Mammography Screening (White)
+        type: character
+      v085_rawvalue:
+        desc: Uninsured raw value
+        type: double
+      v085_numerator:
+        desc: Uninsured numerator
+        type: double
+      v085_denominator:
+        desc: Uninsured denominator
+        type: double
+      v085_cilow:
+        desc: Uninsured CI low
+        type: double
+      v085_cihigh:
+        desc: Uninsured CI high
+        type: double
+      v136_rawvalue:
+        desc: Severe Housing Problems raw value
+        type: double
+      v136_numerator:
+        desc: Severe Housing Problems numerator
+        type: double
+      v136_denominator:
+        desc: Severe Housing Problems denominator
+        type: double
+      v136_cilow:
+        desc: Severe Housing Problems CI low
+        type: double
+      v136_cihigh:
+        desc: Severe Housing Problems CI high
+        type: double
+      v136_other_data_1:
+        desc: Percentage of households with high housing costs
+        type: character
+      v136_other_data_1_cilow:
+        desc: Percentage of households with high housing costs CI low
+        type: double
+      v136_other_data_1_cihigh:
+        desc: Percentage of households with high housing costs CI high
+        type: double
+      v136_other_data_2:
+        desc: Percentage of households with overcrowding
+        type: character
+      v136_other_data_2_cilow:
+        desc: Percentage of households with overcrowding CI low
+        type: double
+      v136_other_data_2_cihigh:
+        desc: Percentage of households with overcrowding CI high
+        type: double
+      v136_other_data_3:
+        desc: Percentage of households with lack of kitchen or plumbing facilities
+        type: character
+      v136_other_data_3_cilow:
+        desc: Percentage of households with lack of kitchen or plumbing facilities CI low
+        type: double
+      v136_other_data_3_cihigh:
+        desc: Percentage of households with lack of kitchen or plumbing facilities CI high
+        type: double
+      v067_rawvalue:
+        desc: Driving Alone to Work raw value
+        type: double
+      v067_numerator:
+        desc: Driving Alone to Work numerator
+        type: double
+      v067_denominator:
+        desc: Driving Alone to Work denominator
+        type: double
+      v067_cilow:
+        desc: Driving Alone to Work CI low
+        type: double
+      v067_cihigh:
+        desc: Driving Alone to Work CI high
+        type: double
+      v067_race_aian:
+        desc: Driving Alone to Work (AIAN)
+        type: character
+      v067_race_aian_cilow:
+        desc: Driving Alone to Work CI low (AIAN)
+        type: double
+      v067_race_aian_cihigh:
+        desc: Driving Alone to Work CI high (AIAN)
+        type: double
+      v067_race_asian:
+        desc: Driving Alone to Work (Asian/Pacific Islander)
+        type: character
+      v067_race_asian_cilow:
+        desc: Driving Alone to Work CI low (Asian/Pacific Islander)
+        type: double
+      v067_race_asian_cihigh:
+        desc: Driving Alone to Work CI high (Asian/Pacific Islander)
+        type: double
+      v067_race_black:
+        desc: Driving Alone to Work (Black)
+        type: character
+      v067_race_black_cilow:
+        desc: Driving Alone to Work CI low (Black)
+        type: double
+      v067_race_black_cihigh:
+        desc: Driving Alone to Work CI high (Black)
+        type: double
+      v067_race_hispanic:
+        desc: Driving Alone to Work (Hispanic)
+        type: character
+      v067_race_hispanic_cilow:
+        desc: Driving Alone to Work CI low (Hispanic)
+        type: double
+      v067_race_hispanic_cihigh:
+        desc: Driving Alone to Work CI high (Hispanic)
+        type: double
+      v067_race_white:
+        desc: Driving Alone to Work (White)
+        type: character
+      v067_race_white_cilow:
+        desc: Driving Alone to Work CI low (White)
+        type: double
+      v067_race_white_cihigh:
+        desc: Driving Alone to Work CI high (White)
+        type: double
+      v137_rawvalue:
+        desc: Long Commute - Driving Alone raw value
+        type: double
+      v137_numerator:
+        desc: Long Commute - Driving Alone numerator
+        type: double
+      v137_denominator:
+        desc: Long Commute - Driving Alone denominator
+        type: double
+      v137_cilow:
+        desc: Long Commute - Driving Alone CI low
+        type: double
+      v137_cihigh:
+        desc: Long Commute - Driving Alone CI high
+        type: double
+      v125_rawvalue:
+        desc: 'Air Pollution: Particulate Matter raw value'
+        type: double
+      v125_numerator:
+        desc: 'Air Pollution: Particulate Matter numerator'
+        type: double
+      v125_denominator:
+        desc: 'Air Pollution: Particulate Matter denominator'
+        type: double
+      v125_cilow:
+        desc: 'Air Pollution: Particulate Matter CI low'
+        type: double
+      v125_cihigh:
+        desc: 'Air Pollution: Particulate Matter CI high'
+        type: double
+      v124_rawvalue:
+        desc: Drinking Water Violations raw value
+        type: double
+      v124_numerator:
+        desc: Drinking Water Violations numerator
+        type: double
+      v124_denominator:
+        desc: Drinking Water Violations denominator
+        type: double
+      v124_cilow:
+        desc: Drinking Water Violations CI low
+        type: double
+      v124_cihigh:
+        desc: Drinking Water Violations CI high
+        type: double
+      v166_rawvalue:
+        desc: Broadband Access raw value
+        type: double
+      v166_numerator:
+        desc: Broadband Access numerator
+        type: double
+      v166_denominator:
+        desc: Broadband Access denominator
+        type: double
+      v166_cilow:
+        desc: Broadband Access CI low
+        type: double
+      v166_cihigh:
+        desc: Broadband Access CI high
+        type: double
+      v181_rawvalue:
+        desc: Library Access raw value
+        type: double
+      v181_numerator:
+        desc: Library Access numerator
+        type: double
+      v181_denominator:
+        desc: Library Access denominator
+        type: double
+      v181_cilow:
+        desc: Library Access CI low
+        type: double
+      v181_cihigh:
+        desc: Library Access CI high
+        type: double
+      v069_rawvalue:
+        desc: Some College raw value
+        type: double
+      v069_numerator:
+        desc: Some College numerator
+        type: double
+      v069_denominator:
+        desc: Some College denominator
+        type: double
+      v069_cilow:
+        desc: Some College CI low
+        type: double
+      v069_cihigh:
+        desc: Some College CI high
+        type: double
+      v168_rawvalue:
+        desc: High School Completion raw value
+        type: double
+      v168_numerator:
+        desc: High School Completion numerator
+        type: double
+      v168_denominator:
+        desc: High School Completion denominator
+        type: double
+      v168_cilow:
+        desc: High School Completion CI low
+        type: double
+      v168_cihigh:
+        desc: High School Completion CI high
+        type: double
+      v023_rawvalue:
+        desc: Unemployment raw value
+        type: double
+      v023_numerator:
+        desc: Unemployment numerator
+        type: double
+      v023_denominator:
+        desc: Unemployment denominator
+        type: double
+      v023_cilow:
+        desc: Unemployment CI low
+        type: double
+      v023_cihigh:
+        desc: Unemployment CI high
+        type: double
+      v044_rawvalue:
+        desc: Income Inequality raw value
+        type: double
+      v044_numerator:
+        desc: Income Inequality numerator
+        type: double
+      v044_denominator:
+        desc: Income Inequality denominator
+        type: double
+      v044_cilow:
+        desc: Income Inequality CI low
+        type: double
+      v044_cihigh:
+        desc: Income Inequality CI high
+        type: double
+      v024_rawvalue:
+        desc: Children in Poverty raw value
+        type: double
+      v024_numerator:
+        desc: Children in Poverty numerator
+        type: double
+      v024_denominator:
+        desc: Children in Poverty denominator
+        type: double
+      v024_cilow:
+        desc: Children in Poverty CI low
+        type: double
+      v024_cihigh:
+        desc: Children in Poverty CI high
+        type: double
+      v024_race_aian:
+        desc: Children in Poverty (AIAN)
+        type: character
+      v024_race_aian_cilow:
+        desc: Children in Poverty CI low (AIAN)
+        type: double
+      v024_race_aian_cihigh:
+        desc: Children in Poverty CI high (AIAN)
+        type: double
+      v024_race_asian:
+        desc: Children in Poverty (Asian/Pacific Islander)
+        type: character
+      v024_race_asian_cilow:
+        desc: Children in Poverty CI low (Asian/Pacific Islander)
+        type: double
+      v024_race_asian_cihigh:
+        desc: Children in Poverty CI high (Asian/Pacific Islander)
+        type: double
+      v024_race_black:
+        desc: Children in Poverty (Black)
+        type: character
+      v024_race_black_cilow:
+        desc: Children in Poverty CI low (Black)
+        type: double
+      v024_race_black_cihigh:
+        desc: Children in Poverty CI high (Black)
+        type: double
+      v024_race_hispanic:
+        desc: Children in Poverty (Hispanic)
+        type: character
+      v024_race_hispanic_cilow:
+        desc: Children in Poverty CI low (Hispanic)
+        type: double
+      v024_race_hispanic_cihigh:
+        desc: Children in Poverty CI high (Hispanic)
+        type: double
+      v024_race_white:
+        desc: Children in Poverty (White)
+        type: character
+      v024_race_white_cilow:
+        desc: Children in Poverty CI low (White)
+        type: double
+      v024_race_white_cihigh:
+        desc: Children in Poverty CI high (White)
+        type: double
+      v135_rawvalue:
+        desc: Injury Deaths raw value
+        type: double
+      v135_numerator:
+        desc: Injury Deaths numerator
+        type: double
+      v135_denominator:
+        desc: Injury Deaths denominator
+        type: double
+      v135_cilow:
+        desc: Injury Deaths CI low
+        type: double
+      v135_cihigh:
+        desc: Injury Deaths CI high
+        type: double
+      v135_race_aian:
+        desc: Injury Deaths (AIAN)
+        type: character
+      v135_race_aian_cilow:
+        desc: Injury Deaths CI low (AIAN)
+        type: double
+      v135_race_aian_cihigh:
+        desc: Injury Deaths CI high (AIAN)
+        type: double
+      v135_race_asian:
+        desc: Injury Deaths (Asian)
+        type: character
+      v135_race_asian_cilow:
+        desc: Injury Deaths CI low (Asian)
+        type: double
+      v135_race_asian_cihigh:
+        desc: Injury Deaths CI high (Asian)
+        type: double
+      v135_race_black:
+        desc: Injury Deaths (Black)
+        type: character
+      v135_race_black_cilow:
+        desc: Injury Deaths CI low (Black)
+        type: double
+      v135_race_black_cihigh:
+        desc: Injury Deaths CI high (Black)
+        type: double
+      v135_race_hispanic:
+        desc: Injury Deaths (Hispanic)
+        type: character
+      v135_race_hispanic_cilow:
+        desc: Injury Deaths CI low (Hispanic)
+        type: double
+      v135_race_hispanic_cihigh:
+        desc: Injury Deaths CI high (Hispanic)
+        type: double
+      v135_race_white:
+        desc: Injury Deaths (White)
+        type: character
+      v135_race_white_cilow:
+        desc: Injury Deaths CI low (White)
+        type: double
+      v135_race_white_cihigh:
+        desc: Injury Deaths CI high (White)
+        type: double
+      v135_race_nhopi:
+        desc: Injury Deaths (NHOPI)
+        type: character
+      v135_race_nhopi_cilow:
+        desc: Injury Deaths CI low (NHOPI)
+        type: double
+      v135_race_nhopi_cihigh:
+        desc: Injury Deaths CI high (NHOPI)
+        type: double
+      v140_rawvalue:
+        desc: Social Associations raw value
+        type: double
+      v140_numerator:
+        desc: Social Associations numerator
+        type: double
+      v140_denominator:
+        desc: Social Associations denominator
+        type: double
+      v140_cilow:
+        desc: Social Associations CI low
+        type: double
+      v140_cihigh:
+        desc: Social Associations CI high
+        type: double
+      v171_rawvalue:
+        desc: Child Care Cost Burden raw value
+        type: double
+      v171_numerator:
+        desc: Child Care Cost Burden numerator
+        type: double
+      v171_denominator:
+        desc: Child Care Cost Burden denominator
+        type: double
+      v171_cilow:
+        desc: Child Care Cost Burden CI low
+        type: double
+      v171_cihigh:
+        desc: Child Care Cost Burden CI high
+        type: double
+      v147_rawvalue:
+        desc: Life Expectancy raw value
+        type: double
+      v147_numerator:
+        desc: Life Expectancy numerator
+        type: double
+      v147_denominator:
+        desc: Life Expectancy denominator
+        type: double
+      v147_cilow:
+        desc: Life Expectancy CI low
+        type: double
+      v147_cihigh:
+        desc: Life Expectancy CI high
+        type: double
+      v147_race_aian:
+        desc: Life Expectancy (AIAN)
+        type: character
+      v147_race_aian_cilow:
+        desc: Life Expectancy CI low (AIAN)
+        type: double
+      v147_race_aian_cihigh:
+        desc: Life Expectancy CI high (AIAN)
+        type: double
+      v147_race_asian:
+        desc: Life Expectancy (Asian)
+        type: character
+      v147_race_asian_cilow:
+        desc: Life Expectancy CI low (Asian)
+        type: double
+      v147_race_asian_cihigh:
+        desc: Life Expectancy CI high (Asian)
+        type: double
+      v147_race_black:
+        desc: Life Expectancy (Black)
+        type: character
+      v147_race_black_cilow:
+        desc: Life Expectancy CI low (Black)
+        type: double
+      v147_race_black_cihigh:
+        desc: Life Expectancy CI high (Black)
+        type: double
+      v147_race_hispanic:
+        desc: Life Expectancy (Hispanic)
+        type: character
+      v147_race_hispanic_cilow:
+        desc: Life Expectancy CI low (Hispanic)
+        type: double
+      v147_race_hispanic_cihigh:
+        desc: Life Expectancy CI high (Hispanic)
+        type: double
+      v147_race_white:
+        desc: Life Expectancy (White)
+        type: character
+      v147_race_white_cilow:
+        desc: Life Expectancy CI low (White)
+        type: double
+      v147_race_white_cihigh:
+        desc: Life Expectancy CI high (White)
+        type: double
+      v147_race_nhopi:
+        desc: Life Expectancy (NHOPI)
+        type: character
+      v147_race_nhopi_cilow:
+        desc: Life Expectancy CI low (NHOPI)
+        type: double
+      v147_race_nhopi_cihigh:
+        desc: Life Expectancy CI high (NHOPI)
+        type: double
+      v127_rawvalue:
+        desc: Premature Age-Adjusted Mortality raw value
+        type: double
+      v127_numerator:
+        desc: Premature Age-Adjusted Mortality numerator
+        type: double
+      v127_denominator:
+        desc: Premature Age-Adjusted Mortality denominator
+        type: double
+      v127_cilow:
+        desc: Premature Age-Adjusted Mortality CI low
+        type: double
+      v127_cihigh:
+        desc: Premature Age-Adjusted Mortality CI high
+        type: double
+      v127_race_aian:
+        desc: Premature Age-Adjusted Mortality (AIAN)
+        type: character
+      v127_race_aian_cilow:
+        desc: Premature Age-Adjusted Mortality CI low (AIAN)
+        type: double
+      v127_race_aian_cihigh:
+        desc: Premature Age-Adjusted Mortality CI high (AIAN)
+        type: double
+      v127_race_asian:
+        desc: Premature Age-Adjusted Mortality (Asian)
+        type: character
+      v127_race_asian_cilow:
+        desc: Premature Age-Adjusted Mortality CI low (Asian)
+        type: double
+      v127_race_asian_cihigh:
+        desc: Premature Age-Adjusted Mortality CI high (Asian)
+        type: double
+      v127_race_black:
+        desc: Premature Age-Adjusted Mortality (Black)
+        type: character
+      v127_race_black_cilow:
+        desc: Premature Age-Adjusted Mortality CI low (Black)
+        type: double
+      v127_race_black_cihigh:
+        desc: Premature Age-Adjusted Mortality CI high (Black)
+        type: double
+      v127_race_hispanic:
+        desc: Premature Age-Adjusted Mortality (Hispanic)
+        type: character
+      v127_race_hispanic_cilow:
+        desc: Premature Age-Adjusted Mortality CI low (Hispanic)
+        type: double
+      v127_race_hispanic_cihigh:
+        desc: Premature Age-Adjusted Mortality CI high (Hispanic)
+        type: double
+      v127_race_white:
+        desc: Premature Age-Adjusted Mortality (White)
+        type: character
+      v127_race_white_cilow:
+        desc: Premature Age-Adjusted Mortality CI low (White)
+        type: double
+      v127_race_white_cihigh:
+        desc: Premature Age-Adjusted Mortality CI high (White)
+        type: double
+      v127_race_nhopi:
+        desc: Premature Age-Adjusted Mortality (NHOPI)
+        type: character
+      v127_race_nhopi_cilow:
+        desc: Premature Age-Adjusted Mortality CI low (NHOPI)
+        type: double
+      v127_race_nhopi_cihigh:
+        desc: Premature Age-Adjusted Mortality CI high (NHOPI)
+        type: double
+      v128_rawvalue:
+        desc: Child Mortality raw value
+        type: double
+      v128_numerator:
+        desc: Child Mortality numerator
+        type: double
+      v128_denominator:
+        desc: Child Mortality denominator
+        type: double
+      v128_cilow:
+        desc: Child Mortality CI low
+        type: double
+      v128_cihigh:
+        desc: Child Mortality CI high
+        type: double
+      v128_race_aian:
+        desc: Child Mortality (AIAN)
+        type: character
+      v128_race_aian_cilow:
+        desc: Child Mortality CI low (AIAN)
+        type: double
+      v128_race_aian_cihigh:
+        desc: Child Mortality CI high (AIAN)
+        type: double
+      v128_race_asian:
+        desc: Child Mortality (Asian)
+        type: character
+      v128_race_asian_cilow:
+        desc: Child Mortality CI low (Asian)
+        type: double
+      v128_race_asian_cihigh:
+        desc: Child Mortality CI high (Asian)
+        type: double
+      v128_race_black:
+        desc: Child Mortality (Black)
+        type: character
+      v128_race_black_cilow:
+        desc: Child Mortality CI low (Black)
+        type: double
+      v128_race_black_cihigh:
+        desc: Child Mortality CI high (Black)
+        type: double
+      v128_race_hispanic:
+        desc: Child Mortality (Hispanic)
+        type: character
+      v128_race_hispanic_cilow:
+        desc: Child Mortality CI low (Hispanic)
+        type: double
+      v128_race_hispanic_cihigh:
+        desc: Child Mortality CI high (Hispanic)
+        type: double
+      v128_race_white:
+        desc: Child Mortality (White)
+        type: character
+      v128_race_white_cilow:
+        desc: Child Mortality CI low (White)
+        type: double
+      v128_race_white_cihigh:
+        desc: Child Mortality CI high (White)
+        type: double
+      v128_race_nhopi:
+        desc: Child Mortality (NHOPI)
+        type: character
+      v128_race_nhopi_cilow:
+        desc: Child Mortality CI low (NHOPI)
+        type: double
+      v128_race_nhopi_cihigh:
+        desc: Child Mortality CI high (NHOPI)
+        type: double
+      v129_rawvalue:
+        desc: Infant Mortality raw value
+        type: double
+      v129_numerator:
+        desc: Infant Mortality numerator
+        type: double
+      v129_denominator:
+        desc: Infant Mortality denominator
+        type: double
+      v129_cilow:
+        desc: Infant Mortality CI low
+        type: double
+      v129_cihigh:
+        desc: Infant Mortality CI high
+        type: double
+      v129_race_aian:
+        desc: Infant Mortality (AIAN)
+        type: character
+      v129_race_aian_cilow:
+        desc: Infant Mortality CI low (AIAN)
+        type: double
+      v129_race_aian_cihigh:
+        desc: Infant Mortality CI high (AIAN)
+        type: double
+      v129_race_asian:
+        desc: Infant Mortality (Asian)
+        type: character
+      v129_race_asian_cilow:
+        desc: Infant Mortality CI low (Asian)
+        type: double
+      v129_race_asian_cihigh:
+        desc: Infant Mortality CI high (Asian)
+        type: double
+      v129_race_black:
+        desc: Infant Mortality (Black)
+        type: character
+      v129_race_black_cilow:
+        desc: Infant Mortality CI low (Black)
+        type: double
+      v129_race_black_cihigh:
+        desc: Infant Mortality CI high (Black)
+        type: double
+      v129_race_hispanic:
+        desc: Infant Mortality (Hispanic)
+        type: character
+      v129_race_hispanic_cilow:
+        desc: Infant Mortality CI low (Hispanic)
+        type: double
+      v129_race_hispanic_cihigh:
+        desc: Infant Mortality CI high (Hispanic)
+        type: double
+      v129_race_white:
+        desc: Infant Mortality (White)
+        type: character
+      v129_race_white_cilow:
+        desc: Infant Mortality CI low (White)
+        type: double
+      v129_race_white_cihigh:
+        desc: Infant Mortality CI high (White)
+        type: double
+      v129_race_nhopi:
+        desc: Infant Mortality (NHOPI)
+        type: character
+      v129_race_nhopi_cilow:
+        desc: Infant Mortality CI low (NHOPI)
+        type: double
+      v129_race_nhopi_cihigh:
+        desc: Infant Mortality CI high (NHOPI)
+        type: double
+      v129_race_tom:
+        desc: Infant Mortality (Two or more races)
+        type: character
+      v129_race_tom_cilow:
+        desc: Infant Mortality CI low (Two or more races)
+        type: double
+      v129_race_tom_cihigh:
+        desc: Infant Mortality CI high (Two or more races)
+        type: double
+      v144_rawvalue:
+        desc: Frequent Physical Distress raw value
+        type: double
+      v144_numerator:
+        desc: Frequent Physical Distress numerator
+        type: double
+      v144_denominator:
+        desc: Frequent Physical Distress denominator
+        type: double
+      v144_cilow:
+        desc: Frequent Physical Distress CI low
+        type: double
+      v144_cihigh:
+        desc: Frequent Physical Distress CI high
+        type: double
+      v060_rawvalue:
+        desc: Diabetes Prevalence raw value
+        type: double
+      v060_numerator:
+        desc: Diabetes Prevalence numerator
+        type: double
+      v060_denominator:
+        desc: Diabetes Prevalence denominator
+        type: double
+      v060_cilow:
+        desc: Diabetes Prevalence CI low
+        type: double
+      v060_cihigh:
+        desc: Diabetes Prevalence CI high
+        type: double
+      v061_rawvalue:
+        desc: HIV Prevalence raw value
+        type: double
+      v061_numerator:
+        desc: HIV Prevalence numerator
+        type: double
+      v061_denominator:
+        desc: HIV Prevalence denominator
+        type: double
+      v061_cilow:
+        desc: HIV Prevalence CI low
+        type: double
+      v061_cihigh:
+        desc: HIV Prevalence CI high
+        type: double
+      v011_rawvalue:
+        desc: Adult Obesity raw value
+        type: double
+      v011_numerator:
+        desc: Adult Obesity numerator
+        type: double
+      v011_denominator:
+        desc: Adult Obesity denominator
+        type: double
+      v011_cilow:
+        desc: Adult Obesity CI low
+        type: double
+      v011_cihigh:
+        desc: Adult Obesity CI high
+        type: double
+      v145_rawvalue:
+        desc: Frequent Mental Distress raw value
+        type: double
+      v145_numerator:
+        desc: Frequent Mental Distress numerator
+        type: double
+      v145_denominator:
+        desc: Frequent Mental Distress denominator
+        type: double
+      v145_cilow:
+        desc: Frequent Mental Distress CI low
+        type: double
+      v145_cihigh:
+        desc: Frequent Mental Distress CI high
+        type: double
+      v161_rawvalue:
+        desc: Suicides raw value
+        type: double
+      v161_numerator:
+        desc: Suicides numerator
+        type: double
+      v161_denominator:
+        desc: Suicides denominator
+        type: double
+      v161_cilow:
+        desc: Suicides CI low
+        type: double
+      v161_cihigh:
+        desc: Suicides CI high
+        type: double
+      v161_other_data_1:
+        desc: Crude suicide rate
+        type: character
+      v161_race_aian:
+        desc: Suicides (AIAN)
+        type: character
+      v161_race_aian_cilow:
+        desc: Suicides CI low (AIAN)
+        type: double
+      v161_race_aian_cihigh:
+        desc: Suicides CI high (AIAN)
+        type: double
+      v161_race_asian:
+        desc: Suicides (Asian)
+        type: character
+      v161_race_asian_cilow:
+        desc: Suicides CI low (Asian)
+        type: double
+      v161_race_asian_cihigh:
+        desc: Suicides CI high (Asian)
+        type: double
+      v161_race_black:
+        desc: Suicides (Black)
+        type: character
+      v161_race_black_cilow:
+        desc: Suicides CI low (Black)
+        type: double
+      v161_race_black_cihigh:
+        desc: Suicides CI high (Black)
+        type: double
+      v161_race_hispanic:
+        desc: Suicides (Hispanic)
+        type: character
+      v161_race_hispanic_cilow:
+        desc: Suicides CI low (Hispanic)
+        type: double
+      v161_race_hispanic_cihigh:
+        desc: Suicides CI high (Hispanic)
+        type: double
+      v161_race_white:
+        desc: Suicides (White)
+        type: character
+      v161_race_white_cilow:
+        desc: Suicides CI low (White)
+        type: double
+      v161_race_white_cihigh:
+        desc: Suicides CI high (White)
+        type: double
+      v161_race_nhopi:
+        desc: Suicides (NHOPI)
+        type: character
+      v161_race_nhopi_cilow:
+        desc: Suicides CI low (NHOPI)
+        type: double
+      v161_race_nhopi_cihigh:
+        desc: Suicides CI high (NHOPI)
+        type: double
+      v183_rawvalue:
+        desc: Feelings of Loneliness raw value
+        type: double
+      v183_numerator:
+        desc: Feelings of Loneliness numerator
+        type: double
+      v183_denominator:
+        desc: Feelings of Loneliness denominator
+        type: double
+      v183_cilow:
+        desc: Feelings of Loneliness CI low
+        type: double
+      v183_cihigh:
+        desc: Feelings of Loneliness CI high
+        type: double
+      v083_rawvalue:
+        desc: Limited Access to Healthy Foods raw value
+        type: double
+      v083_numerator:
+        desc: Limited Access to Healthy Foods numerator
+        type: double
+      v083_denominator:
+        desc: Limited Access to Healthy Foods denominator
+        type: double
+      v083_cilow:
+        desc: Limited Access to Healthy Foods CI low
+        type: double
+      v083_cihigh:
+        desc: Limited Access to Healthy Foods CI high
+        type: double
+      v139_rawvalue:
+        desc: Food Insecurity raw value
+        type: double
+      v139_numerator:
+        desc: Food Insecurity numerator
+        type: double
+      v139_denominator:
+        desc: Food Insecurity denominator
+        type: double
+      v139_cilow:
+        desc: Food Insecurity CI low
+        type: double
+      v139_cihigh:
+        desc: Food Insecurity CI high
+        type: double
+      v143_rawvalue:
+        desc: Insufficient Sleep raw value
+        type: double
+      v143_numerator:
+        desc: Insufficient Sleep numerator
+        type: double
+      v143_denominator:
+        desc: Insufficient Sleep denominator
+        type: double
+      v143_cilow:
+        desc: Insufficient Sleep CI low
+        type: double
+      v143_cihigh:
+        desc: Insufficient Sleep CI high
+        type: double
+      v014_rawvalue:
+        desc: Teen Births raw value
+        type: double
+      v014_numerator:
+        desc: Teen Births numerator
+        type: double
+      v014_denominator:
+        desc: Teen Births denominator
+        type: double
+      v014_cilow:
+        desc: Teen Births CI low
+        type: double
+      v014_cihigh:
+        desc: Teen Births CI high
+        type: double
+      v014_race_aian:
+        desc: Teen Births (AIAN)
+        type: character
+      v014_race_aian_cilow:
+        desc: Teen Births CI low (AIAN)
+        type: double
+      v014_race_aian_cihigh:
+        desc: Teen Births CI high (AIAN)
+        type: double
+      v014_race_asian:
+        desc: Teen Births (Asian)
+        type: character
+      v014_race_asian_cilow:
+        desc: Teen Births CI low (Asian)
+        type: double
+      v014_race_asian_cihigh:
+        desc: Teen Births CI high (Asian)
+        type: double
+      v014_race_black:
+        desc: Teen Births (Black)
+        type: character
+      v014_race_black_cilow:
+        desc: Teen Births CI low (Black)
+        type: double
+      v014_race_black_cihigh:
+        desc: Teen Births CI high (Black)
+        type: double
+      v014_race_hispanic:
+        desc: Teen Births (Hispanic)
+        type: character
+      v014_race_hispanic_cilow:
+        desc: Teen Births CI low (Hispanic)
+        type: double
+      v014_race_hispanic_cihigh:
+        desc: Teen Births CI high (Hispanic)
+        type: double
+      v014_race_white:
+        desc: Teen Births (White)
+        type: character
+      v014_race_white_cilow:
+        desc: Teen Births CI low (White)
+        type: double
+      v014_race_white_cihigh:
+        desc: Teen Births CI high (White)
+        type: double
+      v014_race_nhopi:
+        desc: Teen Births (NHOPI)
+        type: character
+      v014_race_nhopi_cilow:
+        desc: Teen Births CI low (NHOPI)
+        type: double
+      v014_race_nhopi_cihigh:
+        desc: Teen Births CI high (NHOPI)
+        type: double
+      v014_race_tom:
+        desc: Teen Births (Two or more races)
+        type: character
+      v014_race_tom_cilow:
+        desc: Teen Births CI low (Two or more races)
+        type: double
+      v014_race_tom_cihigh:
+        desc: Teen Births CI high (Two or more races)
+        type: double
+      v045_rawvalue:
+        desc: Sexually Transmitted Infections raw value
+        type: double
+      v045_numerator:
+        desc: Sexually Transmitted Infections numerator
+        type: double
+      v045_denominator:
+        desc: Sexually Transmitted Infections denominator
+        type: double
+      v045_cilow:
+        desc: Sexually Transmitted Infections CI low
+        type: double
+      v045_cihigh:
+        desc: Sexually Transmitted Infections CI high
+        type: double
+      v049_rawvalue:
+        desc: Excessive Drinking raw value
+        type: double
+      v049_numerator:
+        desc: Excessive Drinking numerator
+        type: double
+      v049_denominator:
+        desc: Excessive Drinking denominator
+        type: double
+      v049_cilow:
+        desc: Excessive Drinking CI low
+        type: double
+      v049_cihigh:
+        desc: Excessive Drinking CI high
+        type: double
+      v134_rawvalue:
+        desc: Alcohol-Impaired Driving Deaths raw value
+        type: double
+      v134_numerator:
+        desc: Alcohol-Impaired Driving Deaths numerator
+        type: double
+      v134_denominator:
+        desc: Alcohol-Impaired Driving Deaths denominator
+        type: double
+      v134_cilow:
+        desc: Alcohol-Impaired Driving Deaths CI low
+        type: double
+      v134_cihigh:
+        desc: Alcohol-Impaired Driving Deaths CI high
+        type: double
+      v138_rawvalue:
+        desc: Drug Overdose Deaths raw value
+        type: double
+      v138_numerator:
+        desc: Drug Overdose Deaths numerator
+        type: double
+      v138_denominator:
+        desc: Drug Overdose Deaths denominator
+        type: double
+      v138_cilow:
+        desc: Drug Overdose Deaths CI low
+        type: double
+      v138_cihigh:
+        desc: Drug Overdose Deaths CI high
+        type: double
+      v138_race_aian:
+        desc: Drug Overdose Deaths (AIAN)
+        type: character
+      v138_race_aian_cilow:
+        desc: Drug Overdose Deaths CI low (AIAN)
+        type: double
+      v138_race_aian_cihigh:
+        desc: Drug Overdose Deaths CI high (AIAN)
+        type: double
+      v138_race_asian:
+        desc: Drug Overdose Deaths (Asian)
+        type: character
+      v138_race_asian_cilow:
+        desc: Drug Overdose Deaths CI low (Asian)
+        type: double
+      v138_race_asian_cihigh:
+        desc: Drug Overdose Deaths CI high (Asian)
+        type: double
+      v138_race_black:
+        desc: Drug Overdose Deaths (Black)
+        type: character
+      v138_race_black_cilow:
+        desc: Drug Overdose Deaths CI low (Black)
+        type: double
+      v138_race_black_cihigh:
+        desc: Drug Overdose Deaths CI high (Black)
+        type: double
+      v138_race_hispanic:
+        desc: Drug Overdose Deaths (Hispanic)
+        type: character
+      v138_race_hispanic_cilow:
+        desc: Drug Overdose Deaths CI low (Hispanic)
+        type: double
+      v138_race_hispanic_cihigh:
+        desc: Drug Overdose Deaths CI high (Hispanic)
+        type: double
+      v138_race_white:
+        desc: Drug Overdose Deaths (White)
+        type: character
+      v138_race_white_cilow:
+        desc: Drug Overdose Deaths CI low (White)
+        type: double
+      v138_race_white_cihigh:
+        desc: Drug Overdose Deaths CI high (White)
+        type: double
+      v138_race_nhopi:
+        desc: Drug Overdose Deaths (NHOPI)
+        type: character
+      v138_race_nhopi_cilow:
+        desc: Drug Overdose Deaths CI low (NHOPI)
+        type: double
+      v138_race_nhopi_cihigh:
+        desc: Drug Overdose Deaths CI high (NHOPI)
+        type: double
+      v009_rawvalue:
+        desc: Adult Smoking raw value
+        type: double
+      v009_numerator:
+        desc: Adult Smoking numerator
+        type: double
+      v009_denominator:
+        desc: Adult Smoking denominator
+        type: double
+      v009_cilow:
+        desc: Adult Smoking CI low
+        type: double
+      v009_cihigh:
+        desc: Adult Smoking CI high
+        type: double
+      v070_rawvalue:
+        desc: Physical Inactivity raw value
+        type: double
+      v070_numerator:
+        desc: Physical Inactivity numerator
+        type: double
+      v070_denominator:
+        desc: Physical Inactivity denominator
+        type: double
+      v070_cilow:
+        desc: Physical Inactivity CI low
+        type: double
+      v070_cihigh:
+        desc: Physical Inactivity CI high
+        type: double
+      v003_rawvalue:
+        desc: Uninsured Adults raw value
+        type: double
+      v003_numerator:
+        desc: Uninsured Adults numerator
+        type: double
+      v003_denominator:
+        desc: Uninsured Adults denominator
+        type: double
+      v003_cilow:
+        desc: Uninsured Adults CI low
+        type: double
+      v003_cihigh:
+        desc: Uninsured Adults CI high
+        type: double
+      v122_rawvalue:
+        desc: Uninsured Children raw value
+        type: double
+      v122_numerator:
+        desc: Uninsured Children numerator
+        type: double
+      v122_denominator:
+        desc: Uninsured Children denominator
+        type: double
+      v122_cilow:
+        desc: Uninsured Children CI low
+        type: double
+      v122_cihigh:
+        desc: Uninsured Children CI high
+        type: double
+      v131_rawvalue:
+        desc: Other Primary Care Providers raw value
+        type: double
+      v131_numerator:
+        desc: Other Primary Care Providers numerator
+        type: double
+      v131_denominator:
+        desc: Other Primary Care Providers denominator
+        type: double
+      v131_cilow:
+        desc: Other Primary Care Providers CI low
+        type: double
+      v131_cihigh:
+        desc: Other Primary Care Providers CI high
+        type: double
+      v131_other_data_1:
+        desc: Ratio of population to primary care providers other than physicians.
+        type: character
+      v156_rawvalue:
+        desc: Traffic Volume raw value
+        type: double
+      v156_numerator:
+        desc: Traffic Volume numerator
+        type: double
+      v156_denominator:
+        desc: Traffic Volume denominator
+        type: double
+      v156_cilow:
+        desc: Traffic Volume CI low
+        type: double
+      v156_cihigh:
+        desc: Traffic Volume CI high
+        type: double
+      v153_rawvalue:
+        desc: Homeownership raw value
+        type: double
+      v153_numerator:
+        desc: Homeownership numerator
+        type: double
+      v153_denominator:
+        desc: Homeownership denominator
+        type: double
+      v153_cilow:
+        desc: Homeownership CI low
+        type: double
+      v153_cihigh:
+        desc: Homeownership CI high
+        type: double
+      v154_rawvalue:
+        desc: Severe Housing Cost Burden raw value
+        type: double
+      v154_numerator:
+        desc: Severe Housing Cost Burden numerator
+        type: double
+      v154_denominator:
+        desc: Severe Housing Cost Burden denominator
+        type: double
+      v154_cilow:
+        desc: Severe Housing Cost Burden CI low
+        type: double
+      v154_cihigh:
+        desc: Severe Housing Cost Burden CI high
+        type: double
+      v179_rawvalue:
+        desc: Access to Parks raw value
+        type: double
+      v179_numerator:
+        desc: Access to Parks numerator
+        type: double
+      v179_denominator:
+        desc: Access to Parks denominator
+        type: double
+      v179_cilow:
+        desc: Access to Parks CI low
+        type: double
+      v179_cihigh:
+        desc: Access to Parks CI high
+        type: double
+      v182_rawvalue:
+        desc: Adverse Climate Events raw value
+        type: double
+      v182_numerator:
+        desc: Adverse Climate Events numerator
+        type: double
+      v182_denominator:
+        desc: Adverse Climate Events denominator
+        type: double
+      v182_cilow:
+        desc: Adverse Climate Events CI low
+        type: double
+      v182_cihigh:
+        desc: Adverse Climate Events CI high
+        type: double
+      v182_other_data_1:
+        desc: Adverse Climate Events (Drought)
+        type: character
+      v182_other_data_2:
+        desc: Adverse Climate Events (Heat)
+        type: character
+      v182_other_data_3:
+        desc: Adverse Climate Events (Disasters)
+        type: character
+      v178_rawvalue:
+        desc: Census Participation raw value
+        type: double
+      v178_numerator:
+        desc: Census Participation numerator
+        type: double
+      v178_denominator:
+        desc: Census Participation denominator
+        type: double
+      v178_cilow:
+        desc: Census Participation CI low
+        type: double
+      v178_cihigh:
+        desc: Census Participation CI high
+        type: double
+      v177_rawvalue:
+        desc: Voter Turnout raw value
+        type: double
+      v177_numerator:
+        desc: Voter Turnout numerator
+        type: double
+      v177_denominator:
+        desc: Voter Turnout denominator
+        type: double
+      v177_cilow:
+        desc: Voter Turnout CI low
+        type: double
+      v177_cihigh:
+        desc: Voter Turnout CI high
+        type: double
+      v021_rawvalue:
+        desc: High School Graduation raw value
+        type: double
+      v021_numerator:
+        desc: High School Graduation numerator
+        type: double
+      v021_denominator:
+        desc: High School Graduation denominator
+        type: double
+      v021_cilow:
+        desc: High School Graduation CI low
+        type: double
+      v021_cihigh:
+        desc: High School Graduation CI high
+        type: double
+      v159_rawvalue:
+        desc: Reading Scores raw value
+        type: double
+      v159_numerator:
+        desc: Reading Scores numerator
+        type: double
+      v159_denominator:
+        desc: Reading Scores denominator
+        type: double
+      v159_cilow:
+        desc: Reading Scores CI low
+        type: double
+      v159_cihigh:
+        desc: Reading Scores CI high
+        type: double
+      v159_race_aian:
+        desc: Reading Scores (AIAN)
+        type: character
+      v159_race_asian:
+        desc: Reading Scores (Asian/Pacific Islander)
+        type: character
+      v159_race_black:
+        desc: Reading Scores (Black)
+        type: character
+      v159_race_hispanic:
+        desc: Reading Scores (Hispanic)
+        type: character
+      v159_race_white:
+        desc: Reading Scores (White)
+        type: character
+      v160_rawvalue:
+        desc: Math Scores raw value
+        type: double
+      v160_numerator:
+        desc: Math Scores numerator
+        type: double
+      v160_denominator:
+        desc: Math Scores denominator
+        type: double
+      v160_cilow:
+        desc: Math Scores CI low
+        type: double
+      v160_cihigh:
+        desc: Math Scores CI high
+        type: double
+      v160_race_aian:
+        desc: Math Scores (AIAN)
+        type: character
+      v160_race_asian:
+        desc: Math Scores (Asian/Pacific Islander)
+        type: character
+      v160_race_black:
+        desc: Math Scores (Black)
+        type: character
+      v160_race_hispanic:
+        desc: Math Scores (Hispanic)
+        type: character
+      v160_race_white:
+        desc: Math Scores (White)
+        type: character
+      v167_rawvalue:
+        desc: School Segregation raw value
+        type: double
+      v167_numerator:
+        desc: School Segregation numerator
+        type: double
+      v167_denominator:
+        desc: School Segregation denominator
+        type: double
+      v167_cilow:
+        desc: School Segregation CI low
+        type: double
+      v167_cihigh:
+        desc: School Segregation CI high
+        type: double
+      v169_rawvalue:
+        desc: School Funding Adequacy raw value
+        type: double
+      v169_numerator:
+        desc: School Funding Adequacy numerator
+        type: double
+      v169_denominator:
+        desc: School Funding Adequacy denominator
+        type: double
+      v169_cilow:
+        desc: School Funding Adequacy CI low
+        type: double
+      v169_cihigh:
+        desc: School Funding Adequacy CI high
+        type: double
+      v065_rawvalue:
+        desc: Children Eligible for Free or Reduced Price Lunch raw value
+        type: double
+      v065_numerator:
+        desc: Children Eligible for Free or Reduced Price Lunch numerator
+        type: double
+      v065_denominator:
+        desc: Children Eligible for Free or Reduced Price Lunch denominator
+        type: double
+      v065_cilow:
+        desc: Children Eligible for Free or Reduced Price Lunch CI low
+        type: double
+      v065_cihigh:
+        desc: Children Eligible for Free or Reduced Price Lunch CI high
+        type: double
+      v151_rawvalue:
+        desc: Gender Pay Gap raw value
+        type: double
+      v151_numerator:
+        desc: Gender Pay Gap numerator
+        type: double
+      v151_denominator:
+        desc: Gender Pay Gap denominator
+        type: double
+      v151_cilow:
+        desc: Gender Pay Gap CI low
+        type: double
+      v151_cihigh:
+        desc: Gender Pay Gap CI high
+        type: double
+      v063_rawvalue:
+        desc: Median Household Income raw value
+        type: double
+      v063_numerator:
+        desc: Median Household Income numerator
+        type: double
+      v063_denominator:
+        desc: Median Household Income denominator
+        type: double
+      v063_cilow:
+        desc: Median Household Income CI low
+        type: double
+      v063_cihigh:
+        desc: Median Household Income CI high
+        type: double
+      v063_race_aian:
+        desc: Median Household Income (AIAN)
+        type: character
+      v063_race_aian_cilow:
+        desc: Median Household Income CI low (AIAN)
+        type: double
+      v063_race_aian_cihigh:
+        desc: Median Household Income CI high (AIAN)
+        type: double
+      v063_race_asian:
+        desc: Median household income (Asian)
+        type: character
+      v063_race_asian_cilow:
+        desc: Median household income CI low (Asian)
+        type: double
+      v063_race_asian_cihigh:
+        desc: Median household income CI high (Asian)
+        type: double
+      v063_race_black:
+        desc: Median Household Income (Black)
+        type: character
+      v063_race_black_cilow:
+        desc: Median Household Income CI low (Black)
+        type: double
+      v063_race_black_cihigh:
+        desc: Median Household Income CI high (Black)
+        type: double
+      v063_race_hispanic:
+        desc: Median Household Income (Hispanic)
+        type: character
+      v063_race_hispanic_cilow:
+        desc: Median Household Income CI low (Hispanic)
+        type: double
+      v063_race_hispanic_cihigh:
+        desc: Median Household Income CI high (Hispanic)
+        type: double
+      v063_race_white:
+        desc: Median Household Income (White)
+        type: character
+      v063_race_white_cilow:
+        desc: Median Household Income CI low (White)
+        type: double
+      v063_race_white_cihigh:
+        desc: Median Household Income CI high (White)
+        type: double
+      v170_rawvalue:
+        desc: Living Wage raw value
+        type: double
+      v170_numerator:
+        desc: Living Wage numerator
+        type: double
+      v170_denominator:
+        desc: Living Wage denominator
+        type: double
+      v170_cilow:
+        desc: Living Wage CI low
+        type: double
+      v170_cihigh:
+        desc: Living Wage CI high
+        type: double
+      v172_rawvalue:
+        desc: Child Care Centers raw value
+        type: double
+      v172_numerator:
+        desc: Child Care Centers numerator
+        type: double
+      v172_denominator:
+        desc: Child Care Centers denominator
+        type: double
+      v172_cilow:
+        desc: Child Care Centers CI low
+        type: double
+      v172_cihigh:
+        desc: Child Care Centers CI high
+        type: double
+      v141_rawvalue:
+        desc: Residential Segregation - Black/White raw value
+        type: double
+      v141_numerator:
+        desc: Residential Segregation - Black/White numerator
+        type: double
+      v141_denominator:
+        desc: Residential Segregation - Black/White denominator
+        type: double
+      v141_cilow:
+        desc: Residential Segregation - Black/White CI low
+        type: double
+      v141_cihigh:
+        desc: Residential Segregation - Black/White CI high
+        type: double
+      v015_rawvalue:
+        desc: Homicides raw value
+        type: double
+      v015_numerator:
+        desc: Homicides numerator
+        type: double
+      v015_denominator:
+        desc: Homicides denominator
+        type: double
+      v015_cilow:
+        desc: Homicides CI low
+        type: double
+      v015_cihigh:
+        desc: Homicides CI high
+        type: double
+      v015_race_aian:
+        desc: Homicides (AIAN)
+        type: character
+      v015_race_aian_cilow:
+        desc: Homicides CI low (AIAN)
+        type: double
+      v015_race_aian_cihigh:
+        desc: Homicides CI high (AIAN)
+        type: double
+      v015_race_asian:
+        desc: Homicides (Asian)
+        type: character
+      v015_race_asian_cilow:
+        desc: Homicides CI low (Asian)
+        type: double
+      v015_race_asian_cihigh:
+        desc: Homicides CI high (Asian)
+        type: double
+      v015_race_black:
+        desc: Homicides (Black)
+        type: character
+      v015_race_black_cilow:
+        desc: Homicides CI low (Black)
+        type: double
+      v015_race_black_cihigh:
+        desc: Homicides CI high (Black)
+        type: double
+      v015_race_hispanic:
+        desc: Homicides (Hispanic)
+        type: character
+      v015_race_hispanic_cilow:
+        desc: Homicides CI low (Hispanic)
+        type: double
+      v015_race_hispanic_cihigh:
+        desc: Homicides CI high (Hispanic)
+        type: double
+      v015_race_white:
+        desc: Homicides (White)
+        type: character
+      v015_race_white_cilow:
+        desc: Homicides CI low (White)
+        type: double
+      v015_race_white_cihigh:
+        desc: Homicides CI high (White)
+        type: double
+      v015_race_nhopi:
+        desc: Homicides (NHOPI)
+        type: character
+      v015_race_nhopi_cilow:
+        desc: Homicides CI low (NHOPI)
+        type: double
+      v015_race_nhopi_cihigh:
+        desc: Homicides CI high (NHOPI)
+        type: double
+      v039_rawvalue:
+        desc: Motor Vehicle Crash Deaths raw value
+        type: double
+      v039_numerator:
+        desc: Motor Vehicle Crash Deaths numerator
+        type: double
+      v039_denominator:
+        desc: Motor Vehicle Crash Deaths denominator
+        type: double
+      v039_cilow:
+        desc: Motor Vehicle Crash Deaths CI low
+        type: double
+      v039_cihigh:
+        desc: Motor Vehicle Crash Deaths CI high
+        type: double
+      v039_race_aian:
+        desc: Motor Vehicle Crash Deaths (AIAN)
+        type: character
+      v039_race_aian_cilow:
+        desc: Motor Vehicle Crash Deaths CI low (AIAN)
+        type: double
+      v039_race_aian_cihigh:
+        desc: Motor Vehicle Crash Deaths CI high (AIAN)
+        type: double
+      v039_race_asian:
+        desc: Motor Vehicle Crash Deaths (Asian)
+        type: character
+      v039_race_asian_cilow:
+        desc: Motor Vehicle Crash Deaths CI low (Asian)
+        type: double
+      v039_race_asian_cihigh:
+        desc: Motor Vehicle Crash Deaths CI high (Asian)
+        type: double
+      v039_race_black:
+        desc: Motor Vehicle Crash Deaths (Black)
+        type: character
+      v039_race_black_cilow:
+        desc: Motor Vehicle Crash Deaths CI low (Black)
+        type: double
+      v039_race_black_cihigh:
+        desc: Motor Vehicle Crash Deaths CI high (Black)
+        type: double
+      v039_race_hispanic:
+        desc: Motor Vehicle Crash Deaths (Hispanic)
+        type: character
+      v039_race_hispanic_cilow:
+        desc: Motor Vehicle Crash Deaths CI low (Hispanic)
+        type: double
+      v039_race_hispanic_cihigh:
+        desc: Motor Vehicle Crash Deaths CI high (Hispanic)
+        type: double
+      v039_race_white:
+        desc: Motor Vehicle Crash Deaths (White)
+        type: character
+      v039_race_white_cilow:
+        desc: Motor Vehicle Crash Deaths CI low (White)
+        type: double
+      v039_race_white_cihigh:
+        desc: Motor Vehicle Crash Deaths CI high (White)
+        type: double
+      v039_race_nhopi:
+        desc: Motor Vehicle Crash Deaths (NHOPI)
+        type: character
+      v039_race_nhopi_cilow:
+        desc: Motor Vehicle Crash Deaths CI low (NHOPI)
+        type: double
+      v039_race_nhopi_cihigh:
+        desc: Motor Vehicle Crash Deaths CI high (NHOPI)
+        type: double
+      v148_rawvalue:
+        desc: Firearm Fatalities raw value
+        type: double
+      v148_numerator:
+        desc: Firearm Fatalities numerator
+        type: double
+      v148_denominator:
+        desc: Firearm Fatalities denominator
+        type: double
+      v148_cilow:
+        desc: Firearm Fatalities CI low
+        type: double
+      v148_cihigh:
+        desc: Firearm Fatalities CI high
+        type: double
+      v148_race_aian:
+        desc: Firearm Fatalities (AIAN)
+        type: character
+      v148_race_aian_cilow:
+        desc: Firearm Fatalities CI low (AIAN)
+        type: double
+      v148_race_aian_cihigh:
+        desc: Firearm Fatalities CI high (AIAN)
+        type: double
+      v148_race_asian:
+        desc: Firearm Fatalities (Asian)
+        type: character
+      v148_race_asian_cilow:
+        desc: Firearm Fatalities CI low (Asian)
+        type: double
+      v148_race_asian_cihigh:
+        desc: Firearm Fatalities CI high (Asian)
+        type: double
+      v148_race_black:
+        desc: Firearm Fatalities (Black)
+        type: character
+      v148_race_black_cilow:
+        desc: Firearm Fatalities CI low (Black)
+        type: double
+      v148_race_black_cihigh:
+        desc: Firearm Fatalities CI high (Black)
+        type: double
+      v148_race_hispanic:
+        desc: Firearm Fatalities (Hispanic)
+        type: character
+      v148_race_hispanic_cilow:
+        desc: Firearm Fatalities CI low (Hispanic)
+        type: double
+      v148_race_hispanic_cihigh:
+        desc: Firearm Fatalities CI high (Hispanic)
+        type: double
+      v148_race_white:
+        desc: Firearm Fatalities (White)
+        type: character
+      v148_race_white_cilow:
+        desc: Firearm Fatalities CI low (White)
+        type: double
+      v148_race_white_cihigh:
+        desc: Firearm Fatalities CI high (White)
+        type: double
+      v148_race_nhopi:
+        desc: Firearm Fatalities (NHOPI)
+        type: character
+      v148_race_nhopi_cilow:
+        desc: Firearm Fatalities CI low (NHOPI)
+        type: double
+      v148_race_nhopi_cihigh:
+        desc: Firearm Fatalities CI high (NHOPI)
+        type: double
+      v149_rawvalue:
+        desc: Disconnected Youth raw value
+        type: double
+      v149_numerator:
+        desc: Disconnected Youth numerator
+        type: double
+      v149_denominator:
+        desc: Disconnected Youth denominator
+        type: double
+      v149_cilow:
+        desc: Disconnected Youth CI low
+        type: double
+      v149_cihigh:
+        desc: Disconnected Youth CI high
+        type: double
+      v184_rawvalue:
+        desc: Lack of Social and Emotional Support raw value
+        type: double
+      v184_numerator:
+        desc: Lack of Social and Emotional Support numerator
+        type: double
+      v184_denominator:
+        desc: Lack of Social and Emotional Support denominator
+        type: double
+      v184_cilow:
+        desc: Lack of Social and Emotional Support CI low
+        type: double
+      v184_cihigh:
+        desc: Lack of Social and Emotional Support CI high
+        type: double
+      v052_rawvalue:
+        desc: '% Below 18 Years of Age raw value'
+        type: double
+      v052_numerator:
+        desc: '% Below 18 Years of Age numerator'
+        type: double
+      v052_denominator:
+        desc: '% Below 18 Years of Age denominator'
+        type: double
+      v052_cilow:
+        desc: '% Below 18 Years of Age CI low'
+        type: double
+      v052_cihigh:
+        desc: '% Below 18 Years of Age CI high'
+        type: double
+      v053_rawvalue:
+        desc: '% 65 and Older raw value'
+        type: double
+      v053_numerator:
+        desc: '% 65 and Older numerator'
+        type: double
+      v053_denominator:
+        desc: '% 65 and Older denominator'
+        type: double
+      v053_cilow:
+        desc: '% 65 and Older CI low'
+        type: double
+      v053_cihigh:
+        desc: '% 65 and Older CI high'
+        type: double
+      v057_rawvalue:
+        desc: '% Female raw value'
+        type: double
+      v057_numerator:
+        desc: '% Female numerator'
+        type: double
+      v057_denominator:
+        desc: '% Female denominator'
+        type: double
+      v057_cilow:
+        desc: '% Female CI low'
+        type: double
+      v057_cihigh:
+        desc: '% Female CI high'
+        type: double
+      v055_rawvalue:
+        desc: '% American Indian or Alaska Native raw value'
+        type: double
+      v055_numerator:
+        desc: '% American Indian or Alaska Native numerator'
+        type: double
+      v055_denominator:
+        desc: '% American Indian or Alaska Native denominator'
+        type: double
+      v055_cilow:
+        desc: '% American Indian or Alaska Native CI low'
+        type: double
+      v055_cihigh:
+        desc: '% American Indian or Alaska Native CI high'
+        type: double
+      v081_rawvalue:
+        desc: '% Asian raw value'
+        type: double
+      v081_numerator:
+        desc: '% Asian numerator'
+        type: double
+      v081_denominator:
+        desc: '% Asian denominator'
+        type: double
+      v081_cilow:
+        desc: '% Asian CI low'
+        type: double
+      v081_cihigh:
+        desc: '% Asian CI high'
+        type: double
+      v056_rawvalue:
+        desc: '% Hispanic raw value'
+        type: double
+      v056_numerator:
+        desc: '% Hispanic numerator'
+        type: double
+      v056_denominator:
+        desc: '% Hispanic denominator'
+        type: double
+      v056_cilow:
+        desc: '% Hispanic CI low'
+        type: double
+      v056_cihigh:
+        desc: '% Hispanic CI high'
+        type: double
+      v080_rawvalue:
+        desc: '% Native Hawaiian or Other Pacific Islander raw value'
+        type: double
+      v080_numerator:
+        desc: '% Native Hawaiian or Other Pacific Islander numerator'
+        type: double
+      v080_denominator:
+        desc: '% Native Hawaiian or Other Pacific Islander denominator'
+        type: double
+      v080_cilow:
+        desc: '% Native Hawaiian or Other Pacific Islander CI low'
+        type: double
+      v080_cihigh:
+        desc: '% Native Hawaiian or Other Pacific Islander CI high'
+        type: double
+      v054_rawvalue:
+        desc: '% Non-Hispanic Black raw value'
+        type: double
+      v054_numerator:
+        desc: '% Non-Hispanic Black numerator'
+        type: double
+      v054_denominator:
+        desc: '% Non-Hispanic Black denominator'
+        type: double
+      v054_cilow:
+        desc: '% Non-Hispanic Black CI low'
+        type: double
+      v054_cihigh:
+        desc: '% Non-Hispanic Black CI high'
+        type: double
+      v126_rawvalue:
+        desc: '% Non-Hispanic White raw value'
+        type: double
+      v126_numerator:
+        desc: '% Non-Hispanic White numerator'
+        type: double
+      v126_denominator:
+        desc: '% Non-Hispanic White denominator'
+        type: double
+      v126_cilow:
+        desc: '% Non-Hispanic White CI low'
+        type: double
+      v126_cihigh:
+        desc: '% Non-Hispanic White CI high'
+        type: double
+      v180_rawvalue:
+        desc: '% Disability: Functional Limitations raw value'
+        type: double
+      v180_numerator:
+        desc: '% Disability: Functional Limitations numerator'
+        type: double
+      v180_denominator:
+        desc: '% Disability: Functional Limitations denominator'
+        type: double
+      v180_cilow:
+        desc: '% Disability: Functional Limitations CI low'
+        type: double
+      v180_cihigh:
+        desc: '% Disability: Functional Limitations CI high'
+        type: double
+      v059_rawvalue:
+        desc: '% Not Proficient in English raw value'
+        type: double
+      v059_numerator:
+        desc: '% Not Proficient in English numerator'
+        type: double
+      v059_denominator:
+        desc: '% Not Proficient in English denominator'
+        type: double
+      v059_cilow:
+        desc: '% Not Proficient in English CI low'
+        type: double
+      v059_cihigh:
+        desc: '% Not Proficient in English CI high'
+        type: double
+      v082_rawvalue:
+        desc: Children in Single-Parent Households raw value
+        type: double
+      v082_numerator:
+        desc: Children in Single-Parent Households numerator
+        type: double
+      v082_denominator:
+        desc: Children in Single-Parent Households denominator
+        type: double
+      v082_cilow:
+        desc: Children in Single-Parent Households CI low
+        type: double
+      v082_cihigh:
+        desc: Children in Single-Parent Households CI high
+        type: double
+      v058_rawvalue:
+        desc: '% Rural raw value'
+        type: double
+      v058_numerator:
+        desc: '% Rural numerator'
+        type: double
+      v058_denominator:
+        desc: '% Rural denominator'
+        type: double
+      v058_cilow:
+        desc: '% Rural CI low'
+        type: double
+      v058_cihigh:
+        desc: '% Rural CI high'
+        type: double
+      v051_rawvalue:
+        desc: Population raw value
+        type: double
+      v051_numerator:
+        desc: Population numerator
+        type: double
+      v051_denominator:
+        desc: Population denominator
+        type: double
+      v051_cilow:
+        desc: Population CI low
+        type: double
+      v051_cihigh:
+        desc: Population CI high
+        type: double
+
+
+
   2024:
-    desc: #
+    desc: 2024 County Health Rankings Analytic Data
     type: table
     path: proc/analytic/2024.pq
     depends: raw_2024
     schema:
-      #
+      statecode:
+        desc: State FIPS Code
+        type: character
+      countycode:
+        desc: County FIPS Code
+        type: character
+      fipscode:
+        desc: 5-digit FIPS Code
+        type: character
+      state:
+        desc: State Abbreviation
+        type: character
+      county:
+        desc: Name
+        type: character
+      year:
+        desc: Release Year
+        type: character
+      county_clustered:
+        desc: County Clustered (Yes=1/No=0)
+        type: character
+      v001_rawvalue:
+        desc: Premature Death raw value
+        type: double
+      v001_numerator:
+        desc: Premature Death numerator
+        type: double
+      v001_denominator:
+        desc: Premature Death denominator
+        type: double
+      v001_cilow:
+        desc: Premature Death CI low
+        type: double
+      v001_cihigh:
+        desc: Premature Death CI high
+        type: double
+      v001_flag:
+        desc: Premature Death flag (0 = No Flag/1=Unreliable/2=Suppressed)
+        type: integer
+      v001_race_aian:
+        desc: Premature Death (AIAN)
+        type: character
+      v001_race_aian_cilow:
+        desc: Premature Death CI low (AIAN)
+        type: double
+      v001_race_aian_cihigh:
+        desc: Premature Death CI high (AIAN)
+        type: double
+      v001_race_aian_flag:
+        desc: Premature Death flag (AIAN) (. = No Flag/1=Unreliable/2=Suppressed)
+        type: integer
+      v001_race_asian:
+        desc: Premature Death (Asian)
+        type: character
+      v001_race_asian_cilow:
+        desc: Premature Death CI low (Asian)
+        type: double
+      v001_race_asian_cihigh:
+        desc: Premature Death CI high (Asian)
+        type: double
+      v001_race_asian_flag:
+        desc: Premature Death flag (Asian) (. = No Flag/1=Unreliable/2=Suppressed)
+        type: integer
+      v001_race_black:
+        desc: Premature Death (Black)
+        type: character
+      v001_race_black_cilow:
+        desc: Premature Death CI low (Black)
+        type: double
+      v001_race_black_cihigh:
+        desc: Premature Death CI high (Black)
+        type: double
+      v001_race_black_flag:
+        desc: Premature Death flag (Black) (. = No Flag/1=Unreliable/2=Suppressed)
+        type: integer
+      v001_race_hispanic:
+        desc: Premature Death (Hispanic)
+        type: character
+      v001_race_hispanic_cilow:
+        desc: Premature Death CI low (Hispanic)
+        type: double
+      v001_race_hispanic_cihigh:
+        desc: Premature Death CI high (Hispanic)
+        type: double
+      v001_race_hispanic_flag:
+        desc: Premature Death flag (Hispanic) (. = No Flag/1=Unreliable/2=Suppressed)
+        type: integer
+      v001_race_white:
+        desc: Premature Death (White)
+        type: character
+      v001_race_white_cilow:
+        desc: Premature Death CI low (White)
+        type: double
+      v001_race_white_cihigh:
+        desc: Premature Death CI high (White)
+        type: double
+      v001_race_white_flag:
+        desc: Premature Death flag (White) (. = No Flag/1=Unreliable/2=Suppressed)
+        type: integer
+      v001_race_nhopi:
+        desc: Premature Death (NHOPI)
+        type: character
+      v001_race_nhopi_cilow:
+        desc: Premature Death CI low (NHOPI)
+        type: double
+      v001_race_nhopi_cihigh:
+        desc: Premature Death CI high (NHOPI)
+        type: double
+      v001_race_nhopi_flag:
+        desc: Premature Death flag (NHOPI) (. = No Flag/1=Unreliable/2=Suppressed)
+        type: integer
+      v001_race_tom_flag:
+        desc: Premature Death flag (Two or more races) (. = No Flag/1=Unreliable/2=Suppressed)
+        type: integer
+      v002_rawvalue:
+        desc: Poor or Fair Health raw value
+        type: double
+      v002_numerator:
+        desc: Poor or Fair Health numerator
+        type: double
+      v002_denominator:
+        desc: Poor or Fair Health denominator
+        type: double
+      v002_cilow:
+        desc: Poor or Fair Health CI low
+        type: double
+      v002_cihigh:
+        desc: Poor or Fair Health CI high
+        type: double
+      v036_rawvalue:
+        desc: Poor Physical Health Days raw value
+        type: double
+      v036_numerator:
+        desc: Poor Physical Health Days numerator
+        type: double
+      v036_denominator:
+        desc: Poor Physical Health Days denominator
+        type: double
+      v036_cilow:
+        desc: Poor Physical Health Days CI low
+        type: double
+      v036_cihigh:
+        desc: Poor Physical Health Days CI high
+        type: double
+      v042_rawvalue:
+        desc: Poor Mental Health Days raw value
+        type: double
+      v042_numerator:
+        desc: Poor Mental Health Days numerator
+        type: double
+      v042_denominator:
+        desc: Poor Mental Health Days denominator
+        type: double
+      v042_cilow:
+        desc: Poor Mental Health Days CI low
+        type: double
+      v042_cihigh:
+        desc: Poor Mental Health Days CI high
+        type: double
+      v037_rawvalue:
+        desc: Low Birthweight raw value
+        type: double
+      v037_numerator:
+        desc: Low Birthweight numerator
+        type: double
+      v037_denominator:
+        desc: Low Birthweight denominator
+        type: double
+      v037_cilow:
+        desc: Low Birthweight CI low
+        type: double
+      v037_cihigh:
+        desc: Low Birthweight CI high
+        type: double
+      v037_flag:
+        desc: LBW unreliable indicator (Unreliable = Numerator < 20 or relative standard
+          error > 20%)
+        type: integer
+      v037_race_aian:
+        desc: Low Birthweight (AIAN)
+        type: character
+      v037_race_aian_cilow:
+        desc: Low Birthweight CI low (AIAN)
+        type: double
+      v037_race_aian_cihigh:
+        desc: Low Birthweight CI high (AIAN)
+        type: double
+      v037_race_asian:
+        desc: Low Birthweight (Asian)
+        type: character
+      v037_race_asian_cilow:
+        desc: Low Birthweight CI low (Asian)
+        type: double
+      v037_race_asian_cihigh:
+        desc: Low Birthweight CI high (Asian)
+        type: double
+      v037_race_black:
+        desc: Low Birthweight (Black)
+        type: character
+      v037_race_black_cilow:
+        desc: Low Birthweight CI low (Black)
+        type: double
+      v037_race_black_cihigh:
+        desc: Low Birthweight CI high (Black)
+        type: double
+      v037_race_hispanic:
+        desc: Low Birthweight (Hispanic)
+        type: character
+      v037_race_hispanic_cilow:
+        desc: Low Birthweight CI low (Hispanic)
+        type: double
+      v037_race_hispanic_cihigh:
+        desc: Low Birthweight CI high (Hispanic)
+        type: double
+      v037_race_white:
+        desc: Low Birthweight (White)
+        type: character
+      v037_race_white_cilow:
+        desc: Low Birthweight CI low (White)
+        type: double
+      v037_race_white_cihigh:
+        desc: Low Birthweight CI high (White)
+        type: double
+      v037_race_nhopi:
+        desc: Low Birthweight (NHOPI)
+        type: character
+      v037_race_nhopi_cilow:
+        desc: Low Birthweight CI low (NHOPI)
+        type: double
+      v037_race_nhopi_cihigh:
+        desc: Low Birthweight CI high (NHOPI)
+        type: double
+      v037_race_tom:
+        desc: Low Birthweight (Two or more races)
+        type: character
+      v037_race_tom_cilow:
+        desc: Low Birthweight CI low (Two or more races)
+        type: double
+      v037_race_tom_cihigh:
+        desc: Low Birthweight CI high (Two or more races)
+        type: double
+      v009_rawvalue:
+        desc: Adult Smoking raw value
+        type: double
+      v009_numerator:
+        desc: Adult Smoking numerator
+        type: double
+      v009_denominator:
+        desc: Adult Smoking denominator
+        type: double
+      v009_cilow:
+        desc: Adult Smoking CI low
+        type: double
+      v009_cihigh:
+        desc: Adult Smoking CI high
+        type: double
+      v011_rawvalue:
+        desc: Adult Obesity raw value
+        type: double
+      v011_numerator:
+        desc: Adult Obesity numerator
+        type: double
+      v011_denominator:
+        desc: Adult Obesity denominator
+        type: double
+      v011_cilow:
+        desc: Adult Obesity CI low
+        type: double
+      v011_cihigh:
+        desc: Adult Obesity CI high
+        type: double
+      v133_rawvalue:
+        desc: Food Environment Index raw value
+        type: double
+      v133_numerator:
+        desc: Food Environment Index numerator
+        type: double
+      v133_denominator:
+        desc: Food Environment Index denominator
+        type: double
+      v133_cilow:
+        desc: Food Environment Index CI low
+        type: double
+      v133_cihigh:
+        desc: Food Environment Index CI high
+        type: double
+      v070_rawvalue:
+        desc: Physical Inactivity raw value
+        type: double
+      v070_numerator:
+        desc: Physical Inactivity numerator
+        type: double
+      v070_denominator:
+        desc: Physical Inactivity denominator
+        type: double
+      v070_cilow:
+        desc: Physical Inactivity CI low
+        type: double
+      v070_cihigh:
+        desc: Physical Inactivity CI high
+        type: double
+      v132_rawvalue:
+        desc: Access to Exercise Opportunities raw value
+        type: double
+      v132_numerator:
+        desc: Access to Exercise Opportunities numerator
+        type: double
+      v132_denominator:
+        desc: Access to Exercise Opportunities denominator
+        type: double
+      v132_cilow:
+        desc: Access to Exercise Opportunities CI low
+        type: double
+      v132_cihigh:
+        desc: Access to Exercise Opportunities CI high
+        type: double
+      v049_rawvalue:
+        desc: Excessive Drinking raw value
+        type: double
+      v049_numerator:
+        desc: Excessive Drinking numerator
+        type: double
+      v049_denominator:
+        desc: Excessive Drinking denominator
+        type: double
+      v049_cilow:
+        desc: Excessive Drinking CI low
+        type: double
+      v049_cihigh:
+        desc: Excessive Drinking CI high
+        type: double
+      v134_rawvalue:
+        desc: Alcohol-Impaired Driving Deaths raw value
+        type: double
+      v134_numerator:
+        desc: Alcohol-Impaired Driving Deaths numerator
+        type: double
+      v134_denominator:
+        desc: Alcohol-Impaired Driving Deaths denominator
+        type: double
+      v134_cilow:
+        desc: Alcohol-Impaired Driving Deaths CI low
+        type: double
+      v134_cihigh:
+        desc: Alcohol-Impaired Driving Deaths CI high
+        type: double
+      v045_rawvalue:
+        desc: Sexually Transmitted Infections raw value
+        type: double
+      v045_numerator:
+        desc: Sexually Transmitted Infections numerator
+        type: double
+      v045_denominator:
+        desc: Sexually Transmitted Infections denominator
+        type: double
+      v045_cilow:
+        desc: Sexually Transmitted Infections CI low
+        type: double
+      v045_cihigh:
+        desc: Sexually Transmitted Infections CI high
+        type: double
+      v014_rawvalue:
+        desc: Teen Births raw value
+        type: double
+      v014_numerator:
+        desc: Teen Births numerator
+        type: double
+      v014_denominator:
+        desc: Teen Births denominator
+        type: double
+      v014_cilow:
+        desc: Teen Births CI low
+        type: double
+      v014_cihigh:
+        desc: Teen Births CI high
+        type: double
+      v014_race_aian:
+        desc: Teen Births (AIAN)
+        type: character
+      v014_race_aian_cilow:
+        desc: Teen Births CI low (AIAN)
+        type: double
+      v014_race_aian_cihigh:
+        desc: Teen Births CI high (AIAN)
+        type: double
+      v014_race_asian:
+        desc: Teen Births (Asian)
+        type: character
+      v014_race_asian_cilow:
+        desc: Teen Births CI low (Asian)
+        type: double
+      v014_race_asian_cihigh:
+        desc: Teen Births CI high (Asian)
+        type: double
+      v014_race_black:
+        desc: Teen Births (Black)
+        type: character
+      v014_race_black_cilow:
+        desc: Teen Births CI low (Black)
+        type: double
+      v014_race_black_cihigh:
+        desc: Teen Births CI high (Black)
+        type: double
+      v014_race_hispanic:
+        desc: Teen Births (Hispanic)
+        type: character
+      v014_race_hispanic_cilow:
+        desc: Teen Births CI low (Hispanic)
+        type: double
+      v014_race_hispanic_cihigh:
+        desc: Teen Births CI high (Hispanic)
+        type: double
+      v014_race_white:
+        desc: Teen Births (White)
+        type: character
+      v014_race_white_cilow:
+        desc: Teen Births CI low (White)
+        type: double
+      v014_race_white_cihigh:
+        desc: Teen Births CI high (White)
+        type: double
+      v014_race_nhopi:
+        desc: Teen Births (NHOPI)
+        type: character
+      v014_race_nhopi_cilow:
+        desc: Teen Births CI low (NHOPI)
+        type: double
+      v014_race_nhopi_cihigh:
+        desc: Teen Births CI high (NHOPI)
+        type: double
+      v014_race_tom:
+        desc: Teen Births (Two or more races)
+        type: character
+      v014_race_tom_cilow:
+        desc: Teen Births CI low (Two or more races)
+        type: double
+      v014_race_tom_cihigh:
+        desc: Teen Births CI high (Two or more races)
+        type: double
+      v085_rawvalue:
+        desc: Uninsured raw value
+        type: double
+      v085_numerator:
+        desc: Uninsured numerator
+        type: double
+      v085_denominator:
+        desc: Uninsured denominator
+        type: double
+      v085_cilow:
+        desc: Uninsured CI low
+        type: double
+      v085_cihigh:
+        desc: Uninsured CI high
+        type: double
+      v004_rawvalue:
+        desc: Primary Care Physicians raw value
+        type: double
+      v004_numerator:
+        desc: Primary Care Physicians numerator
+        type: double
+      v004_denominator:
+        desc: Primary Care Physicians denominator
+        type: double
+      v004_cilow:
+        desc: Primary Care Physicians CI low
+        type: double
+      v004_cihigh:
+        desc: Primary Care Physicians CI high
+        type: double
+      v004_other_data_1:
+        desc: Ratio of population to primary care physicians.
+        type: character
+      v088_rawvalue:
+        desc: Dentists raw value
+        type: double
+      v088_numerator:
+        desc: Dentists numerator
+        type: double
+      v088_denominator:
+        desc: Dentists denominator
+        type: double
+      v088_cilow:
+        desc: Dentists CI low
+        type: double
+      v088_cihigh:
+        desc: Dentists CI high
+        type: double
+      v088_other_data_1:
+        desc: Ratio of population to dentists.
+        type: character
+      v062_rawvalue:
+        desc: Mental Health Providers raw value
+        type: double
+      v062_numerator:
+        desc: Mental Health Providers numerator
+        type: double
+      v062_denominator:
+        desc: Mental Health Providers denominator
+        type: double
+      v062_cilow:
+        desc: Mental Health Providers CI low
+        type: double
+      v062_cihigh:
+        desc: Mental Health Providers CI high
+        type: double
+      v062_other_data_1:
+        desc: Ratio of population to mental health providers.
+        type: character
+      v005_rawvalue:
+        desc: Preventable Hospital Stays raw value
+        type: double
+      v005_numerator:
+        desc: Preventable Hospital Stays numerator
+        type: double
+      v005_denominator:
+        desc: Preventable Hospital Stays denominator
+        type: double
+      v005_cilow:
+        desc: Preventable Hospital Stays CI low
+        type: double
+      v005_cihigh:
+        desc: Preventable Hospital Stays CI high
+        type: double
+      v005_race_aian:
+        desc: Preventable Hospital Stays (AIAN)
+        type: character
+      v005_race_asian:
+        desc: Preventable Hospital Stays (Asian/Pacific Islander)
+        type: character
+      v005_race_black:
+        desc: Preventable Hospital Stays (Black)
+        type: character
+      v005_race_hispanic:
+        desc: Preventable Hospital Stays (Hispanic)
+        type: character
+      v005_race_white:
+        desc: Preventable Hospital Stays (White)
+        type: character
+      v050_rawvalue:
+        desc: Mammography Screening raw value
+        type: double
+      v050_numerator:
+        desc: Mammography Screening numerator
+        type: double
+      v050_denominator:
+        desc: Mammography Screening denominator
+        type: double
+      v050_cilow:
+        desc: Mammography Screening CI low
+        type: double
+      v050_cihigh:
+        desc: Mammography Screening CI high
+        type: double
+      v050_race_aian:
+        desc: Mammography Screening (AIAN)
+        type: character
+      v050_race_asian:
+        desc: Mammography Screening (Asian/Pacific Islander)
+        type: character
+      v050_race_black:
+        desc: Mammography Screening (Black)
+        type: character
+      v050_race_hispanic:
+        desc: Mammography Screening (Hispanic)
+        type: character
+      v050_race_white:
+        desc: Mammography Screening (White)
+        type: character
+      v155_rawvalue:
+        desc: Flu Vaccinations raw value
+        type: double
+      v155_numerator:
+        desc: Flu Vaccinations numerator
+        type: double
+      v155_denominator:
+        desc: Flu Vaccinations denominator
+        type: double
+      v155_cilow:
+        desc: Flu Vaccinations CI low
+        type: double
+      v155_cihigh:
+        desc: Flu Vaccinations CI high
+        type: double
+      v155_race_aian:
+        desc: Flu Vaccinations (AIAN)
+        type: character
+      v155_race_asian:
+        desc: Flu Vaccinations (Asian/Pacific Islander)
+        type: character
+      v155_race_black:
+        desc: Flu Vaccinations (Black)
+        type: character
+      v155_race_hispanic:
+        desc: Flu Vaccinations (Hispanic)
+        type: character
+      v155_race_white:
+        desc: Flu Vaccinations (White)
+        type: character
+      v168_rawvalue:
+        desc: High School Completion raw value
+        type: double
+      v168_numerator:
+        desc: High School Completion numerator
+        type: double
+      v168_denominator:
+        desc: High School Completion denominator
+        type: double
+      v168_cilow:
+        desc: High School Completion CI low
+        type: double
+      v168_cihigh:
+        desc: High School Completion CI high
+        type: double
+      v069_rawvalue:
+        desc: Some College raw value
+        type: double
+      v069_numerator:
+        desc: Some College numerator
+        type: double
+      v069_denominator:
+        desc: Some College denominator
+        type: double
+      v069_cilow:
+        desc: Some College CI low
+        type: double
+      v069_cihigh:
+        desc: Some College CI high
+        type: double
+      v023_rawvalue:
+        desc: Unemployment raw value
+        type: double
+      v023_numerator:
+        desc: Unemployment numerator
+        type: double
+      v023_denominator:
+        desc: Unemployment denominator
+        type: double
+      v023_cilow:
+        desc: Unemployment CI low
+        type: double
+      v023_cihigh:
+        desc: Unemployment CI high
+        type: double
+      v024_rawvalue:
+        desc: Children in Poverty raw value
+        type: double
+      v024_numerator:
+        desc: Children in Poverty numerator
+        type: double
+      v024_denominator:
+        desc: Children in Poverty denominator
+        type: double
+      v024_cilow:
+        desc: Children in Poverty CI low
+        type: double
+      v024_cihigh:
+        desc: Children in Poverty CI high
+        type: double
+      v024_race_aian:
+        desc: Children in Poverty (AIAN)
+        type: character
+      v024_race_aian_cilow:
+        desc: Children in Poverty CI low (AIAN)
+        type: double
+      v024_race_aian_cihigh:
+        desc: Children in Poverty CI high (AIAN)
+        type: double
+      v024_race_asian:
+        desc: Children in Poverty (Asian/Pacific Islander)
+        type: character
+      v024_race_asian_cilow:
+        desc: Children in Poverty CI low (Asian/Pacific Islander)
+        type: double
+      v024_race_asian_cihigh:
+        desc: Children in Poverty CI high (Asian/Pacific Islander)
+        type: double
+      v024_race_black:
+        desc: Children in Poverty (Black)
+        type: character
+      v024_race_black_cilow:
+        desc: Children in Poverty CI low (Black)
+        type: double
+      v024_race_black_cihigh:
+        desc: Children in Poverty CI high (Black)
+        type: double
+      v024_race_hispanic:
+        desc: Children in Poverty (Hispanic)
+        type: character
+      v024_race_hispanic_cilow:
+        desc: Children in Poverty CI low (Hispanic)
+        type: double
+      v024_race_hispanic_cihigh:
+        desc: Children in Poverty CI high (Hispanic)
+        type: double
+      v024_race_white:
+        desc: Children in Poverty (White)
+        type: character
+      v024_race_white_cilow:
+        desc: Children in Poverty CI low (White)
+        type: double
+      v024_race_white_cihigh:
+        desc: Children in Poverty CI high (White)
+        type: double
+      v044_rawvalue:
+        desc: Income Inequality raw value
+        type: double
+      v044_numerator:
+        desc: Income Inequality numerator
+        type: double
+      v044_denominator:
+        desc: Income Inequality denominator
+        type: double
+      v044_cilow:
+        desc: Income Inequality CI low
+        type: double
+      v044_cihigh:
+        desc: Income Inequality CI high
+        type: double
+      v082_rawvalue:
+        desc: Children in Single-Parent Households raw value
+        type: double
+      v082_numerator:
+        desc: Children in Single-Parent Households numerator
+        type: double
+      v082_denominator:
+        desc: Children in Single-Parent Households denominator
+        type: double
+      v082_cilow:
+        desc: Children in Single-Parent Households CI low
+        type: double
+      v082_cihigh:
+        desc: Children in Single-Parent Households CI high
+        type: double
+      v140_rawvalue:
+        desc: Social Associations raw value
+        type: double
+      v140_numerator:
+        desc: Social Associations numerator
+        type: double
+      v140_denominator:
+        desc: Social Associations denominator
+        type: double
+      v140_cilow:
+        desc: Social Associations CI low
+        type: double
+      v140_cihigh:
+        desc: Social Associations CI high
+        type: double
+      v135_rawvalue:
+        desc: Injury Deaths raw value
+        type: double
+      v135_numerator:
+        desc: Injury Deaths numerator
+        type: double
+      v135_denominator:
+        desc: Injury Deaths denominator
+        type: double
+      v135_cilow:
+        desc: Injury Deaths CI low
+        type: double
+      v135_cihigh:
+        desc: Injury Deaths CI high
+        type: double
+      v135_race_aian:
+        desc: Injury Deaths (AIAN)
+        type: character
+      v135_race_aian_cilow:
+        desc: Injury Deaths CI low (AIAN)
+        type: double
+      v135_race_aian_cihigh:
+        desc: Injury Deaths CI high (AIAN)
+        type: double
+      v135_race_asian:
+        desc: Injury Deaths (Asian)
+        type: character
+      v135_race_asian_cilow:
+        desc: Injury Deaths CI low (Asian)
+        type: double
+      v135_race_asian_cihigh:
+        desc: Injury Deaths CI high (Asian)
+        type: double
+      v135_race_black:
+        desc: Injury Deaths (Black)
+        type: character
+      v135_race_black_cilow:
+        desc: Injury Deaths CI low (Black)
+        type: double
+      v135_race_black_cihigh:
+        desc: Injury Deaths CI high (Black)
+        type: double
+      v135_race_hispanic:
+        desc: Injury Deaths (Hispanic)
+        type: character
+      v135_race_hispanic_cilow:
+        desc: Injury Deaths CI low (Hispanic)
+        type: double
+      v135_race_hispanic_cihigh:
+        desc: Injury Deaths CI high (Hispanic)
+        type: double
+      v135_race_white:
+        desc: Injury Deaths (White)
+        type: character
+      v135_race_white_cilow:
+        desc: Injury Deaths CI low (White)
+        type: double
+      v135_race_white_cihigh:
+        desc: Injury Deaths CI high (White)
+        type: double
+      v135_race_nhopi:
+        desc: Injury Deaths (NHOPI)
+        type: character
+      v135_race_nhopi_cilow:
+        desc: Injury Deaths CI low (NHOPI)
+        type: double
+      v135_race_nhopi_cihigh:
+        desc: Injury Deaths CI high (NHOPI)
+        type: double
+      v125_rawvalue:
+        desc: Air Pollution - Particulate Matter raw value
+        type: double
+      v125_numerator:
+        desc: Air Pollution - Particulate Matter numerator
+        type: double
+      v125_denominator:
+        desc: Air Pollution - Particulate Matter denominator
+        type: double
+      v125_cilow:
+        desc: Air Pollution - Particulate Matter CI low
+        type: double
+      v125_cihigh:
+        desc: Air Pollution - Particulate Matter CI high
+        type: double
+      v124_rawvalue:
+        desc: Drinking Water Violations raw value
+        type: double
+      v124_numerator:
+        desc: Drinking Water Violations numerator
+        type: double
+      v124_denominator:
+        desc: Drinking Water Violations denominator
+        type: double
+      v124_cilow:
+        desc: Drinking Water Violations CI low
+        type: double
+      v124_cihigh:
+        desc: Drinking Water Violations CI high
+        type: double
+      v136_rawvalue:
+        desc: Severe Housing Problems raw value
+        type: double
+      v136_numerator:
+        desc: Severe Housing Problems numerator
+        type: double
+      v136_denominator:
+        desc: Severe Housing Problems denominator
+        type: double
+      v136_cilow:
+        desc: Severe Housing Problems CI low
+        type: double
+      v136_cihigh:
+        desc: Severe Housing Problems CI high
+        type: double
+      v136_other_data_1:
+        desc: Percentage of households with high housing costs
+        type: character
+      v136_other_data_1_cilow:
+        desc: Percentage of households with high housing costs CI low
+        type: double
+      v136_other_data_1_cihigh:
+        desc: Percentage of households with high housing costs CI high
+        type: double
+      v136_other_data_2:
+        desc: Percentage of households with overcrowding
+        type: character
+      v136_other_data_2_cilow:
+        desc: Percentage of households with overcrowding CI low
+        type: double
+      v136_other_data_2_cihigh:
+        desc: Percentage of households with overcrowding CI high
+        type: double
+      v136_other_data_3:
+        desc: Percentage of households with lack of kitchen or plumbing facilities
+        type: character
+      v136_other_data_3_cilow:
+        desc: Percentage of households with lack of kitchen or plumbing facilities CI low
+        type: double
+      v136_other_data_3_cihigh:
+        desc: Percentage of households with lack of kitchen or plumbing facilities CI high
+        type: double
+      v067_rawvalue:
+        desc: Driving Alone to Work raw value
+        type: double
+      v067_numerator:
+        desc: Driving Alone to Work numerator
+        type: double
+      v067_denominator:
+        desc: Driving Alone to Work denominator
+        type: double
+      v067_cilow:
+        desc: Driving Alone to Work CI low
+        type: double
+      v067_cihigh:
+        desc: Driving Alone to Work CI high
+        type: double
+      v067_race_aian:
+        desc: Driving Alone to Work (AIAN)
+        type: character
+      v067_race_aian_cilow:
+        desc: Driving Alone to Work CI low (AIAN)
+        type: double
+      v067_race_aian_cihigh:
+        desc: Driving Alone to Work CI high (AIAN)
+        type: double
+      v067_race_asian:
+        desc: Driving Alone to Work (Asian/Pacific Islander)
+        type: character
+      v067_race_asian_cilow:
+        desc: Driving Alone to Work CI low (Asian/Pacific Islander)
+        type: double
+      v067_race_asian_cihigh:
+        desc: Driving Alone to Work CI high (Asian/Pacific Islander)
+        type: double
+      v067_race_black:
+        desc: Driving Alone to Work (Black)
+        type: character
+      v067_race_black_cilow:
+        desc: Driving Alone to Work CI low (Black)
+        type: double
+      v067_race_black_cihigh:
+        desc: Driving Alone to Work CI high (Black)
+        type: double
+      v067_race_hispanic:
+        desc: Driving Alone to Work (Hispanic)
+        type: character
+      v067_race_hispanic_cilow:
+        desc: Driving Alone to Work CI low (Hispanic)
+        type: double
+      v067_race_hispanic_cihigh:
+        desc: Driving Alone to Work CI high (Hispanic)
+        type: double
+      v067_race_white:
+        desc: Driving Alone to Work (White)
+        type: character
+      v067_race_white_cilow:
+        desc: Driving Alone to Work CI low (White)
+        type: double
+      v067_race_white_cihigh:
+        desc: Driving Alone to Work CI high (White)
+        type: double
+      v137_rawvalue:
+        desc: Long Commute - Driving Alone raw value
+        type: double
+      v137_numerator:
+        desc: Long Commute - Driving Alone numerator
+        type: double
+      v137_denominator:
+        desc: Long Commute - Driving Alone denominator
+        type: double
+      v137_cilow:
+        desc: Long Commute - Driving Alone CI low
+        type: double
+      v137_cihigh:
+        desc: Long Commute - Driving Alone CI high
+        type: double
+      v147_rawvalue:
+        desc: Life Expectancy raw value
+        type: double
+      v147_numerator:
+        desc: Life Expectancy numerator
+        type: double
+      v147_denominator:
+        desc: Life Expectancy denominator
+        type: double
+      v147_cilow:
+        desc: Life Expectancy CI low
+        type: double
+      v147_cihigh:
+        desc: Life Expectancy CI high
+        type: double
+      v147_race_aian:
+        desc: Life Expectancy (AIAN)
+        type: character
+      v147_race_aian_cilow:
+        desc: Life Expectancy CI low (AIAN)
+        type: double
+      v147_race_aian_cihigh:
+        desc: Life Expectancy CI high (AIAN)
+        type: double
+      v147_race_asian:
+        desc: Life Expectancy (Asian)
+        type: character
+      v147_race_asian_cilow:
+        desc: Life Expectancy CI low (Asian)
+        type: double
+      v147_race_asian_cihigh:
+        desc: Life Expectancy CI high (Asian)
+        type: double
+      v147_race_black:
+        desc: Life Expectancy (Black)
+        type: character
+      v147_race_black_cilow:
+        desc: Life Expectancy CI low (Black)
+        type: double
+      v147_race_black_cihigh:
+        desc: Life Expectancy CI high (Black)
+        type: double
+      v147_race_hispanic:
+        desc: Life Expectancy (Hispanic)
+        type: character
+      v147_race_hispanic_cilow:
+        desc: Life Expectancy CI low (Hispanic)
+        type: double
+      v147_race_hispanic_cihigh:
+        desc: Life Expectancy CI high (Hispanic)
+        type: double
+      v147_race_white:
+        desc: Life Expectancy (White)
+        type: character
+      v147_race_white_cilow:
+        desc: Life Expectancy CI low (White)
+        type: double
+      v147_race_white_cihigh:
+        desc: Life Expectancy CI high (White)
+        type: double
+      v147_race_nhopi:
+        desc: Life Expectancy (NHOPI)
+        type: character
+      v147_race_nhopi_cilow:
+        desc: Life Expectancy CI low (NHOPI)
+        type: double
+      v147_race_nhopi_cihigh:
+        desc: Life Expectancy CI high (NHOPI)
+        type: double
+      v127_rawvalue:
+        desc: Premature Age-Adjusted Mortality raw value
+        type: double
+      v127_numerator:
+        desc: Premature Age-Adjusted Mortality numerator
+        type: double
+      v127_denominator:
+        desc: Premature Age-Adjusted Mortality denominator
+        type: double
+      v127_cilow:
+        desc: Premature Age-Adjusted Mortality CI low
+        type: double
+      v127_cihigh:
+        desc: Premature Age-Adjusted Mortality CI high
+        type: double
+      v127_race_aian:
+        desc: Premature Age-Adjusted Mortality (AIAN)
+        type: character
+      v127_race_aian_cilow:
+        desc: Premature Age-Adjusted Mortality CI low (AIAN)
+        type: double
+      v127_race_aian_cihigh:
+        desc: Premature Age-Adjusted Mortality CI high (AIAN)
+        type: double
+      v127_race_asian:
+        desc: Premature Age-Adjusted Mortality (Asian)
+        type: character
+      v127_race_asian_cilow:
+        desc: Premature Age-Adjusted Mortality CI low (Asian)
+        type: double
+      v127_race_asian_cihigh:
+        desc: Premature Age-Adjusted Mortality CI high (Asian)
+        type: double
+      v127_race_black:
+        desc: Premature Age-Adjusted Mortality (Black)
+        type: character
+      v127_race_black_cilow:
+        desc: Premature Age-Adjusted Mortality CI low (Black)
+        type: double
+      v127_race_black_cihigh:
+        desc: Premature Age-Adjusted Mortality CI high (Black)
+        type: double
+      v127_race_hispanic:
+        desc: Premature Age-Adjusted Mortality (Hispanic)
+        type: character
+      v127_race_hispanic_cilow:
+        desc: Premature Age-Adjusted Mortality CI low (Hispanic)
+        type: double
+      v127_race_hispanic_cihigh:
+        desc: Premature Age-Adjusted Mortality CI high (Hispanic)
+        type: double
+      v127_race_white:
+        desc: Premature Age-Adjusted Mortality (White)
+        type: character
+      v127_race_white_cilow:
+        desc: Premature Age-Adjusted Mortality CI low (White)
+        type: double
+      v127_race_white_cihigh:
+        desc: Premature Age-Adjusted Mortality CI high (White)
+        type: double
+      v127_race_nhopi:
+        desc: Premature Age-Adjusted Mortality (NHOPI)
+        type: character
+      v127_race_nhopi_cilow:
+        desc: Premature Age-Adjusted Mortality CI low (NHOPI)
+        type: double
+      v127_race_nhopi_cihigh:
+        desc: Premature Age-Adjusted Mortality CI high (NHOPI)
+        type: double
+      v128_rawvalue:
+        desc: Child Mortality raw value
+        type: double
+      v128_numerator:
+        desc: Child Mortality numerator
+        type: double
+      v128_denominator:
+        desc: Child Mortality denominator
+        type: double
+      v128_cilow:
+        desc: Child Mortality CI low
+        type: double
+      v128_cihigh:
+        desc: Child Mortality CI high
+        type: double
+      v128_race_aian:
+        desc: Child Mortality (AIAN)
+        type: character
+      v128_race_aian_cilow:
+        desc: Child Mortality CI low (AIAN)
+        type: double
+      v128_race_aian_cihigh:
+        desc: Child Mortality CI high (AIAN)
+        type: double
+      v128_race_asian:
+        desc: Child Mortality (Asian)
+        type: character
+      v128_race_asian_cilow:
+        desc: Child Mortality CI low (Asian)
+        type: double
+      v128_race_asian_cihigh:
+        desc: Child Mortality CI high (Asian)
+        type: double
+      v128_race_black:
+        desc: Child Mortality (Black)
+        type: character
+      v128_race_black_cilow:
+        desc: Child Mortality CI low (Black)
+        type: double
+      v128_race_black_cihigh:
+        desc: Child Mortality CI high (Black)
+        type: double
+      v128_race_hispanic:
+        desc: Child Mortality (Hispanic)
+        type: character
+      v128_race_hispanic_cilow:
+        desc: Child Mortality CI low (Hispanic)
+        type: double
+      v128_race_hispanic_cihigh:
+        desc: Child Mortality CI high (Hispanic)
+        type: double
+      v128_race_white:
+        desc: Child Mortality (White)
+        type: character
+      v128_race_white_cilow:
+        desc: Child Mortality CI low (White)
+        type: double
+      v128_race_white_cihigh:
+        desc: Child Mortality CI high (White)
+        type: double
+      v128_race_nhopi:
+        desc: Child Mortality (NHOPI)
+        type: character
+      v128_race_nhopi_cilow:
+        desc: Child Mortality CI low (NHOPI)
+        type: double
+      v128_race_nhopi_cihigh:
+        desc: Child Mortality CI high (NHOPI)
+        type: double
+      v129_rawvalue:
+        desc: Infant Mortality raw value
+        type: double
+      v129_numerator:
+        desc: Infant Mortality numerator
+        type: double
+      v129_denominator:
+        desc: Infant Mortality denominator
+        type: double
+      v129_cilow:
+        desc: Infant Mortality CI low
+        type: double
+      v129_cihigh:
+        desc: Infant Mortality CI high
+        type: double
+      v129_race_aian:
+        desc: Infant Mortality (AIAN)
+        type: character
+      v129_race_aian_cilow:
+        desc: Infant Mortality CI low (AIAN)
+        type: double
+      v129_race_aian_cihigh:
+        desc: Infant Mortality CI high (AIAN)
+        type: double
+      v129_race_asian:
+        desc: Infant Mortality (Asian)
+        type: character
+      v129_race_asian_cilow:
+        desc: Infant Mortality CI low (Asian)
+        type: double
+      v129_race_asian_cihigh:
+        desc: Infant Mortality CI high (Asian)
+        type: double
+      v129_race_black:
+        desc: Infant Mortality (Black)
+        type: character
+      v129_race_black_cilow:
+        desc: Infant Mortality CI low (Black)
+        type: double
+      v129_race_black_cihigh:
+        desc: Infant Mortality CI high (Black)
+        type: double
+      v129_race_hispanic:
+        desc: Infant Mortality (Hispanic)
+        type: character
+      v129_race_hispanic_cilow:
+        desc: Infant Mortality CI low (Hispanic)
+        type: double
+      v129_race_hispanic_cihigh:
+        desc: Infant Mortality CI high (Hispanic)
+        type: double
+      v129_race_white:
+        desc: Infant Mortality (White)
+        type: character
+      v129_race_white_cilow:
+        desc: Infant Mortality CI low (White)
+        type: double
+      v129_race_white_cihigh:
+        desc: Infant Mortality CI high (White)
+        type: double
+      v129_race_nhopi:
+        desc: Infant Mortality (NHOPI)
+        type: character
+      v129_race_nhopi_cilow:
+        desc: Infant Mortality CI low (NHOPI)
+        type: double
+      v129_race_nhopi_cihigh:
+        desc: Infant Mortality CI high (NHOPI)
+        type: double
+      v129_race_tom:
+        desc: Infant Mortality (Two or more races)
+        type: character
+      v129_race_tom_cilow:
+        desc: Infant Mortality CI low (Two or more races)
+        type: double
+      v129_race_tom_cihigh:
+        desc: Infant Mortality CI high (Two or more races)
+        type: double
+      v144_rawvalue:
+        desc: Frequent Physical Distress raw value
+        type: double
+      v144_numerator:
+        desc: Frequent Physical Distress numerator
+        type: double
+      v144_denominator:
+        desc: Frequent Physical Distress denominator
+        type: double
+      v144_cilow:
+        desc: Frequent Physical Distress CI low
+        type: double
+      v144_cihigh:
+        desc: Frequent Physical Distress CI high
+        type: double
+      v145_rawvalue:
+        desc: Frequent Mental Distress raw value
+        type: double
+      v145_numerator:
+        desc: Frequent Mental Distress numerator
+        type: double
+      v145_denominator:
+        desc: Frequent Mental Distress denominator
+        type: double
+      v145_cilow:
+        desc: Frequent Mental Distress CI low
+        type: double
+      v145_cihigh:
+        desc: Frequent Mental Distress CI high
+        type: double
+      v060_rawvalue:
+        desc: Diabetes Prevalence raw value
+        type: double
+      v060_numerator:
+        desc: Diabetes Prevalence numerator
+        type: double
+      v060_denominator:
+        desc: Diabetes Prevalence denominator
+        type: double
+      v060_cilow:
+        desc: Diabetes Prevalence CI low
+        type: double
+      v060_cihigh:
+        desc: Diabetes Prevalence CI high
+        type: double
+      v061_rawvalue:
+        desc: HIV Prevalence raw value
+        type: double
+      v061_numerator:
+        desc: HIV Prevalence numerator
+        type: double
+      v061_denominator:
+        desc: HIV Prevalence denominator
+        type: double
+      v061_cilow:
+        desc: HIV Prevalence CI low
+        type: double
+      v061_cihigh:
+        desc: HIV Prevalence CI high
+        type: double
+      v139_rawvalue:
+        desc: Food Insecurity raw value
+        type: double
+      v139_numerator:
+        desc: Food Insecurity numerator
+        type: double
+      v139_denominator:
+        desc: Food Insecurity denominator
+        type: double
+      v139_cilow:
+        desc: Food Insecurity CI low
+        type: double
+      v139_cihigh:
+        desc: Food Insecurity CI high
+        type: double
+      v083_rawvalue:
+        desc: Limited Access to Healthy Foods raw value
+        type: double
+      v083_numerator:
+        desc: Limited Access to Healthy Foods numerator
+        type: double
+      v083_denominator:
+        desc: Limited Access to Healthy Foods denominator
+        type: double
+      v083_cilow:
+        desc: Limited Access to Healthy Foods CI low
+        type: double
+      v083_cihigh:
+        desc: Limited Access to Healthy Foods CI high
+        type: double
+      v138_rawvalue:
+        desc: Drug Overdose Deaths raw value
+        type: double
+      v138_numerator:
+        desc: Drug Overdose Deaths numerator
+        type: double
+      v138_denominator:
+        desc: Drug Overdose Deaths denominator
+        type: double
+      v138_cilow:
+        desc: Drug Overdose Deaths CI low
+        type: double
+      v138_cihigh:
+        desc: Drug Overdose Deaths CI high
+        type: double
+      v138_race_aian:
+        desc: Drug Overdose Deaths (AIAN)
+        type: character
+      v138_race_aian_cilow:
+        desc: Drug Overdose Deaths CI low (AIAN)
+        type: double
+      v138_race_aian_cihigh:
+        desc: Drug Overdose Deaths CI high (AIAN)
+        type: double
+      v138_race_asian:
+        desc: Drug Overdose Deaths (Asian)
+        type: character
+      v138_race_asian_cilow:
+        desc: Drug Overdose Deaths CI low (Asian)
+        type: double
+      v138_race_asian_cihigh:
+        desc: Drug Overdose Deaths CI high (Asian)
+        type: double
+      v138_race_black:
+        desc: Drug Overdose Deaths (Black)
+        type: character
+      v138_race_black_cilow:
+        desc: Drug Overdose Deaths CI low (Black)
+        type: double
+      v138_race_black_cihigh:
+        desc: Drug Overdose Deaths CI high (Black)
+        type: double
+      v138_race_hispanic:
+        desc: Drug Overdose Deaths (Hispanic)
+        type: character
+      v138_race_hispanic_cilow:
+        desc: Drug Overdose Deaths CI low (Hispanic)
+        type: double
+      v138_race_hispanic_cihigh:
+        desc: Drug Overdose Deaths CI high (Hispanic)
+        type: double
+      v138_race_white:
+        desc: Drug Overdose Deaths (White)
+        type: character
+      v138_race_white_cilow:
+        desc: Drug Overdose Deaths CI low (White)
+        type: double
+      v138_race_white_cihigh:
+        desc: Drug Overdose Deaths CI high (White)
+        type: double
+      v138_race_nhopi:
+        desc: Drug Overdose Deaths (NHOPI)
+        type: character
+      v138_race_nhopi_cilow:
+        desc: Drug Overdose Deaths CI low (NHOPI)
+        type: double
+      v138_race_nhopi_cihigh:
+        desc: Drug Overdose Deaths CI high (NHOPI)
+        type: double
+      v143_rawvalue:
+        desc: Insufficient Sleep raw value
+        type: double
+      v143_numerator:
+        desc: Insufficient Sleep numerator
+        type: double
+      v143_denominator:
+        desc: Insufficient Sleep denominator
+        type: double
+      v143_cilow:
+        desc: Insufficient Sleep CI low
+        type: double
+      v143_cihigh:
+        desc: Insufficient Sleep CI high
+        type: double
+      v003_rawvalue:
+        desc: Uninsured Adults raw value
+        type: double
+      v003_numerator:
+        desc: Uninsured Adults numerator
+        type: double
+      v003_denominator:
+        desc: Uninsured Adults denominator
+        type: double
+      v003_cilow:
+        desc: Uninsured Adults CI low
+        type: double
+      v003_cihigh:
+        desc: Uninsured Adults CI high
+        type: double
+      v122_rawvalue:
+        desc: Uninsured Children raw value
+        type: double
+      v122_numerator:
+        desc: Uninsured Children numerator
+        type: double
+      v122_denominator:
+        desc: Uninsured Children denominator
+        type: double
+      v122_cilow:
+        desc: Uninsured Children CI low
+        type: double
+      v122_cihigh:
+        desc: Uninsured Children CI high
+        type: double
+      v131_rawvalue:
+        desc: Other Primary Care Providers raw value
+        type: double
+      v131_numerator:
+        desc: Other Primary Care Providers numerator
+        type: double
+      v131_denominator:
+        desc: Other Primary Care Providers denominator
+        type: double
+      v131_cilow:
+        desc: Other Primary Care Providers CI low
+        type: double
+      v131_cihigh:
+        desc: Other Primary Care Providers CI high
+        type: double
+      v131_other_data_1:
+        desc: Ratio of population to primary care providers other than physicians.
+        type: character
+      v021_rawvalue:
+        desc: High School Graduation raw value
+        type: double
+      v021_numerator:
+        desc: High School Graduation numerator
+        type: double
+      v021_denominator:
+        desc: High School Graduation denominator
+        type: double
+      v021_cilow:
+        desc: High School Graduation CI low
+        type: double
+      v021_cihigh:
+        desc: High School Graduation CI high
+        type: double
+      v149_rawvalue:
+        desc: Disconnected Youth raw value
+        type: double
+      v149_numerator:
+        desc: Disconnected Youth numerator
+        type: double
+      v149_denominator:
+        desc: Disconnected Youth denominator
+        type: double
+      v149_cilow:
+        desc: Disconnected Youth CI low
+        type: double
+      v149_cihigh:
+        desc: Disconnected Youth CI high
+        type: double
+      v159_rawvalue:
+        desc: Reading Scores raw value
+        type: double
+      v159_numerator:
+        desc: Reading Scores numerator
+        type: double
+      v159_denominator:
+        desc: Reading Scores denominator
+        type: double
+      v159_cilow:
+        desc: Reading Scores CI low
+        type: double
+      v159_cihigh:
+        desc: Reading Scores CI high
+        type: double
+      v159_race_aian:
+        desc: Reading Scores (AIAN)
+        type: character
+      v159_race_asian:
+        desc: Reading Scores (Asian/Pacific Islander)
+        type: character
+      v159_race_black:
+        desc: Reading Scores (Black)
+        type: character
+      v159_race_hispanic:
+        desc: Reading Scores (Hispanic)
+        type: character
+      v159_race_white:
+        desc: Reading Scores (White)
+        type: character
+      v160_rawvalue:
+        desc: Math Scores raw value
+        type: double
+      v160_numerator:
+        desc: Math Scores numerator
+        type: double
+      v160_denominator:
+        desc: Math Scores denominator
+        type: double
+      v160_cilow:
+        desc: Math Scores CI low
+        type: double
+      v160_cihigh:
+        desc: Math Scores CI high
+        type: double
+      v160_race_aian:
+        desc: Math Scores (AIAN)
+        type: character
+      v160_race_asian:
+        desc: Math Scores (Asian/Pacific Islander)
+        type: character
+      v160_race_black:
+        desc: Math Scores (Black)
+        type: character
+      v160_race_hispanic:
+        desc: Math Scores (Hispanic)
+        type: character
+      v160_race_white:
+        desc: Math Scores (White)
+        type: character
+      v167_rawvalue:
+        desc: School Segregation raw value
+        type: double
+      v167_numerator:
+        desc: School Segregation numerator
+        type: double
+      v167_denominator:
+        desc: School Segregation denominator
+        type: double
+      v167_cilow:
+        desc: School Segregation CI low
+        type: double
+      v167_cihigh:
+        desc: School Segregation CI high
+        type: double
+      v169_rawvalue:
+        desc: School Funding Adequacy raw value
+        type: double
+      v169_numerator:
+        desc: School Funding Adequacy numerator
+        type: double
+      v169_denominator:
+        desc: School Funding Adequacy denominator
+        type: double
+      v169_cilow:
+        desc: School Funding Adequacy CI low
+        type: double
+      v169_cihigh:
+        desc: School Funding Adequacy CI high
+        type: double
+      v151_rawvalue:
+        desc: Gender Pay Gap raw value
+        type: double
+      v151_numerator:
+        desc: Gender Pay Gap numerator
+        type: double
+      v151_denominator:
+        desc: Gender Pay Gap denominator
+        type: double
+      v151_cilow:
+        desc: Gender Pay Gap CI low
+        type: double
+      v151_cihigh:
+        desc: Gender Pay Gap CI high
+        type: double
+      v063_rawvalue:
+        desc: Median Household Income raw value
+        type: double
+      v063_numerator:
+        desc: Median Household Income numerator
+        type: double
+      v063_denominator:
+        desc: Median Household Income denominator
+        type: double
+      v063_cilow:
+        desc: Median Household Income CI low
+        type: double
+      v063_cihigh:
+        desc: Median Household Income CI high
+        type: double
+      v063_race_aian:
+        desc: Median Household Income (AIAN)
+        type: character
+      v063_race_aian_cilow:
+        desc: Median Household Income CI low (AIAN)
+        type: double
+      v063_race_aian_cihigh:
+        desc: Median Household Income CI high (AIAN)
+        type: double
+      v063_race_asian:
+        desc: Median household income (Asian)
+        type: character
+      v063_race_asian_cilow:
+        desc: Median household income CI low (Asian)
+        type: double
+      v063_race_asian_cihigh:
+        desc: Median household income CI high (Asian)
+        type: double
+      v063_race_black:
+        desc: Median Household Income (Black)
+        type: character
+      v063_race_black_cilow:
+        desc: Median Household Income CI low (Black)
+        type: double
+      v063_race_black_cihigh:
+        desc: Median Household Income CI high (Black)
+        type: double
+      v063_race_hispanic:
+        desc: Median Household Income (Hispanic)
+        type: character
+      v063_race_hispanic_cilow:
+        desc: Median Household Income CI low (Hispanic)
+        type: double
+      v063_race_hispanic_cihigh:
+        desc: Median Household Income CI high (Hispanic)
+        type: double
+      v063_race_white:
+        desc: Median Household Income (White)
+        type: character
+      v063_race_white_cilow:
+        desc: Median Household Income CI low (White)
+        type: double
+      v063_race_white_cihigh:
+        desc: Median Household Income CI high (White)
+        type: double
+      v170_rawvalue:
+        desc: Living Wage raw value
+        type: double
+      v170_numerator:
+        desc: Living Wage numerator
+        type: double
+      v170_denominator:
+        desc: Living Wage denominator
+        type: double
+      v170_cilow:
+        desc: Living Wage CI low
+        type: double
+      v170_cihigh:
+        desc: Living Wage CI high
+        type: double
+      v065_rawvalue:
+        desc: Children Eligible for Free or Reduced Price Lunch raw value
+        type: double
+      v065_numerator:
+        desc: Children Eligible for Free or Reduced Price Lunch numerator
+        type: double
+      v065_denominator:
+        desc: Children Eligible for Free or Reduced Price Lunch denominator
+        type: double
+      v065_cilow:
+        desc: Children Eligible for Free or Reduced Price Lunch CI low
+        type: double
+      v065_cihigh:
+        desc: Children Eligible for Free or Reduced Price Lunch CI high
+        type: double
+      v141_rawvalue:
+        desc: Residential Segregation - Black/White raw value
+        type: double
+      v141_numerator:
+        desc: Residential Segregation - Black/White numerator
+        type: double
+      v141_denominator:
+        desc: Residential Segregation - Black/White denominator
+        type: double
+      v141_cilow:
+        desc: Residential Segregation - Black/White CI low
+        type: double
+      v141_cihigh:
+        desc: Residential Segregation - Black/White CI high
+        type: double
+      v171_rawvalue:
+        desc: Child Care Cost Burden raw value
+        type: double
+      v171_numerator:
+        desc: Child Care Cost Burden numerator
+        type: double
+      v171_denominator:
+        desc: Child Care Cost Burden denominator
+        type: double
+      v171_cilow:
+        desc: Child Care Cost Burden CI low
+        type: double
+      v171_cihigh:
+        desc: Child Care Cost Burden CI high
+        type: double
+      v172_rawvalue:
+        desc: Child Care Centers raw value
+        type: double
+      v172_numerator:
+        desc: Child Care Centers numerator
+        type: double
+      v172_denominator:
+        desc: Child Care Centers denominator
+        type: double
+      v172_cilow:
+        desc: Child Care Centers CI low
+        type: double
+      v172_cihigh:
+        desc: Child Care Centers CI high
+        type: double
+      v015_rawvalue:
+        desc: Homicides raw value
+        type: double
+      v015_numerator:
+        desc: Homicides numerator
+        type: double
+      v015_denominator:
+        desc: Homicides denominator
+        type: double
+      v015_cilow:
+        desc: Homicides CI low
+        type: double
+      v015_cihigh:
+        desc: Homicides CI high
+        type: double
+      v015_race_aian:
+        desc: Homicides (AIAN)
+        type: character
+      v015_race_aian_cilow:
+        desc: Homicides CI low (AIAN)
+        type: double
+      v015_race_aian_cihigh:
+        desc: Homicides CI high (AIAN)
+        type: double
+      v015_race_asian:
+        desc: Homicides (Asian)
+        type: character
+      v015_race_asian_cilow:
+        desc: Homicides CI low (Asian)
+        type: double
+      v015_race_asian_cihigh:
+        desc: Homicides CI high (Asian)
+        type: double
+      v015_race_black:
+        desc: Homicides (Black)
+        type: character
+      v015_race_black_cilow:
+        desc: Homicides CI low (Black)
+        type: double
+      v015_race_black_cihigh:
+        desc: Homicides CI high (Black)
+        type: double
+      v015_race_hispanic:
+        desc: Homicides (Hispanic)
+        type: character
+      v015_race_hispanic_cilow:
+        desc: Homicides CI low (Hispanic)
+        type: double
+      v015_race_hispanic_cihigh:
+        desc: Homicides CI high (Hispanic)
+        type: double
+      v015_race_white:
+        desc: Homicides (White)
+        type: character
+      v015_race_white_cilow:
+        desc: Homicides CI low (White)
+        type: double
+      v015_race_white_cihigh:
+        desc: Homicides CI high (White)
+        type: double
+      v015_race_nhopi:
+        desc: Homicides (NHOPI)
+        type: character
+      v015_race_nhopi_cilow:
+        desc: Homicides CI low (NHOPI)
+        type: double
+      v015_race_nhopi_cihigh:
+        desc: Homicides CI high (NHOPI)
+        type: double
+      v161_rawvalue:
+        desc: Suicides raw value
+        type: double
+      v161_numerator:
+        desc: Suicides numerator
+        type: double
+      v161_denominator:
+        desc: Suicides denominator
+        type: double
+      v161_cilow:
+        desc: Suicides CI low
+        type: double
+      v161_cihigh:
+        desc: Suicides CI high
+        type: double
+      v161_other_data_1:
+        desc: Crude suicide rate
+        type: character
+      v161_race_aian:
+        desc: Suicides (AIAN)
+        type: character
+      v161_race_aian_cilow:
+        desc: Suicides CI low (AIAN)
+        type: double
+      v161_race_aian_cihigh:
+        desc: Suicides CI high (AIAN)
+        type: double
+      v161_race_asian:
+        desc: Suicides (Asian)
+        type: character
+      v161_race_asian_cilow:
+        desc: Suicides CI low (Asian)
+        type: double
+      v161_race_asian_cihigh:
+        desc: Suicides CI high (Asian)
+        type: double
+      v161_race_black:
+        desc: Suicides (Black)
+        type: character
+      v161_race_black_cilow:
+        desc: Suicides CI low (Black)
+        type: double
+      v161_race_black_cihigh:
+        desc: Suicides CI high (Black)
+        type: double
+      v161_race_hispanic:
+        desc: Suicides (Hispanic)
+        type: character
+      v161_race_hispanic_cilow:
+        desc: Suicides CI low (Hispanic)
+        type: double
+      v161_race_hispanic_cihigh:
+        desc: Suicides CI high (Hispanic)
+        type: double
+      v161_race_white:
+        desc: Suicides (White)
+        type: character
+      v161_race_white_cilow:
+        desc: Suicides CI low (White)
+        type: double
+      v161_race_white_cihigh:
+        desc: Suicides CI high (White)
+        type: double
+      v161_race_nhopi:
+        desc: Suicides (NHOPI)
+        type: character
+      v161_race_nhopi_cilow:
+        desc: Suicides CI low (NHOPI)
+        type: double
+      v161_race_nhopi_cihigh:
+        desc: Suicides CI high (NHOPI)
+        type: double
+      v148_rawvalue:
+        desc: Firearm Fatalities raw value
+        type: double
+      v148_numerator:
+        desc: Firearm Fatalities numerator
+        type: double
+      v148_denominator:
+        desc: Firearm Fatalities denominator
+        type: double
+      v148_cilow:
+        desc: Firearm Fatalities CI low
+        type: double
+      v148_cihigh:
+        desc: Firearm Fatalities CI high
+        type: double
+      v148_race_aian:
+        desc: Firearm Fatalities (AIAN)
+        type: character
+      v148_race_aian_cilow:
+        desc: Firearm Fatalities CI low (AIAN)
+        type: double
+      v148_race_aian_cihigh:
+        desc: Firearm Fatalities CI high (AIAN)
+        type: double
+      v148_race_asian:
+        desc: Firearm Fatalities (Asian)
+        type: character
+      v148_race_asian_cilow:
+        desc: Firearm Fatalities CI low (Asian)
+        type: double
+      v148_race_asian_cihigh:
+        desc: Firearm Fatalities CI high (Asian)
+        type: double
+      v148_race_black:
+        desc: Firearm Fatalities (Black)
+        type: character
+      v148_race_black_cilow:
+        desc: Firearm Fatalities CI low (Black)
+        type: double
+      v148_race_black_cihigh:
+        desc: Firearm Fatalities CI high (Black)
+        type: double
+      v148_race_hispanic:
+        desc: Firearm Fatalities (Hispanic)
+        type: character
+      v148_race_hispanic_cilow:
+        desc: Firearm Fatalities CI low (Hispanic)
+        type: double
+      v148_race_hispanic_cihigh:
+        desc: Firearm Fatalities CI high (Hispanic)
+        type: double
+      v148_race_white:
+        desc: Firearm Fatalities (White)
+        type: character
+      v148_race_white_cilow:
+        desc: Firearm Fatalities CI low (White)
+        type: double
+      v148_race_white_cihigh:
+        desc: Firearm Fatalities CI high (White)
+        type: double
+      v148_race_nhopi:
+        desc: Firearm Fatalities (NHOPI)
+        type: character
+      v148_race_nhopi_cilow:
+        desc: Firearm Fatalities CI low (NHOPI)
+        type: double
+      v148_race_nhopi_cihigh:
+        desc: Firearm Fatalities CI high (NHOPI)
+        type: double
+      v039_rawvalue:
+        desc: Motor Vehicle Crash Deaths raw value
+        type: double
+      v039_numerator:
+        desc: Motor Vehicle Crash Deaths numerator
+        type: double
+      v039_denominator:
+        desc: Motor Vehicle Crash Deaths denominator
+        type: double
+      v039_cilow:
+        desc: Motor Vehicle Crash Deaths CI low
+        type: double
+      v039_cihigh:
+        desc: Motor Vehicle Crash Deaths CI high
+        type: double
+      v039_race_aian:
+        desc: Motor Vehicle Crash Deaths (AIAN)
+        type: character
+      v039_race_aian_cilow:
+        desc: Motor Vehicle Crash Deaths CI low (AIAN)
+        type: double
+      v039_race_aian_cihigh:
+        desc: Motor Vehicle Crash Deaths CI high (AIAN)
+        type: double
+      v039_race_asian:
+        desc: Motor Vehicle Crash Deaths (Asian)
+        type: character
+      v039_race_asian_cilow:
+        desc: Motor Vehicle Crash Deaths CI low (Asian)
+        type: double
+      v039_race_asian_cihigh:
+        desc: Motor Vehicle Crash Deaths CI high (Asian)
+        type: double
+      v039_race_black:
+        desc: Motor Vehicle Crash Deaths (Black)
+        type: character
+      v039_race_black_cilow:
+        desc: Motor Vehicle Crash Deaths CI low (Black)
+        type: double
+      v039_race_black_cihigh:
+        desc: Motor Vehicle Crash Deaths CI high (Black)
+        type: double
+      v039_race_hispanic:
+        desc: Motor Vehicle Crash Deaths (Hispanic)
+        type: character
+      v039_race_hispanic_cilow:
+        desc: Motor Vehicle Crash Deaths CI low (Hispanic)
+        type: double
+      v039_race_hispanic_cihigh:
+        desc: Motor Vehicle Crash Deaths CI high (Hispanic)
+        type: double
+      v039_race_white:
+        desc: Motor Vehicle Crash Deaths (White)
+        type: character
+      v039_race_white_cilow:
+        desc: Motor Vehicle Crash Deaths CI low (White)
+        type: double
+      v039_race_white_cihigh:
+        desc: Motor Vehicle Crash Deaths CI high (White)
+        type: double
+      v039_race_nhopi:
+        desc: Motor Vehicle Crash Deaths (NHOPI)
+        type: character
+      v039_race_nhopi_cilow:
+        desc: Motor Vehicle Crash Deaths CI low (NHOPI)
+        type: double
+      v039_race_nhopi_cihigh:
+        desc: Motor Vehicle Crash Deaths CI high (NHOPI)
+        type: double
+      v158_rawvalue:
+        desc: Juvenile Arrests raw value
+        type: double
+      v158_numerator:
+        desc: Juvenile Arrests numerator
+        type: double
+      v158_denominator:
+        desc: Juvenile Arrests denominator
+        type: double
+      v158_cilow:
+        desc: Juvenile Arrests CI low
+        type: double
+      v158_cihigh:
+        desc: Juvenile Arrests CI high
+        type: double
+      v158_other_data_1:
+        desc: Number of juvenile delinquency cases formally processed by a juvenile court
+        type: character
+      v158_other_data_2:
+        desc: Number of informally handled juvenile delinquency cases
+        type: character
+      v177_rawvalue:
+        desc: Voter Turnout raw value
+        type: double
+      v177_numerator:
+        desc: Voter Turnout numerator
+        type: double
+      v177_denominator:
+        desc: Voter Turnout denominator
+        type: double
+      v177_cilow:
+        desc: Voter Turnout CI low
+        type: double
+      v177_cihigh:
+        desc: Voter Turnout CI high
+        type: double
+      v178_rawvalue:
+        desc: Census Participation raw value
+        type: double
+      v178_numerator:
+        desc: Census Participation numerator
+        type: double
+      v178_denominator:
+        desc: Census Participation denominator
+        type: double
+      v178_cilow:
+        desc: Census Participation CI low
+        type: double
+      v178_cihigh:
+        desc: Census Participation CI high
+        type: double
+      v156_rawvalue:
+        desc: Traffic Volume raw value
+        type: double
+      v156_numerator:
+        desc: Traffic Volume numerator
+        type: double
+      v156_denominator:
+        desc: Traffic Volume denominator
+        type: double
+      v156_cilow:
+        desc: Traffic Volume CI low
+        type: double
+      v156_cihigh:
+        desc: Traffic Volume CI high
+        type: double
+      v153_rawvalue:
+        desc: Homeownership raw value
+        type: double
+      v153_numerator:
+        desc: Homeownership numerator
+        type: double
+      v153_denominator:
+        desc: Homeownership denominator
+        type: double
+      v153_cilow:
+        desc: Homeownership CI low
+        type: double
+      v153_cihigh:
+        desc: Homeownership CI high
+        type: double
+      v154_rawvalue:
+        desc: Severe Housing Cost Burden raw value
+        type: double
+      v154_numerator:
+        desc: Severe Housing Cost Burden numerator
+        type: double
+      v154_denominator:
+        desc: Severe Housing Cost Burden denominator
+        type: double
+      v154_cilow:
+        desc: Severe Housing Cost Burden CI low
+        type: double
+      v154_cihigh:
+        desc: Severe Housing Cost Burden CI high
+        type: double
+      v166_rawvalue:
+        desc: Broadband Access raw value
+        type: double
+      v166_numerator:
+        desc: Broadband Access numerator
+        type: double
+      v166_denominator:
+        desc: Broadband Access denominator
+        type: double
+      v166_cilow:
+        desc: Broadband Access CI low
+        type: double
+      v166_cihigh:
+        desc: Broadband Access CI high
+        type: double
+      v051_rawvalue:
+        desc: Population raw value
+        type: double
+      v051_numerator:
+        desc: Population numerator
+        type: double
+      v051_denominator:
+        desc: Population denominator
+        type: double
+      v051_cilow:
+        desc: Population CI low
+        type: double
+      v051_cihigh:
+        desc: Population CI high
+        type: double
+      v052_rawvalue:
+        desc: '% Below 18 Years of Age raw value'
+        type: double
+      v052_numerator:
+        desc: '% Below 18 Years of Age numerator'
+        type: double
+      v052_denominator:
+        desc: '% Below 18 Years of Age denominator'
+        type: double
+      v052_cilow:
+        desc: '% Below 18 Years of Age CI low'
+        type: double
+      v052_cihigh:
+        desc: '% Below 18 Years of Age CI high'
+        type: double
+      v053_rawvalue:
+        desc: '% 65 and Older raw value'
+        type: double
+      v053_numerator:
+        desc: '% 65 and Older numerator'
+        type: double
+      v053_denominator:
+        desc: '% 65 and Older denominator'
+        type: double
+      v053_cilow:
+        desc: '% 65 and Older CI low'
+        type: double
+      v053_cihigh:
+        desc: '% 65 and Older CI high'
+        type: double
+      v054_rawvalue:
+        desc: '% Non-Hispanic Black raw value'
+        type: double
+      v054_numerator:
+        desc: '% Non-Hispanic Black numerator'
+        type: double
+      v054_denominator:
+        desc: '% Non-Hispanic Black denominator'
+        type: double
+      v054_cilow:
+        desc: '% Non-Hispanic Black CI low'
+        type: double
+      v054_cihigh:
+        desc: '% Non-Hispanic Black CI high'
+        type: double
+      v055_rawvalue:
+        desc: '% American Indian or Alaska Native raw value'
+        type: double
+      v055_numerator:
+        desc: '% American Indian or Alaska Native numerator'
+        type: double
+      v055_denominator:
+        desc: '% American Indian or Alaska Native denominator'
+        type: double
+      v055_cilow:
+        desc: '% American Indian or Alaska Native CI low'
+        type: double
+      v055_cihigh:
+        desc: '% American Indian or Alaska Native CI high'
+        type: double
+      v081_rawvalue:
+        desc: '% Asian raw value'
+        type: double
+      v081_numerator:
+        desc: '% Asian numerator'
+        type: double
+      v081_denominator:
+        desc: '% Asian denominator'
+        type: double
+      v081_cilow:
+        desc: '% Asian CI low'
+        type: double
+      v081_cihigh:
+        desc: '% Asian CI high'
+        type: double
+      v080_rawvalue:
+        desc: '% Native Hawaiian or Other Pacific Islander raw value'
+        type: double
+      v080_numerator:
+        desc: '% Native Hawaiian or Other Pacific Islander numerator'
+        type: double
+      v080_denominator:
+        desc: '% Native Hawaiian or Other Pacific Islander denominator'
+        type: double
+      v080_cilow:
+        desc: '% Native Hawaiian or Other Pacific Islander CI low'
+        type: double
+      v080_cihigh:
+        desc: '% Native Hawaiian or Other Pacific Islander CI high'
+        type: double
+      v056_rawvalue:
+        desc: '% Hispanic raw value'
+        type: double
+      v056_numerator:
+        desc: '% Hispanic numerator'
+        type: double
+      v056_denominator:
+        desc: '% Hispanic denominator'
+        type: double
+      v056_cilow:
+        desc: '% Hispanic CI low'
+        type: double
+      v056_cihigh:
+        desc: '% Hispanic CI high'
+        type: double
+      v126_rawvalue:
+        desc: '% Non-Hispanic White raw value'
+        type: double
+      v126_numerator:
+        desc: '% Non-Hispanic White numerator'
+        type: double
+      v126_denominator:
+        desc: '% Non-Hispanic White denominator'
+        type: double
+      v126_cilow:
+        desc: '% Non-Hispanic White CI low'
+        type: double
+      v126_cihigh:
+        desc: '% Non-Hispanic White CI high'
+        type: double
+      v059_rawvalue:
+        desc: '% Not Proficient in English raw value'
+        type: double
+      v059_numerator:
+        desc: '% Not Proficient in English numerator'
+        type: double
+      v059_denominator:
+        desc: '% Not Proficient in English denominator'
+        type: double
+      v059_cilow:
+        desc: '% Not Proficient in English CI low'
+        type: double
+      v059_cihigh:
+        desc: '% Not Proficient in English CI high'
+        type: double
+      v057_rawvalue:
+        desc: '% Female raw value'
+        type: double
+      v057_numerator:
+        desc: '% Female numerator'
+        type: double
+      v057_denominator:
+        desc: '% Female denominator'
+        type: double
+      v057_cilow:
+        desc: '% Female CI low'
+        type: double
+      v057_cihigh:
+        desc: '% Female CI high'
+        type: double
+      v058_rawvalue:
+        desc: '% Rural raw value'
+        type: double
+      v058_numerator:
+        desc: '% Rural numerator'
+        type: double
+      v058_denominator:
+        desc: '% Rural denominator'
+        type: double
+      v058_cilow:
+        desc: '% Rural CI low'
+        type: double
+      v058_cihigh:
+        desc: '% Rural CI high'
+        type: double
+
