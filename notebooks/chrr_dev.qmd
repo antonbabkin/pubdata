@@ -30,13 +30,14 @@ df %>% head()
 
 File layout and relevant measure/description are downloadable, using it to construct schema for YAML file (all CHRR analytic and trend data share the same schema in the official data dictionary).
 
+# 2024
 ```{r}
 #download_file("https://www.countyhealthrankings.org/sites/default/files/media/document/DataDictionary_2024.xlsx", "tmp/chrr/DataDictionary_2024.xlsx")
 
-df_layout <- read_excel("tmp/chrr/DataDictionary_2024.xlsx") |> filter(!is.na(`Variable Name`))
+df_layout_2024 <- read_excel("tmp/chrr/DataDictionary_2024.xlsx") |> filter(!is.na(`Variable Name`))
 s <- list()
-for (i in 1:nrow(df_layout)) {
-  r <- df_layout[i, ]
+for (i in 1:nrow(df_layout_2024)) {
+  r <- df_layout_2024[i, ]
   var <- r$`Variable Name`
   desc <- gsub("\n", " ", r$Measure)
   if (is.na(var) || var == "") next
@@ -48,6 +49,24 @@ for (i in 1:nrow(df_layout)) {
 cat(yaml::as.yaml(s))
 ```
 
+# 2025
+```{r}
+#download_file("https://www.countyhealthrankings.org/sites/default/files/media/document/DataDictionary_2025.xlsx", "tmp/chrr/DataDictionary_2025.xlsx")
+
+df_layout_2025 <- read_excel("tmp/chrr/DataDictionary_2025.xlsx") |> filter(!is.na(`Variable Name`))
+s <- list()
+for (i in 1:nrow(df_layout_2025)) {
+  r <- df_layout_2025[i, ]
+  var <- r$`Variable Name`
+  desc <- gsub("\n", " ", r$Measure)
+  if (is.na(var) || var == "") next
+  col_meta <- list(desc = desc, type = "character")
+  if (grepl("flag", var, ignore.case = TRUE)) col_meta$type <- "integer"
+  if (grepl("value|numerator|denominator|ci", var, ignore.case = TRUE)) col_meta$type <- "double"
+  s[[var]] <- col_meta
+}
+cat(yaml::as.yaml(s))
+```
 
 
 ## Variable-year table
