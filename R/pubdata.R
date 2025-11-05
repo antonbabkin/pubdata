@@ -8,7 +8,8 @@ collections <- c(
   "bea_reg",
   "ers_rural",
   "naics",
-  "qcew"
+  "qcew",
+  "chrr"
 )
 
 
