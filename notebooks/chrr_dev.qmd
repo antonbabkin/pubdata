@@ -23,6 +23,12 @@ df <- read_csv("tmp/chrr/analytic_data2024.csv", show_col_types = FALSE, skip = 
 df %>% head()
 ```
 
+```{r}
+ls("chrr")
+
+meta("chrr", "raw_2024")
+```
+
 
 # Analytic data
 
@@ -49,6 +55,8 @@ for (i in 1:nrow(df_layout_2024)) {
 cat(yaml::as.yaml(s))
 ```
 
+
+
 # 2025
 ```{r}
 #download_file("https://www.countyhealthrankings.org/sites/default/files/media/document/DataDictionary_2025.xlsx", "tmp/chrr/DataDictionary_2025.xlsx")
@@ -66,6 +74,38 @@ for (i in 1:nrow(df_layout_2025)) {
   s[[var]] <- col_meta
 }
 cat(yaml::as.yaml(s))
+```
+
+## main tables
+```{r}
+for (y in 2024:2025){
+  x <- chrr_get(paste0(y)) 
+  cat(y, dim(x), "\n")
+}
+```
+
+Full datasets
+```{r}
+get("chrr", "2025")
+```
+
+Query from a parquet
+```{r}
+path("chrr", "2025") %>%
+  arrow::open_dataset() %>%
+  filter(state == "WI") %>%
+  select(v001_rawvalue, v002_rawvalue) %>%
+  collect()
+```
+
+Access all years as a single parquet dataset.
+```{r}
+path("chrr", "2025") %>%
+  dirname() %>%
+  arrow::open_dataset() %>%
+  filter(state == "CA") %>%
+  select(year, county, v138_cilow, v182_rawvalue, v131_other_data_1, v063_race_asian) %>%
+  collect()
 ```
 
 
