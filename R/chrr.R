@@ -19,11 +19,8 @@ chrr_get <- function(key) {
 
   # CHRR data has a human-readable header in line 1 followed by variable name in line 2
   # line 1 are already captured in YAML schema `desc`, so we skip line 1
-  header <- readr::read_csv(raw, skip = 1, n_max = 1, col_names = FALSE, show_col_types = FALSE)
-  col_names <- as.character(header[1, ])
-  y <- readr::read_csv(raw, skip = 2, col_names = col_names, show_col_types = FALSE)
-
-  colnames(df) <- trimws(colnames(df))
+  y <- readr::read_csv(raw, skip = 1, show_col_types = FALSE)
+  colnames(y) <- trimws(colnames(y))
   types <- purrr::map(this_meta$schema, \(x) x$type)
   y
 }
