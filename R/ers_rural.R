@@ -23,9 +23,12 @@ ers_rural_get <- function(key) {
     double = "numeric"
   ))
 
-  # read RUC tables
-  if (key %in% c("ruc_1974", "ruc_1983", "ruc_1993", "ruc_2003", "ruc_2003pr", "ruc_2013", "ruc_2023")) {
-    df <- readxl::read_excel(raw, col_names = names(types), skip = 1, col_types = excel_types)
+  # read RUC and UI tables
+  if (key %in% c("ruc_1974", "ruc_1983", "ruc_1993", "ruc_2003", "ruc_2003pr", "ruc_2013", "ruc_2023",
+                 "ui_2003pr", "ui_2003_1993", "ui_2013", "ui_2024")) {
+    # if sheet not specified in meta, it will be "NULL" and default to first sheet
+    sheet <- this_meta$read$sheet
+    df <- readxl::read_excel(raw, sheet = sheet, col_names = names(types), skip = 1, col_types = excel_types)
     for (col in names(df)) {
       if (types[[col]] == "integer") {
         df[[col]] <- as.integer(df[[col]])

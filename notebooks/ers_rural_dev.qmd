@@ -25,3 +25,28 @@ ers_rural_get("ruc_1974")
 ```
 
 
+# UI
+
+[Data](https://www.ers.usda.gov/data-products/urban-influence-codes)
+[Documentation](https://www.ers.usda.gov/data-products/urban-influence-codes/documentation)
+
+```{r}
+# download all raw files
+get("ers_rural", "raw_ui_2003pr")
+get("ers_rural", "raw_ui_2003_1993")
+get("ers_rural", "raw_ui_2013")
+get("ers_rural", "raw_ui_2024")
+
+# get all tables bypassing cache
+ers_rural_get("ui_2003pr")
+ers_rural_get("ui_2003_1993")
+ers_rural_get("ui_2013")
+ers_rural_get("ui_2024")
+
+get("ers_rural", "ui_2003pr")
+get("ers_rural", "ui_2003_1993")
+get("ers_rural", "ui_2013")
+get("ers_rural", "ui_2024")
+
+```
+
