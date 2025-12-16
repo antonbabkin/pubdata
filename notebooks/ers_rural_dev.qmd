@@ -50,3 +50,29 @@ get("ers_rural", "ui_2024")
 
 ```
 
+
+# RUCA
+
+[Data](https://www.ers.usda.gov/data-products/rural-urban-commuting-area-codes)
+
+```{r}
+# download all raw files
+ls("ers_rural", "raw_ruca") |>
+  purrr::map(\(x) get("ers_rural", x))
+
+
+# get all tables bypassing cache
+ers_rural_get("ruca_1990")
+ers_rural_get("ruca_2000")
+ers_rural_get("ruca_2010")
+ers_rural_get("ruca_2010zip")
+ers_rural_get("ruca_2020")
+ers_rural_get("ruca_2020zip")
+
+c("ruca_1990", "ruca_2000", "ruca_2010", "ruca_2010zip", "ruca_2020", "ruca_2020zip") |>
+  purrr::map(\(x) get("ers_rural", x))
+
+```
+
+
+

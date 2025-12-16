@@ -251,8 +251,6 @@ data:
         type: character
 
 
-
-
 # ---- UI ----
   raw_ui_2003pr:
     desc: 2003 Urban Influence Codes for Puerto Rico
@@ -409,3 +407,341 @@ data:
         desc: Description for 2024 code
         orig: Description
         type: character
+
+
+# ---- RUCA ----
+  raw_ruca_1990:
+    desc: 1990 Rural-Urban Commuting Area Codes, census tract
+    type: raw
+    path: raw/ruca_1990.xls
+    url: https://ers.usda.gov/sites/default/files/_laserfiche/DataFiles/53241/RUCA-codes-1990-revised.xls
+  raw_ruca_2000:
+    desc: 2000 Rural-Urban Commuting Area Codes, census tract
+    type: raw
+    path: raw/ruca_2000.xls
+    url: https://ers.usda.gov/sites/default/files/_laserfiche/DataFiles/53241/ruca00.xls
+  raw_ruca_2010:
+    desc: 2010 Rural-Urban Commuting Area Codes, census tract
+    type: raw
+    path: raw/ruca_2010.xlsx
+    url: https://ers.usda.gov/sites/default/files/_laserfiche/DataFiles/53241/ruca2010revised.xlsx
+  raw_ruca_2010zip:
+    desc: 2010 Rural-Urban Commuting Area Codes, ZIP code
+    type: raw
+    path: raw/ruca_2010zip.xlsx
+    url: https://ers.usda.gov/sites/default/files/_laserfiche/DataFiles/53241/RUCA2010zipcode.xlsx
+  raw_ruca_2020:
+    desc: 2020 Rural-Urban Commuting Area Codes, census tract
+    type: raw
+    path: raw/ruca_2020.xlsx
+    url: https://ers.usda.gov/sites/default/files/_laserfiche/DataFiles/53241/RUCA-codes-2020-tract.xlsx
+  raw_ruca_2020zip:
+    desc: 2020 Rural-Urban Commuting Area Codes, ZIP code
+    type: raw
+    path: raw/ruca_2020zip.xlsx
+    url: https://ers.usda.gov/sites/default/files/_laserfiche/DataFiles/53241/RUCA-codes-2020-zipcode.xlsx
+
+  ruca_1990:
+    desc: 1990 Rural-Urban Commuting Area Codes, census tract
+    type: table
+    path: proc/ruca_1990.pq
+    depends: raw_ruca_1990
+    read:
+      sheet: "Data"
+      skip: 2
+    schema:
+      tract_fips:
+        desc: State+county+tract FIPS code
+        orig: FIPS state-county-tract code
+        type: character
+      ruca_code:
+        desc: 1990 RUCA code
+        orig: Rural-urban commuting area code
+        type: character
+      population:
+        desc: Census tract population, 1990
+        orig: Census tract population, 1990
+        type: integer
+      area:
+        desc: 1993 Urban Influence Code
+        orig: Census tract land area, square miles, 1990
+        type: double
+      metro:
+        desc: County metropolitan status, 1993 (1=metro,0=nonmetro)
+        orig: County metropolitan status, 1993 (1=metro,0=nonmetro)
+        type: integer
+  ruca_2000:
+    desc: 2000 Rural-Urban Commuting Area Codes, census tract
+    type: table
+    path: proc/ruca_2000.pq
+    depends: raw_ruca_2000
+    read:
+      sheet: "Data"
+      skip: 1
+    schema:
+      cty_fips:
+        desc: State+county FIPS code
+        orig: State-County FIPS Code
+        type: character
+      st_abbr:
+        desc: State appreviation
+        orig: Select State
+        type: character
+      cty_name:
+        desc: County name
+        orig: "Select County "
+        type: character
+      tract_fips:
+        desc: State+county+tract FIPS code
+        orig: State County Tract Code
+        type: character
+      ruca_code:
+        desc: RUCA Primary Code 2000
+        orig: RUCA Primary Code 2000
+        type: character
+      ruca2_code:
+        desc: RUCA Secondary Code 2000
+        orig: RUCA Secondary Code 2000
+        type: character
+      population:
+        desc: Tract Population 2000
+        orig: Tract Population 2000
+        type: integer
+      st_code:
+        desc: State code
+        orig: Select Your State Code
+        type: character
+      cty_code:
+        desc: County code
+        orig: County Code
+        type: character
+      tract_code:
+        desc: Tract code
+        orig: Census Tract Code
+        type: character
+  ruca_2010:
+    desc: 2010 Rural-Urban Commuting Area Codes, census tract
+    type: table
+    path: proc/ruca_2010.pq
+    depends: raw_ruca_2010
+    read:
+      sheet: "Data"
+      skip: 2
+    schema:
+      cty_fips:
+        desc: State+county FIPS code
+        orig: State-County FIPS Code
+        type: character
+      st_abbr:
+        desc: State appreviation
+        orig: Select State
+        type: character
+      cty_name:
+        desc: County name
+        orig: "Select County"
+        type: character
+      tract_fips:
+        desc: State+county+tract FIPS code
+        orig: State-County-Tract FIPS Code (lookup by address at http://www.ffiec.gov/Geocode/)
+        type: character
+      ruca_code:
+        desc: Primary RUCA Code 2010
+        orig: Primary RUCA Code 2010
+        type: character
+      ruca2_code:
+        desc: Secondary RUCA Code, 2010
+        orig: Secondary RUCA Code, 2010 (see errata)
+        type: character
+      population:
+        desc: Tract Population, 2010
+        orig: Tract Population, 2010
+        type: integer
+      area:
+        desc: Land Area (square miles), 2010
+        orig: Land Area (square miles), 2010
+        type: double
+      popdensity:
+        desc: 2010 Population density, persons per square mile
+        orig: Population Density (per square mile), 2010
+        type: double
+  ruca_2010zip:
+    desc: 2010 Rural-Urban Commuting Area Codes, ZIP code
+    type: table
+    path: proc/ruca_2010zip.pq
+    depends: raw_ruca_2010zip
+    read:
+      sheet: "Data"
+      skip: 1
+    schema:
+      zip_code:
+        desc: 5-digit ZIP code
+        orig: ZIP_CODE
+        type: character
+      st_abbr:
+        desc: State appreviation
+        orig: STATE
+        type: character
+      zip_type:
+        desc: Distinguishes “Zip Code Areas” and “Post Offices or large volume customers”
+        orig: ZIP_TYPE
+        type: character
+      ruca_code:
+        desc: Primary RUCA Code 2010
+        orig: RUCA1
+        type: character
+      ruca2_code:
+        desc: Secondary RUCA Code, 2010
+        orig: RUCA2
+        type: character
+  ruca_2020:
+    desc: 2020 Rural-Urban Commuting Area Codes, census tract
+    type: table
+    path: proc/ruca_2020.pq
+    depends: raw_ruca_2020
+    read:
+      sheet: "RUCA2020 Tract Data"
+      skip: 2
+    schema:
+      tract_fips:
+        desc: Unique 11-digit 2023 census tract identification code (census tract GEOID), text with leading zeros
+        orig: TractFIPS23
+        type: character
+      cty_fips:
+        desc: Unique 5-digit 2023 county identification code (county GEOID), text with leading zeros
+        orig: State-County FIPS Code
+        type: character
+      cty_code:
+        desc: 3-digit 2023 county identification code, text with leading zeros
+        orig: CountyCode23
+        type: character
+      cty_name:
+        desc: 2023 county name
+        orig: CountyName23
+        type: character
+      tract_fips_2020:
+        desc: Unique 11-digit 2020 census tract identification code (census tract GEOID), text with leading zeros
+        orig: TractFIPS20
+        type: character
+      tract_code_2020:
+        desc: 6-digit 2020 census tract identification code, text with leading zeros
+        orig: TractCode20
+        type: character
+      tract_name_2020:
+        desc: 2020 census tract name
+        orig: TractName20
+        type: character
+      cty_fips_2020:
+        desc: Unique 5-digit 2020 county identification code (county GEOID), text with leading zeros
+        orig: CountyFIPS20
+        type: character
+      cty_code_2020:
+        desc: 3-digit 2020 county identification code, text with leading zeros
+        orig: CountyCode20
+        type: character
+      cty_name_2020:
+        desc: 2020 county name
+        orig: CountyName20
+        type: character
+      st_code:
+        desc: Unique 2-digit state identification code (state GEOID), text with leading zeros
+        orig: StateFIPS20
+        type: character
+      st_name:
+        desc: 2020 state name
+        orig: StateName20
+        type: character
+      ua_code:
+        desc: Unique 5-digit 2020 urban area identification code (UACE), text with leading zeros
+        orig: UrbanAreaCode20
+        type: character
+      ua_name:
+        desc: 2020 urban area name
+        orig: UrbanAreaName20
+        type: character
+      ucore:
+        desc: Identifier indicating the census tract is part of an urban core
+        orig: UrbanCore
+        type: integer
+      ucore_type:
+        desc: Categories describing the type of urban core
+        orig: UrbanCoreType
+        type: character
+      ruca_code:
+        desc: Primary Rural-Urban Commuting Area (RUCA) code, 2020
+        orig: PrimaryRUCA
+        type: character
+      ruca_desc:
+        desc: Description of primary RUCA codes, 2020
+        orig: PrimaryRUCADescription
+        type: character
+      dest_code:
+        desc: Unique identification code, corresponds to the "ua_code" for primary commuting flow destinations that are an urban core (ucore=1) and the "tract_fips" for destinations that are not part of an urban core (ucore=0)
+        orig: PrimaryDestinationCode
+        type: character
+      dest_name:
+        desc: Name of the primary commuting flow destination, corresponds to the "ua_name" for destinations that are an urban core (ucore=1) and the tract name for destinations that are not part of an urban core (ucore=0)
+        orig: PrimaryDestinationName
+        type: character
+      ruca2_code:
+        desc: Secondary Rural-Urban Commuting Area (RUCA) code, 2020
+        orig: SecondaryRUCA
+        type: character
+      ruca2_desc:
+        desc: Description of secondary RUCA codes, 2020
+        orig: SecondaryRUCADescription
+        type: character
+      dest2_code:
+        desc: Unique identification code, corresponds to the "ua_code" for secondary commuting flow destinations that are an urban core (ucore=1) and the "tract_fips" for destinations that are not part of an urban core (ucore=0)
+        orig: SecondaryDestinationCode
+        type: character
+      dest2_name:
+        desc: Name of the secondary commuting flow destination, corresponds to the "ua_name" for destinations that are an urban core (ucore=1) and the tract name for destinations that are not part of an urban core (ucore=0)
+        orig: SecondaryDestinationName
+        type: character
+      population:
+        desc: Total population, 2020
+        orig: Population
+        type: integer
+      area:
+        desc: Census tract land area, square miles, 2020
+        orig: LandArea
+        type: double
+      popdensity:
+        desc: Population density, people per square mile, 2020
+        orig: PopDensity
+        type: double
+  ruca_2020zip:
+    desc: 2020 Rural-Urban Commuting Area Codes, ZIP code
+    type: table
+    path: proc/ruca_2020zip.pq
+    depends: raw_ruca_2020zip
+    read:
+      sheet: "RUCA 2020 ZIP Code Data"
+      skip: 2
+    schema:
+      zip_code:
+        desc: Unique 5-digit postal route identifier used by the U.S. Postal Service (USPS), text with leading zeros
+        orig: ZIPCode
+        type: character
+      st_abbr:
+        desc: State postal abbreviation
+        orig: State
+        type: character
+      zip_type:
+        desc: Type of ZIP Code
+        orig: ZIPCodeType
+        type: character
+      po_name:
+        desc: Post office name associated with the ZIP Code
+        orig: POName
+        type: character
+      ruca_code:
+        desc: Primary Rural-Urban Commuting Area (RUCA) code, 2020
+        orig: PrimaryRUCA
+        type: character
+      ruca2_code:
+        desc: Secondary Rural-Urban Commuting Area (RUCA) code, 2020
+        orig: SecondaryRUCA
+        type: character
+
+
