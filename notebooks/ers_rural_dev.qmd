@@ -74,5 +74,21 @@ c("ruca_1990", "ruca_2000", "ruca_2010", "ruca_2010zip", "ruca_2020", "ruca_2020
 
 ```
 
+# FAR
+
+[Data](https://www.ers.usda.gov/data-products/frontier-and-remote-area-codes)
+
+
+```{r}
+get("ers_rural", "raw_far_2000")
+get("ers_rural", "raw_far_2010")
+
+ers_rural_get("far_2000")
+ers_rural_get("far_2010")
+
+get("ers_rural", "far_2000")
+get("ers_rural", "far_2010")
+
+```
 
 

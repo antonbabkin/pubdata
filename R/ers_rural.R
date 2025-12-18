@@ -18,7 +18,8 @@ ers_rural_get <- function(key) {
   # read RUC and UI tables
   if (key %in% c("ruc_1974", "ruc_1983", "ruc_1993", "ruc_2003", "ruc_2003pr", "ruc_2013", "ruc_2023",
                  "ui_2003pr", "ui_2003_1993", "ui_2013", "ui_2024",
-                 "ruca_1990", "ruca_2000", "ruca_2010", "ruca_2010zip", "ruca_2020", "ruca_2020zip")) {
+                 "ruca_1990", "ruca_2000", "ruca_2010", "ruca_2010zip", "ruca_2020", "ruca_2020zip",
+                 "far_2000", "far_2010")) {
     # if sheet not specified in meta, it will be "NULL" and default to first sheet
     sheet <- this_meta$read$sheet
     # if skip rows not specified in meta, skip 1

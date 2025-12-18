@@ -745,3 +745,176 @@ data:
         type: character
 
 
+# ---- FAR ----
+  raw_far_2000:
+    desc: 2000 Frontier and Remote Area Codes
+    type: raw
+    path: raw/far_2000.xls
+    url: https://ers.usda.gov/sites/default/files/_laserfiche/DataFiles/51020/FARCodesZIPCodeData.xls
+  raw_far_2010:
+    desc: 2010 Frontier and Remote Area Codes
+    type: raw
+    path: raw/far_2010.xlsx
+    url: https://ers.usda.gov/sites/default/files/_laserfiche/DataFiles/51020/FARcodesZIPdata2010WithAKandHI.xlsx
+
+  far_2000:
+    desc: 2000 Frontier and Remote Area Codes
+    type: table
+    path: proc/far_2000.pq
+    depends: raw_far_2000
+    read:
+      sheet: "FAR ZIP Code Data"
+      skip: 1
+    schema:
+      zip_code:
+        desc: 5-digit ZIP Code
+        orig: ZIP
+        type: character
+      st_abbr:
+        desc: State postal abbreviation
+        orig: state
+        type: character
+      far1_code:
+        desc: "FAR classification, level one: 0=not FAR, 1=FAR"
+        orig: far1
+        type: integer
+      far2_code:
+        desc: "FAR classification, level two: 0=not FAR, 1=FAR"
+        orig: far2
+        type: integer
+      far3_code:
+        desc: "FAR classification, level three: 0=not FAR, 1=FAR"
+        orig: far3
+        type: integer
+      far4_code:
+        desc: "FAR classification, level four: 0=not FAR, 1=FAR"
+        orig: far4
+        type: integer
+      population:
+        desc: ZIP code population, 2000
+        orig: gridpop
+        type: integer
+      area:
+        desc: ZIP code land area in square miles
+        orig: sqmi
+        type: double
+      popdensity:
+        desc: ZIP code population per square mile, 2000
+        orig: density
+        type: double
+      far1_pop:
+        desc: ZIP code population classified as FAR level one, 2000
+        orig: fr1pop
+        type: integer
+      far2_pop:
+        desc: ZIP code population classified as FAR level two, 2000
+        orig: fr2pop
+        type: integer
+      far3_pop:
+        desc: ZIP code population classified as FAR level three, 2000
+        orig: fr3pop
+        type: integer
+      far4_pop:
+        desc: ZIP code population classified as FAR level four, 2000
+        orig: fr4pop
+        type: integer
+      far1_pct:
+        desc: Percent of ZIP code population classified as FAR level one, 2000
+        orig: pctfr1
+        type: double
+      far2_pct:
+        desc: Percent of ZIP code population classified as FAR level two, 2000
+        orig: pctfr2
+        type: double
+      far3_pct:
+        desc: Percent of ZIP code population classified as FAR level three, 2000
+        orig: pctfr3
+        type: double
+      far4_pct:
+        desc: Percent of ZIP code population classified as FAR level four, 2000
+        orig: pctfr4
+        type: double
+  far_2010:
+    desc: 2010 Frontier and Remote Area Codes
+    type: table
+    path: proc/far_2010.pq
+    depends: raw_far_2010
+    read:
+      sheet: "FAR ZIP Code Data"
+      skip: 1
+    schema:
+      zip_code:
+        desc: 5-digit ZIP Code
+        orig: zip
+        type: character
+      st_abbr:
+        desc: State postal abbreviation
+        orig: state
+        type: character
+      zip_name:
+        desc: ZIP Code area name
+        orig: name
+        type: character
+      far1_code:
+        desc: "FAR classification, level one: 0=not FAR, 1=FAR"
+        orig: far1
+        type: integer
+      far2_code:
+        desc: "FAR classification, level two: 0=not FAR, 1=FAR"
+        orig: far2
+        type: integer
+      far3_code:
+        desc: "FAR classification, level three: 0=not FAR, 1=FAR"
+        orig: far3
+        type: integer
+      far4_code:
+        desc: "FAR classification, level four: 0=not FAR, 1=FAR"
+        orig: far4
+        type: integer
+      population:
+        desc: ZIP code population, 2010
+        orig: gridpop
+        type: integer
+      area:
+        desc: ZIP code land area in square miles
+        orig: sqmi
+        type: double
+      popdensity:
+        desc: ZIP code population per square mile, 2010
+        orig: density
+        type: double
+      far1_pop:
+        desc: ZIP code population classified as FAR level one, 2010
+        orig: fr1pop
+        type: integer
+      far2_pop:
+        desc: ZIP code population classified as FAR level two, 2010
+        orig: fr2pop
+        type: integer
+      far3_pop:
+        desc: ZIP code population classified as FAR level three, 2010
+        orig: fr3pop
+        type: integer
+      far4_pop:
+        desc: ZIP code population classified as FAR level four, 2010
+        orig: fr4pop
+        type: integer
+      far1_pct:
+        desc: Percent of ZIP code population classified as FAR level one, 2010
+        orig: fr1pct
+        type: double
+      far2_pct:
+        desc: Percent of ZIP code population classified as FAR level two, 2010
+        orig: fr2pct
+        type: double
+      far3_pct:
+        desc: Percent of ZIP code population classified as FAR level three, 2010
+        orig: fr3pct
+        type: double
+      far4_pct:
+        desc: Percent of ZIP code population classified as FAR level four, 2010
+        orig: fr4pct
+        type: double
+
+
+
