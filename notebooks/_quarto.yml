@@ -2,8 +2,9 @@ project:
   type: website
   render:
     - index.qmd
-    - bds.qmd
-    - qcew.qmd
+    - bea_io.qmd
+    # - bds.qmd
+    # - qcew.qmd
   post-render: touch _site/.nojekyll
 
 website:
@@ -13,10 +14,12 @@ website:
     left:
       - text: Home
         href: index.qmd
-      - text: BDS
-        href: bds.qmd
-      - text: QCEW
-        href: qcew.qmd
+      - text: BEA I-O
+        href: bea_io.qmd
+      # - text: BDS
+      #   href: bds.qmd
+      # - text: QCEW
+      #   href: qcew.qmd
 
 format:
   html:

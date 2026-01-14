@@ -1,0 +1,250 @@
+---
+title: "Input-Output Tables - Bureau of Economic Analysis"
+format:
+  html:
+    toc: true
+    toc-location: right-body
+    code-fold: true
+    code-overflow: wrap
+    embed-resources: true
+    df-print: kable
+---
+
+
+
+```{r}
+#| echo: false
+#| output: false
+library(tidyverse)
+library(arrow)
+library(DT)
+
+COLLECTION <- "bea_io"
+
+```
+
+# Overview
+
+> A series of detailed tables showing how industries interact with each other and with the rest of the economy. Supply tables show the goods and services produced by domestic industries as well as imports of these goods and services. Use tables show who uses these goods and services, including other industries. Requirements tables summarize the full supply chain, including direct and indirect inputs.
+
+Data source links.
+
+```{r}
+#| echo: false
+#| results: asis
+pubdata::meta(COLLECTION, print = FALSE)$urls %>%
+  iwalk(\(url, name) {
+    cat(str_glue("  - [{name}]({url})"), "\n")
+  })
+
+```
+
+
+# Tables
+
+List of all tables in the collection.
+Each table can be retrieved with `pubdata::get("bea_io", key)`.
+
+```{r}
+#| echo: false
+#| column: page
+# eval: false
+
+descriptions <- pubdata::ls(COLLECTION, detail = TRUE) %>%
+  select(key, description) %>%
+  filter(!str_starts(key, "raw"))
+
+dimensions <- descriptions$key %>%
+  map(\(key) {
+    df <- pubdata::get(COLLECTION, key)
+    list(key = key, rows = nrow(df), cols = ncol(df))
+  }) %>%
+  bind_rows()
+
+inner_join(descriptions, dimensions, by = "key") %>%
+  datatable()
+
+```
+
+
+# Variables
+
+Listing of all variables in each table.
+
+```{r}
+#| echo: false
+#| column: page
+# eval: false
+
+pubdata::ls(COLLECTION) %>%
+  grepv("^raw_", ., invert = TRUE) %>%
+  set_names() %>%
+  map(\(key) {
+    schema <- pubdata::meta(COLLECTION, key, print = FALSE)$schema %>%
+      bind_rows(.id = "variable") %>%
+      relocate(variable, type, desc)
+    stats <- pubdata::get(COLLECTION, key) %>%
+      map(\(values) list(na = sum(is.na(values)), unique = length(unique(values)))) %>%
+      bind_rows(.id = "variable")
+    inner_join(schema, stats, by = "variable")
+  }) %>%
+  bind_rows(.id = "key") %>%
+  datatable(filter = "top")
+```
+
+
+# Examples
+
+## BEA-NAICS crosswalk
+
+2023 I-O revision, 2017 NAICS revision.
+
+```{r}
+#| column: page
+
+pubdata::get("bea_io", "2023_naics") %>%
+  summarize(naics = str_c(naics, collapse = ", "), .by = c(sector, summary, u_summary, detail, title)) %>%
+  datatable(filter = "top")
+
+```
+
+
+## GDP by commodity
+
+GDP as the sum of final uses: consumption, investment, government spending, net export.
+
+$$
+Y = C + I + G + X - M
+$$
+
+Billions of dollars in 2022.
+
+```{r}
+
+x <- pubdata::get("bea_io", "2023_mu_use-bef-pro_sec_2022")
+commodity_codes <- x %>%
+  filter(core_matrix) %>%
+  distinct(row_code) %>%
+  pull()
+x %>%
+  mutate(
+    col_name = case_match(
+      col_name,
+      "Personal consumption expenditures" ~ "C",
+      "Private fixed investment" ~ "I1",
+      "Change in private inventories" ~ "I2",
+      "Exports of goods and services" ~ "X",
+      "Imports of goods and services" ~ "M",
+      "Government consumption expenditures and gross investment" ~ "G",
+      "Total Final Uses (GDP)" ~ "Y"
+    ),
+    value = replace_na(value, 0)
+  ) %>%
+  filter(row_code %in% commodity_codes, !is.na(col_name)) %>%
+  pivot_wider(id_cols = c(row_code, row_name), names_from = col_name) %>%
+  mutate(I = I1 + I2) %>%
+  select(row_code, row_name, Y, C, I, G, X, M) %>%
+  { add_row(., row_code = "", row_name = "TOTAL", summarize(., across(where(is.numeric), sum)), .before = 1) } %>%
+  mutate(across(where(is.numeric), \(x) round(x / 1000)))
+
+```
+
+
+
+## Components of value added by industry
+
+Use table subtotals satisfy the following accounting identity:
+
+$$
+\text{Total industry output} = 
+\text{Total Intermediate} + \text{Compensation of employees} + \text{Gross operating surplus} + \text{Net taxes}
+$$
+
+Table below shows percentage shares of total output by industry in 2022 at the sector level.
+
+
+```{r}
+
+x <- pubdata::get("bea_io", "2023_mu_use-bef-pro_sec_2022")
+industry_codes <- x %>%
+  filter(core_matrix) %>%
+  distinct(col_code) %>%
+  pull()
+x %>%
+  filter(
+    row_name %in% c(
+      "Total Intermediate", 
+      "Compensation of employees", 
+      "Gross operating surplus", 
+      "Taxes on production and imports, less subsidies", 
+      "Total Industry Output"),
+    col_code %in% industry_codes
+  ) %>%
+  mutate(
+    pct = round(100 * value / sum(if_else(row_name == "Total Industry Output", value, 0)), 1),
+    .by = col_code) %>%
+  filter(row_name != "Total Industry Output") %>%
+  pivot_wider(id_cols = c(col_code, col_name), names_from = row_name, values_from = pct) %>%
+  rename(intermediates = "Total Intermediate", 
+         compensation = "Compensation of employees", 
+         taxes = "Taxes on production and imports, less subsidies",
+         surplus = "Gross operating surplus")
+
+```
+
+
+
+
+## Sector Use table in matrix form
+
+Pivot long to wide.
+Using codes as row and column names, billions of dollars.
+
+
+```{r}
+#| column: page
+
+x <- pubdata::get("bea_io", "2023_mu_use-bef-pro_sec_2017") %>%
+  mutate(
+    value = round(replace_na(value, 0) / 1000),
+    row_code = case_match(
+      row_name,
+      "Total Intermediate" ~ "T005",
+      "Total Value Added" ~ "T006",
+      "Total Industry Output" ~ "T008",
+      .default = row_code
+    ),
+    col_code = case_match(
+      col_name,
+      "Total Intermediate" ~ "T001",
+      "Total Final Uses (GDP)" ~ "FTOT",
+      "Total Commodity Output" ~ "TOUT",
+      .default = col_code
+    )
+  ) %>%
+  pivot_wider(id_cols = row_code, names_from = col_code)
+
+x %>%
+  select(!row_code) %>%
+  as.matrix() %>%
+  `rownames<-`(x$row_code) %>%
+  knitr::kable()
+```
+
+
+
+
+## Inputs to grain farming
+
+2017 dollar value of top 10 detail level commodities used is inputs to Grain farming industry.
+
+```{r}
+pubdata::get("bea_io", "2023_mu_use-bef-pro_det_2017") %>%
+  filter(col_name == "Grain farming", core_matrix) %>%
+  arrange(desc(value)) %>%
+  head(10) %>%
+  select(row_code, row_name, value)
+```
+
+
+
