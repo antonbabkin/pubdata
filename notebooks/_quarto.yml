@@ -3,6 +3,7 @@ project:
   render:
     - index.qmd
     - bea_io.qmd
+    - nass.qmd
     # - bds.qmd
     # - qcew.qmd
   post-render: touch _site/.nojekyll
@@ -16,6 +17,8 @@ website:
         href: index.qmd
       - text: BEA I-O
         href: bea_io.qmd
+      - text: NASS
+        href: nass.qmd
       # - text: BDS
       #   href: bds.qmd
       # - text: QCEW
