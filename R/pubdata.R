@@ -8,6 +8,7 @@ collections <- c(
   "bea_reg",
   "ers_rural",
   "naics",
+  "nass",
   "qcew"
 )
 
@@ -112,9 +113,19 @@ get <- function(collection, key) {
   # check if disk cache exists
   value <- cache_read(collection, key)
   if (is.null(value)) {
-    # calculate value from collection specific _get() function
-    col_get <- base::get(paste0(collection, "_get"))
-    value <- col_get(key)
+    key_meta <- meta(collection, key, print = FALSE)
+    # raw files are treated identically across collections, 
+    # tables are constructed via collection specific _get() functions
+    if (key_meta$type == "raw") {
+      logger::log_debug("downloading raw data for \"{collection}:{key}\"")
+      value <- pubdata_path(collection, key_meta$path)
+      download_file(key_meta$url, value)
+    } else {
+      logger::log_debug("constructing dataframe for \"{collection}:{key}\"")
+      # calculate value from collection specific _get() function
+      col_get <- base::get(paste0(collection, "_get"))
+      value <- col_get(key)
+    }
     # save to disk cache
     cache_write(collection, key, value)
   }

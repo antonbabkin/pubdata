@@ -1,0 +1,197 @@
+---
+title: "NASS development"
+format: html
+---
+  
+Development notebook for NASS.
+
+
+```{r}
+library(tidyverse)
+library(arrow)
+logger::log_threshold(logger::DEBUG)
+```
+
+
+# downloadable files
+
+Downloadable files mirror the structure of QuickStats query forms.
+
+
+
+```{r}
+ls("nass")
+
+meta("nass", "raw_census_2012")
+
+```
+
+# 2002-2022
+
+## schema
+
+Layout of files is available on QuickStats API page.
+There was old Python code to parse the table on that page.
+
+```
+fields = [
+    ('SOURCE_DESC',
+    '60',
+    'Source of data (CENSUS or SURVEY). Census program includes the Census  of Ag as well as follow up projects. Survey program includes national, state,  and county surveys.'),
+    ('SECTOR_DESC',
+    '60',
+    'Five high  level, broad categories useful to narrow down choices (Crops, Animals & Products, Economics,  Demographics, and Environmental).'),
+    ('GROUP_DESC',
+    '80',
+    'Subsets within sector (e.g., under sector = Crops, the groups are Field  Crops, Fruit & Tree Nuts, Horticulture, and Vegetables).'),
+    ('COMMODITY_DESC',
+    '80',
+    'The primary subject of interest (e.g., CORN, CATTLE, LABOR, TRACTORS,  OPERATORS).'),
+    ('CLASS_DESC',
+    '180',
+    'Generally a physical attribute (e.g., variety, size, color, gender)  of the commodity.'),
+    ('PRODN_PRACTICE_DESC',
+    '180',
+    'A method of production or action taken on the commodity (e.g., IRRIGATED,  ORGANIC, ON FEED).'),
+    ('UTIL_PRACTICE_DESC',
+    '180',
+    'Utilizations (e.g., GRAIN, FROZEN, SLAUGHTER) or marketing channels  (e.g., FRESH MARKET, PROCESSING, RETAIL).'),
+    ('STATISTICCAT_DESC',
+    '80',
+    'The aspect of a commodity being measured (e.g., AREA HARVESTED, PRICE  RECEIVED, INVENTORY, SALES).'),
+    ('UNIT_DESC',
+    '60',
+    'The unit associated with the statistic category (e.g., ACRES, $ / LB,  HEAD, $, OPERATIONS).'),
+    ('SHORT_DESC',
+    '512',
+    'A concatenation of six columns: commodity_desc, class_desc,  prodn_practice_desc, util_practice_desc, statisticcat_desc, and unit_desc.'),
+    ('DOMAIN_DESC',
+    '256',
+    'Generally another characteristic of operations that produce a  particular commodity (e.g., ECONOMIC CLASS, AREA OPERATED, NAICS  CLASSIFICATION, SALES). For chemical usage data, the domain describes the  type of chemical applied to the commodity. The domain = TOTAL will have no  further breakouts; i.e., the data value pertains completely to the  short_desc.'),
+    ('DOMAINCAT_DESC',
+    '512',
+    'Categories or partitions within a domain (e.g., under domain = Sales, domain categories include  $1,000 TO $9,999, $10,000 TO $19,999, etc).'),
+    ('AGG_LEVEL_DESC',
+    '40',
+    'Aggregation level or geographic granularity of the data (e.g., State, Ag District, County, Region, Zip Code).'),
+    ('STATE_ANSI',
+    '2',
+    'American National Standards Institute (ANSI) standard 2-digit state  codes.'),
+    ('STATE_FIPS_CODE',
+    '2',
+    'NASS 2-digit state codes; include 99 and 98 for US TOTAL and OTHER  STATES, respectively; otherwise match ANSI codes.'),
+    ('STATE_ALPHA', '2', 'State abbreviation, 2-character alpha code.'),
+    ('STATE_NAME', '30', 'State full name.'),
+    ('ASD_CODE',
+    '2',
+    'NASS defined county groups, unique within a state, 2-digit ag  statistics district code.'),
+    ('ASD_DESC', '60', 'Ag statistics district name.'),
+    ('COUNTY_ANSI', '3', 'ANSI standard 3-digit county codes.'),
+    ('COUNTY_CODE',
+    '3',
+    'NASS 3-digit county codes; includes 998 for OTHER (COMBINED) COUNTIES  and Alaska county codes; otherwise match ANSI codes.'),
+    ('COUNTY_NAME', '30', 'County name.'),
+    ('REGION_DESC',
+    '80',
+    'NASS defined geographic entities not readily defined by other  standard geographic levels. A region can be a less than a state (Sub-State) or a group of states (Multi-State), and may be specific to  a commodity.'),
+    ('ZIP_5', '5', 'US Postal Service 5-digit zip code.'),
+    ('WATERSHED_CODE',
+    '8',
+    'US Geological Survey (USGS) 8-digit Hydrologic Unit Code (HUC) for  watersheds.'),
+    ('WATERSHED_DESC', '120', 'Name assigned to the HUC.'),
+    ('CONGR_DISTRICT_CODE', '2', 'US Congressional District 2-digit code.'),
+    ('COUNTRY_CODE',
+    '4',
+    'US Census Bureau, Foreign Trade Division 4-digit country code, as of  April, 2007.'),
+    ('COUNTRY_NAME', '60', 'Country name.'),
+    ('LOCATION_DESC', '120', 'Full description for the location dimension.'),
+    ('YEAR', '4', 'The numeric year of the data.'),
+    ('FREQ_DESC',
+    '30',
+    'Length of time covered (Annual,  Season, Monthly, Weekly, Point in Time). Monthly often covers more than one month. Point in Time is as of a particular  day.'),
+    ('BEGIN_CODE',
+    '2',
+    'If applicable, a 2-digit code corresponding to the beginning of the  reference period (e.g., for freq_desc = Monthly,  begin_code ranges from 01 (January) to 12 (December)).'),
+    ('END_CODE',
+    '2',
+    'If applicable, a 2-digit code corresponding to the end of the  reference period (e.g., the reference period of Jan thru Mar will have begin_code = 01 and end_code = 03).'),
+    ('REFERENCE_PERIOD_DESC',
+    '40',
+    'The specific time frame, within a freq_desc.'),
+    ('WEEK_ENDING', '10', 'Week ending date, used when freq_desc = Weekly.'),
+    ('LOAD_TIME',
+    '19',
+    'Date and time indicating when record was inserted into Quick Stats  database.'),
+    ('VALUE', '24', 'Published data value or suppression reason code.'),
+    ('VALUE_F', '3', 'VALUE flag: NUM, (D) or (Z)'),
+    ('CV_%',
+    '7',
+    'Coefficient of variation. Available for the 2012 Census of Agriculture only. County-level CVs are generalized.'),
+    ('CV_%_F', '3', 'CV_% flag: NUM, (H), (D) or (L)')
+]
+
+for field in fields:
+  name, _, desc = field
+  name = name.lower()
+  if name in ["year"]:
+    tp = "integer"
+  else:
+    tp = "character"
+  print(f"""{name}:
+    desc: {desc}
+    type: {tp}""")
+
+
+```
+
+
+Suppression flag values.
+
+```{r}
+x <- get("nass", "raw_census_2022") %>%
+  read_tsv(col_select = c("VALUE", "CV_%"), col_types = cols(.default = "c")) %>%
+  rename_with(tolower) %>%
+  mutate(value_num = as.double(str_replace_all(value, ",", ""))) %>%
+  mutate(value_f = if_else(is.na(value_num), value, NA)) %>%
+  mutate(cv_num = as.double(str_replace_all(`cv_%`, ",", ""))) %>%
+  mutate(cv_f = if_else(is.na(cv_num), `cv_%`, NA))
+
+x %>% count(value_f, cv_f)
+
+```
+
+
+
+
+## testing
+
+
+```{r}
+x <- nass_get("census_2022")
+
+x <- get("nass", "census_2022")
+
+
+```
+
+
+
+
+```{r}
+
+x <- get("nass", "census_2002")
+x %>% count(year, agg_level_desc)
+
+x1 <- path("nass", "census_2002") %>%
+  open_dataset() %>%
+  head() %>%
+  collect() %>%
+  map(\(v) typeof(v))
+
+x2 <- meta("nass", "census_2002", FALSE)$schema %>%
+  map(\(v) v$type)
+
+identical(x1, x2)
+
+
+```

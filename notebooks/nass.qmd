@@ -1,0 +1,99 @@
+---
+title: "National Agricultural Statistics Service (NASS)"
+format:
+  html:
+    toc: true
+    toc-location: right-body
+    code-fold: true
+    code-overflow: wrap
+    embed-resources: true
+    df-print: kable
+---
+
+
+
+```{r}
+#| echo: false
+#| output: false
+library(tidyverse)
+library(arrow)
+library(DT)
+
+COLLECTION <- "nass"
+
+```
+
+# Overview
+
+> The USDA's National Agricultural Statistics Service (NASS) conducts hundreds of surveys every year and prepares reports covering virtually every aspect of U.S. agriculture. Production and supplies of food and fiber, prices paid and received by farmers, farm labor and wages, farm finances, chemical use, and changes in the demographics of U.S. producers are only a few examples.
+
+Data source links.
+
+```{r}
+#| echo: false
+#| results: asis
+pubdata::meta(COLLECTION, print = FALSE)$urls %>%
+  iwalk(\(url, name) {
+    cat(str_glue("  - [{name}]({url})"), "\n")
+  })
+
+```
+
+
+# Tables
+
+List of all tables in the collection.
+Each table can be retrieved with `pubdata::get("nass", key)`.
+
+```{r}
+#| echo: false
+#| column: page
+# eval: false
+
+descriptions <- pubdata::ls(COLLECTION, detail = TRUE) %>%
+  select(key, description) %>%
+  filter(!str_starts(key, "raw"))
+
+dimensions <- descriptions$key %>%
+  map(\(key) {
+    ds <- pubdata::path(COLLECTION, key) %>%
+      open_dataset()
+    list(key = key, rows = nrow(ds), cols = ncol(ds))
+  }) %>%
+  bind_rows()
+
+inner_join(descriptions, dimensions, by = "key") %>%
+  datatable()
+
+```
+
+
+# Variables
+
+Listing of all variables in each table.
+
+```{r}
+#| echo: false
+#| column: page
+# eval: false
+
+pubdata::ls(COLLECTION) %>%
+  grepv("^raw_", ., invert = TRUE) %>%
+  set_names() %>%
+  map(\(key) {
+    schema <- pubdata::meta(COLLECTION, key, print = FALSE)$schema %>%
+      bind_rows(.id = "variable") %>%
+      relocate(variable, type, desc)
+    stats <- pubdata::get(COLLECTION, key) %>%
+      map(\(values) list(na = sum(is.na(values)), unique = length(unique(values)))) %>%
+      bind_rows(.id = "variable")
+    inner_join(schema, stats, by = "variable")
+  }) %>%
+  bind_rows(.id = "key") %>%
+  datatable(filter = "top")
+```
+
+
+# Examples
+
+TODO
