@@ -1,5 +1,40 @@
 [
   {
+    "objectID": "nass.html",
+    "href": "nass.html",
+    "title": "National Agricultural Statistics Service (NASS)",
+    "section": "",
+    "text": "On this page\n   \n  \n  Overview\n  Tables\n  Variables\n  Examples\n  \n\n\nOverview\n\nThe USDA’s National Agricultural Statistics Service (NASS) conducts hundreds of surveys every year and prepares reports covering virtually every aspect of U.S. agriculture. Production and supplies of food and fiber, prices paid and received by farmers, farm labor and wages, farm finances, chemical use, and changes in the demographics of U.S. producers are only a few examples.\n\nData source links.\n\nHome\nData Files\nQuickStats\nQuickStats API\n\n\n\nTables\nList of all tables in the collection. Each table can be retrieved with pubdata::get(\"nass\", key).\n\n\n\n\n\n\n\n\nVariables\nListing of all variables in each table.\n\n\n\n\n\n\n\n\nExamples\nTODO"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "pubdata: Interface for public use datasets",
+    "section": "",
+    "text": "The general package interface for public data (“pubdata”) provide a list of operation that enables exploration and interaction with the data collections, specifically using ls(), meta(),and get()."
+  },
+  {
+    "objectID": "index.html#ls-list-available-data",
+    "href": "index.html#ls-list-available-data",
+    "title": "pubdata: Interface for public use datasets",
+    "section": "ls(): list available data",
+    "text": "ls(): list available data\nPrint a list of all available data collections.\n\npubdata::ls()\n\n[1] \"bds\"       \"bea_fa\"    \"bea_io\"    \"bea_reg\"   \"ers_rural\" \"naics\"    \n[7] \"nass\"      \"qcew\"     \n\n\ndetail: print the data collections with additional details for each data collection (description, cache file, etc).\n\npubdata::ls(detail = TRUE)\n\n\n  \n\n\n\ncollection: print the available keys in a specific collection. For example, keys in the \"naics\" collection:\n\npubdata::ls(collection = \"naics\")\n\n[1] \"raw_2007_code\" \"raw_2012_code\" \"raw_2017_code\" \"raw_2022_code\"\n[5] \"2007_code\"     \"2012_code\"     \"2017_code\"     \"2022_code\"    \n\n# obtain the keys with additional details\npubdata::ls(collection = \"naics\", detail = TRUE)\n\n\n  \n\n\n\npattern: print all the keys that match specific regex pattern within the data collection. For example, to print the keys with regex pattern \"2022\" in the \"naics\" collection:\n\npubdata::ls(collection = \"naics\", pattern = \"2022\")\n\n[1] \"raw_2022_code\" \"2022_code\"    \n\n# print the keys with details\npubdata::ls(collection = \"naics\", pattern = \"2022\", detail = TRUE)"
+  },
+  {
+    "objectID": "index.html#meta-show-collection-or-dataset-metadata",
+    "href": "index.html#meta-show-collection-or-dataset-metadata",
+    "title": "pubdata: Interface for public use datasets",
+    "section": "meta(): show collection or dataset metadata",
+    "text": "meta(): show collection or dataset metadata\nObtain the metadata of a specific collection or all keys within the collection (argument collection must be included).\n\ncollection: for data collections, meta() will provide information about:\n\n“desc”: description\n“urls”: a list of link to the source of the data collection\n“data_keys”: the number of keys within the data collection\n\n\nFor example, to print the metadata of the \"ers_rural\" collection:\n\npubdata::meta(\"ers_rural\", print = TRUE)\n\ncollection: ers_rural\ndesc: Rurality classifications from the USDA Economic Research Service (ERS)\nurls:\n  Home: https://www.ers.usda.gov/topics/rural-economy-population/rural-classifications/\n  Rural-Urban Continuum Codes: https://www.ers.usda.gov/data-products/rural-urban-continuum-codes/\n  Urban Influence Codes: https://www.ers.usda.gov/data-products/urban-influence-codes/\n  Rural-Urban Commuting Area Codes: https://www.ers.usda.gov/data-products/rural-urban-commuting-area-codes/\n  Frontier and Remote Area Codes: https://www.ers.usda.gov/data-products/frontier-and-remote-area-codes/\ndata_keys: 38\n\n\n\nkey: for a specific dataset within the data collections, meta() will provide information including:\n\n“mask”: naming pattern\n“desc”: description\n“type”: data format (usually “table”)\n“path”: internal path of the dataset\n“depends”: dataset dependencies\n“schema”: the description for variables in the dataset\n“keys”: regex pattern used to obtain the dataset\n\n\nFor example, to print the metadata of the \"ruc_2023\" dataset within the \"ers_rural\" collection:\n\npubdata::meta(collection = \"ers_rural\", key = \"ruc_2023\", print = TRUE)\n\ndesc: 2023 Rural-Urban Continuum Codes\ntype: table\npath: proc/ruc_2023.pq\ndepends: raw_ruc_2023\nschema:\n  fips:\n    desc: State+county FIPS code\n    orig: FIPS\n    type: character\n  state:\n    desc: State or territory abbreviation\n    orig: State\n    type: character\n  county_name:\n    desc: County or county-equivalent name\n    orig: County_Name\n    type: character\n  population_2020:\n    desc: Total population 2020\n    orig: Population_2020\n    type: integer\n  ruc_code_2023:\n    desc: 2023 Rural-Urban Continuum Code\n    orig: RUCC_2023\n    type: character\n  ruc_desc_2023:\n    desc: Description for 2023 codes\n    orig: Description\n    type: character"
+  },
+  {
+    "objectID": "index.html#get-retrieve-a-dataset",
+    "href": "index.html#get-retrieve-a-dataset",
+    "title": "pubdata: Interface for public use datasets",
+    "section": "get(): retrieve a dataset",
+    "text": "get(): retrieve a dataset\nDownload and read the dataset in specific data collection (argumentscollection and key must be included).\nFor example, to download and read the \"ruc_2023\" dataset in the \"ers_rural\" collection:\npubdata::get(collection = \"ers_rural\", key = \"ruc_2023\")\nHere would be the first 10 rows of the \"ruc_2023\" dataset:\n\npubdata::get(collection = \"ers_rural\", key = \"ruc_2023\") |&gt;\n  head(10)"
+  },
+  {
     "objectID": "bea_io.html",
     "href": "bea_io.html",
     "title": "Input-Output Tables - Bureau of Economic Analysis",
@@ -40,33 +75,5 @@
     "title": "Input-Output Tables - Bureau of Economic Analysis",
     "section": "Inputs to grain farming",
     "text": "Inputs to grain farming\n2017 dollar value of top 10 detail level commodities used is inputs to Grain farming industry.\n\n\nCode\npubdata::get(\"bea_io\", \"2023_mu_use-bef-pro_det_2017\") %&gt;%\n  filter(col_name == \"Grain farming\", core_matrix) %&gt;%\n  arrange(desc(value)) %&gt;%\n  head(10) %&gt;%\n  select(row_code, row_name, value)\n\n\n\n\n\n\n\n\n\n\n\nrow_code\nrow_name\nvalue\n\n\n\n\n115000\nSupport activities for agriculture and forestry\n8007\n\n\n1111B0\nGrain farming\n7694\n\n\n424A00\nOther nondurable goods merchant wholesalers\n6843\n\n\n325320\nPesticide and other agricultural chemical manufacturing\n4234\n\n\n325310\nFertilizer manufacturing\n3608\n\n\n324110\nPetroleum refineries\n2202\n\n\n531ORE\nOther real estate\n2115\n\n\n221300\nWater, sewage and other systems\n1847\n\n\n484000\nTruck transportation\n1206\n\n\n482000\nRail transportation\n807"
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "pubdata: Interface for public use datasets",
-    "section": "",
-    "text": "The general package interface for public data (“pubdata”) provide a list of operation that enables exploration and interaction with the data collections, specifically using ls(), meta(),and get()."
-  },
-  {
-    "objectID": "index.html#ls-list-available-data",
-    "href": "index.html#ls-list-available-data",
-    "title": "pubdata: Interface for public use datasets",
-    "section": "ls(): list available data",
-    "text": "ls(): list available data\nPrint a list of all available data collections.\n\npubdata::ls()\n\n[1] \"bds\"       \"bea_fa\"    \"bea_io\"    \"bea_reg\"   \"ers_rural\" \"naics\"    \n[7] \"qcew\"     \n\n\ndetail: print the data collections with additional details for each data collection (description, cache file, etc).\n\npubdata::ls(detail = TRUE)\n\n\n  \n\n\n\ncollection: print the available keys in a specific collection. For example, keys in the \"naics\" collection:\n\npubdata::ls(collection = \"naics\")\n\n[1] \"raw_2007_code\" \"raw_2012_code\" \"raw_2017_code\" \"raw_2022_code\"\n[5] \"2007_code\"     \"2012_code\"     \"2017_code\"     \"2022_code\"    \n\n# obtain the keys with additional details\npubdata::ls(collection = \"naics\", detail = TRUE)\n\n\n  \n\n\n\npattern: print all the keys that match specific regex pattern within the data collection. For example, to print the keys with regex pattern \"2022\" in the \"naics\" collection:\n\npubdata::ls(collection = \"naics\", pattern = \"2022\")\n\n[1] \"raw_2022_code\" \"2022_code\"    \n\n# print the keys with details\npubdata::ls(collection = \"naics\", pattern = \"2022\", detail = TRUE)"
-  },
-  {
-    "objectID": "index.html#meta-show-collection-or-dataset-metadata",
-    "href": "index.html#meta-show-collection-or-dataset-metadata",
-    "title": "pubdata: Interface for public use datasets",
-    "section": "meta(): show collection or dataset metadata",
-    "text": "meta(): show collection or dataset metadata\nObtain the metadata of a specific collection or all keys within the collection (argument collection must be included).\n\ncollection: for data collections, meta() will provide information about:\n\n“desc”: description\n“urls”: a list of link to the source of the data collection\n“data_keys”: the number of keys within the data collection\n\n\nFor example, to print the metadata of the \"ers_rural\" collection:\n\npubdata::meta(\"ers_rural\", print = TRUE)\n\ncollection: ers_rural\ndesc: Rurality classifications from the USDA Economic Research Service (ERS)\nurls:\n  Home: https://www.ers.usda.gov/topics/rural-economy-population/rural-classifications/\n  Rural-Urban Continuum Codes: https://www.ers.usda.gov/data-products/rural-urban-continuum-codes/\n  Urban Influence Codes: https://www.ers.usda.gov/data-products/urban-influence-codes/\n  Rural-Urban Commuting Area Codes: https://www.ers.usda.gov/data-products/rural-urban-commuting-area-codes/\n  Frontier and Remote Area Codes: https://www.ers.usda.gov/data-products/frontier-and-remote-area-codes/\ndata_keys: 38\n\n\n\nkey: for a specific dataset within the data collections, meta() will provide information including:\n\n“mask”: naming pattern\n“desc”: description\n“type”: data format (usually “table”)\n“path”: internal path of the dataset\n“depends”: dataset dependencies\n“schema”: the description for variables in the dataset\n“keys”: regex pattern used to obtain the dataset\n\n\nFor example, to print the metadata of the \"ruc_2023\" dataset within the \"ers_rural\" collection:\n\npubdata::meta(collection = \"ers_rural\", key = \"ruc_2023\", print = TRUE)\n\ndesc: 2023 Rural-Urban Continuum Codes\ntype: table\npath: proc/ruc_2023.pq\ndepends: raw_ruc_2023\nschema:\n  fips:\n    desc: State+county FIPS code\n    orig: FIPS\n    type: character\n  state:\n    desc: State or territory abbreviation\n    orig: State\n    type: character\n  county_name:\n    desc: County or county-equivalent name\n    orig: County_Name\n    type: character\n  population_2020:\n    desc: Total population 2020\n    orig: Population_2020\n    type: integer\n  ruc_code_2023:\n    desc: 2023 Rural-Urban Continuum Code\n    orig: RUCC_2023\n    type: character\n  ruc_desc_2023:\n    desc: Description for 2023 codes\n    orig: Description\n    type: character"
-  },
-  {
-    "objectID": "index.html#get-retrieve-a-dataset",
-    "href": "index.html#get-retrieve-a-dataset",
-    "title": "pubdata: Interface for public use datasets",
-    "section": "get(): retrieve a dataset",
-    "text": "get(): retrieve a dataset\nDownload and read the dataset in specific data collection (argumentscollection and key must be included).\nFor example, to download and read the \"ruc_2023\" dataset in the \"ers_rural\" collection:\npubdata::get(collection = \"ers_rural\", key = \"ruc_2023\")\nHere would be the first 10 rows of the \"ruc_2023\" dataset:\n\npubdata::get(collection = \"ers_rural\", key = \"ruc_2023\") |&gt;\n  head(10)"
   }
 ]
