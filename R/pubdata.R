@@ -9,7 +9,8 @@ collections <- c(
   "ers_rural",
   "naics",
   "nass",
-  "qcew"
+  "qcew",
+  "chrr"
 )
 
 
