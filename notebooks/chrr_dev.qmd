@@ -196,5 +196,166 @@ cat(yaml::as.yaml(s))
 
 
 
+# Long format
+
+All non-identifier variables start with `vXXX`, followed by:
+
+- one of "rawvalue", "numerator", "denominator", "cilow", "cihigh". Example: `v063_rawvalue`.
+- `race_XXX`, by itself (for raw value) or followed by one of the above. Example: `v063_race_black`, `v063_race_black_cilow`.
+- some variables have "other data". Example: `v136_other_data_2`.
+
+```{r}
+var_desc <- get("chrr", "raw_2025") %>%
+  read_csv(n_max = 0, skip = 0) %>%
+  names()
+
+var_name <- get("chrr", "raw_2025") %>%
+  read_csv(n_max = 0, skip = 1) %>%
+  names()
+
+# year and geographic identifiers do not start with "vXXX_"
+var_name %>%
+  grepv("^v\\d{3}_", ., invert = TRUE)
+
+# all variables start with "vXXX_"
+var_name %>%
+  grepv("^v\\d{3}_", .)
 
 
+# most variable match pattern (code, optional race, value), but not all:
+x <- tibble(var = var_name, desc = var_desc) %>%
+  separate_wider_regex(var, c(code = "v\\d{3}", race = ".*", "_", value = "[:alpha:]+"), too_few = "debug")
+x
+
+```
+
+
+```{r}
+x <- get("chrr", "raw_2025")
+
+var_desc <- read_csv(x, n_max = 1, col_types = cols(.default = "c")) %>%
+  pivot_longer(everything(), names_to = "description", values_to = "variable")
+
+x1 <- read_csv(x, skip = 1, col_types = list(
+  statecode = "c",
+  countycode = "c",
+  fipscode = "c",
+  state = "c",
+  county = "c",
+  year = "i",
+  county_clustered = "i",
+  .default = "d")
+) %>%
+  pivot_longer(starts_with("v"), names_to = "variable") %>%
+  left_join(var_desc, by = "variable")
+
+x1
+```
+
+
+# column names in all years
+
+
+```{r}
+name_desc <- 2010:2025 %>%
+  set_names() %>%
+  map(\(y) {
+    cat("----", y, "----", "\n")
+    x <- get("chrr", paste0("raw_", y))
+    x1 <- read_csv(x, n_max = 0, skip = 1, show_col_types = FALSE)
+    x2 <- read_csv(x, n_max = 0, skip = 0, show_col_types = FALSE)
+    list(var = names(x1), desc = names(x2))
+  }) %>%
+  bind_rows(.id = "year")
+
+
+x2 <- name_desc %>%
+  count(var)
+
+# variable count by year
+x2
+
+# non-vXXX variables
+x2 %>%
+  filter(!str_detect(var, "^v\\d{3}"))
+
+
+# changed in 2024 and 2025
+name_desc %>%
+  filter(str_detect(var, "^county_"))
+
+```
+
+Template for meta.yaml.
+
+```{r}
+name_desc %>%
+  filter(year == 2023, !str_detect(var, "^v\\d{3}")) %>%
+  pwalk(function(var, desc, ...) {
+    type <- if (var == "year") "integer" else "character"
+    cat(var, ":\n  desc: ", desc, "\n  type: ", type,  "\n", sep = "")
+  })
+
+
+```
+
+
+## 2012 descriptions
+
+
+Several duplicate column names:
+
+```
+   name  desc                                var             
+   <chr> <chr>                               <chr>           
+ 1 X149  Access to healthy foods raw value   v030_rawvalue   
+ 2 X150  Access to healthy foods numerator   v030_numerator  
+ 3 X151  Access to healthy foods denominator v030_denominator
+ 4 X152  Access to healthy foods CI low      v030_cilow      
+ 5 X153  Access to healthy foods CI high     v030_cihigh     
+ 6 X221  Access to healthy foods raw value   v096_rawvalue   
+ 7 X222  Access to healthy foods numerator   v096_numerator  
+ 8 X223  Access to healthy foods denominator v096_denominator
+ 9 X224  Access to healthy foods CI low      v096_cilow      
+10 X225  Access to healthy foods CI high     v096_cihigh   
+```
+
+```{r}
+x <- get("chrr", "raw_2012") %>%
+  read_csv(col_names = FALSE, n_max = 2) %>%
+  add_column(col = c("desc", "var"), .before = 1) %>%
+  pivot_longer(!col) %>%
+  pivot_wider(id_cols = "name", names_from = "col")
+x %>%
+  filter(n() > 1, .by = desc)
+dup_desc_vars <- x %>%
+  filter(n() > 1, .by = desc) %>%
+  pull(var)
+
+```
+
+Inspect values
+
+
+```{r}
+x1 <- get("chrr", "raw_2012") %>%
+  read_csv(skip = 1)
+x2 <- x1 %>%
+  select(!starts_with("v"), all_of(dup_desc_vars))
+
+```
+
+
+
+
+# test all years
+
+
+```{r}
+devtools::load_all()
+meta("chrr", "2011")
+
+chrr_get("2021") %>%
+  filter(str_detect(description, "uicide"))
+
+```

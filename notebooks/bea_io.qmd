@@ -8,6 +8,8 @@ format:
     code-overflow: wrap
     embed-resources: true
     df-print: kable
+execute:
+  cache: true
 ---
 
 

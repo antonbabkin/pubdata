@@ -44,3 +44,5 @@ pubdata/reseng
 .DS_Store
 .httr-oauth
 
+
+/.quarto/

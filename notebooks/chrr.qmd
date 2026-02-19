@@ -1,0 +1,171 @@
+---
+title: "County Health Rankings & Roadmaps"
+format:
+  html:
+    toc: true
+    toc-location: right-body
+    code-fold: true
+    code-overflow: wrap
+    embed-resources: true
+    df-print: kable
+execute:
+  cache: true
+---
+
+
+
+```{r}
+#| echo: false
+#| output: false
+library(tidyverse)
+library(arrow)
+library(DT)
+
+COLLECTION <- "chrr"
+
+```
+
+# Overview
+
+> County Health Rankings & Roadmaps (CHR&R), a program of the University of Wisconsin Population Health Institute, draws attention to why there are differences in health within and across communities. The program highlights policies and practices that can help everyone be as healthy as possible. CHR&R aims to grow a shared understanding of health, equity and the power of communities to improve health for all. This work is rooted in a long-term vision where all people and places have what they need to thrive. 
+
+Data source links.
+
+```{r}
+#| echo: false
+#| results: asis
+pubdata::meta(COLLECTION, print = FALSE)$urls %>%
+  iwalk(\(url, name) {
+    cat(str_glue("  - [{name}]({url})"), "\n")
+  })
+
+```
+
+
+# Tables
+
+List of all tables in the collection.
+Each table can be retrieved with `pubdata::get("chrr", key)`.
+
+```{r}
+#| echo: false
+#| column: page
+# eval: false
+
+descriptions <- pubdata::ls(COLLECTION, detail = TRUE) %>%
+  select(key, description) %>%
+  filter(!str_starts(key, "raw"))
+
+dimensions <- descriptions$key %>%
+  map(\(key) {
+    df <- pubdata::get(COLLECTION, key)
+    list(key = key, rows = nrow(df), cols = ncol(df))
+  }) %>%
+  bind_rows()
+
+inner_join(descriptions, dimensions, by = "key") %>%
+  datatable()
+
+```
+
+
+# Columns
+
+Listing of all columns in each table.
+
+```{r}
+#| echo: false
+#| column: page
+# eval: false
+
+pubdata::ls(COLLECTION) %>%
+  grepv("^raw_", ., invert = TRUE) %>%
+  set_names() %>%
+  map(\(key) {
+    schema <- pubdata::meta(COLLECTION, key, print = FALSE)$schema %>%
+      bind_rows(.id = "column") %>%
+      relocate(column, type, desc)
+    stats <- pubdata::get(COLLECTION, key) %>%
+      map(\(values) list(na = sum(is.na(values)), unique = length(unique(values)))) %>%
+      bind_rows(.id = "column")
+    inner_join(schema, stats, by = "column")
+  }) %>%
+  bind_rows(.id = "key") %>%
+  datatable(filter = "top")
+```
+
+
+# Examples
+
+## Variables across years
+
+Variables, descriptions and variable parts.
+
+```{r}
+#| column: body-outset
+
+all_year_vars <- pubdata::ls("chrr") %>%
+  grepv("^raw_", ., invert = TRUE) %>%
+  map(function(key) {
+    pubdata::path("chrr", key) %>%
+      open_dataset() %>%
+      filter(fipscode == "00000") %>%
+      select(year, variable, description) %>%
+      collect() %>%
+      separate_wider_regex(
+        variable,
+        cols_remove = FALSE,
+        pattern = c(
+          code = "^v\\d{3}",
+          "_",
+          race = "(?:race_[^_]+)?",
+          "_?",
+          value = ".*"
+        )
+      ) %>%
+      relocate(year, variable, description)
+  }) %>%
+  bind_rows()
+
+all_year_vars %>%
+  datatable(filter = "top")
+
+```
+
+
+## Rural premature mortality
+
+County relationship between percentage of rural population and premature age-adjusted mortality.
+
+```{r}
+#| warning: false
+x <- pubdata::get("chrr", "2025")
+
+x1 <- x %>%
+  filter(countycode != "000") %>%
+  filter(variable %in% c("v058_rawvalue", "v127_rawvalue")) %>%
+  pivot_wider(id_cols = fipscode, names_from = variable) %>%
+  rename(rural = v058_rawvalue, paam = v127_rawvalue)
+
+x1 %>%
+  ggplot(aes(rural, paam)) +
+  geom_point(size = 0.5) +
+  geom_smooth()
+
+```
+
+
+## National adult smoking over time
+
+```{r}
+pubdata::ls("chrr") %>%
+  grepv("^raw_", ., invert = TRUE) %>%
+  map_chr(\(key) pubdata::path("chrr", key)) %>%
+  open_dataset() %>%
+  filter(fipscode == "00000", variable == "v009_rawvalue") %>%
+  select(year, value) %>%
+  collect() %>%
+  arrange(year)
+ 
+```
+
