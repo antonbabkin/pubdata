@@ -1,38 +1,31 @@
 [
   {
-    "objectID": "nass.html",
-    "href": "nass.html",
-    "title": "National Agricultural Statistics Service (NASS)",
+    "objectID": "chrr.html",
+    "href": "chrr.html",
+    "title": "County Health Rankings & Roadmaps",
     "section": "",
-    "text": "On this page\n   \n  \n  Overview\n  Tables\n  Variables\n  Examples\n  \n\n\nOverview\n\nThe USDA’s National Agricultural Statistics Service (NASS) conducts hundreds of surveys every year and prepares reports covering virtually every aspect of U.S. agriculture. Production and supplies of food and fiber, prices paid and received by farmers, farm labor and wages, farm finances, chemical use, and changes in the demographics of U.S. producers are only a few examples.\n\nData source links.\n\nHome\nData Files\nQuickStats\nQuickStats API\n\n\n\nTables\nList of all tables in the collection. Each table can be retrieved with pubdata::get(\"nass\", key).\n\n\n\n\n\n\n\n\nVariables\nListing of all variables in each table.\n\n\n\n\n\n\n\n\nExamples\nTODO"
+    "text": "Overview\n  Tables\n  Columns\n  Examples\n  \n  Variables across years\n  Rural premature mortality\n  National adult smoking over time"
   },
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "pubdata: Interface for public use datasets",
-    "section": "",
-    "text": "The general package interface for public data (“pubdata”) provide a list of operation that enables exploration and interaction with the data collections, specifically using ls(), meta(),and get()."
+    "objectID": "chrr.html#variables-across-years",
+    "href": "chrr.html#variables-across-years",
+    "title": "County Health Rankings & Roadmaps",
+    "section": "Variables across years",
+    "text": "Variables across years\nVariables, descriptions and variable parts.\n\n\nCode\nall_year_vars &lt;- pubdata::ls(\"chrr\") %&gt;%\n  grepv(\"^raw_\", ., invert = TRUE) %&gt;%\n  map(function(key) {\n    pubdata::path(\"chrr\", key) %&gt;%\n      open_dataset() %&gt;%\n      filter(fipscode == \"00000\") %&gt;%\n      select(year, variable, description) %&gt;%\n      collect() %&gt;%\n      separate_wider_regex(\n        variable,\n        cols_remove = FALSE,\n        pattern = c(\n          code = \"^v\\\\d{3}\",\n          \"_\",\n          race = \"(?:race_[^_]+)?\",\n          \"_?\",\n          value = \".*\"\n        )\n      ) %&gt;%\n      relocate(year, variable, description)\n  }) %&gt;%\n  bind_rows()\n\nall_year_vars %&gt;%\n  datatable(filter = \"top\")"
   },
   {
-    "objectID": "index.html#ls-list-available-data",
-    "href": "index.html#ls-list-available-data",
-    "title": "pubdata: Interface for public use datasets",
-    "section": "ls(): list available data",
-    "text": "ls(): list available data\nPrint a list of all available data collections.\n\npubdata::ls()\n\n[1] \"bds\"       \"bea_fa\"    \"bea_io\"    \"bea_reg\"   \"ers_rural\" \"naics\"    \n[7] \"nass\"      \"qcew\"     \n\n\ndetail: print the data collections with additional details for each data collection (description, cache file, etc).\n\npubdata::ls(detail = TRUE)\n\n\n  \n\n\n\ncollection: print the available keys in a specific collection. For example, keys in the \"naics\" collection:\n\npubdata::ls(collection = \"naics\")\n\n[1] \"raw_2007_code\" \"raw_2012_code\" \"raw_2017_code\" \"raw_2022_code\"\n[5] \"2007_code\"     \"2012_code\"     \"2017_code\"     \"2022_code\"    \n\n# obtain the keys with additional details\npubdata::ls(collection = \"naics\", detail = TRUE)\n\n\n  \n\n\n\npattern: print all the keys that match specific regex pattern within the data collection. For example, to print the keys with regex pattern \"2022\" in the \"naics\" collection:\n\npubdata::ls(collection = \"naics\", pattern = \"2022\")\n\n[1] \"raw_2022_code\" \"2022_code\"    \n\n# print the keys with details\npubdata::ls(collection = \"naics\", pattern = \"2022\", detail = TRUE)"
+    "objectID": "chrr.html#rural-premature-mortality",
+    "href": "chrr.html#rural-premature-mortality",
+    "title": "County Health Rankings & Roadmaps",
+    "section": "Rural premature mortality",
+    "text": "Rural premature mortality\nCounty relationship between percentage of rural population and premature age-adjusted mortality.\n\n\nCode\nx &lt;- pubdata::get(\"chrr\", \"2025\")\n\nx1 &lt;- x %&gt;%\n  filter(countycode != \"000\") %&gt;%\n  filter(variable %in% c(\"v058_rawvalue\", \"v127_rawvalue\")) %&gt;%\n  pivot_wider(id_cols = fipscode, names_from = variable) %&gt;%\n  rename(rural = v058_rawvalue, paam = v127_rawvalue)\n\nx1 %&gt;%\n  ggplot(aes(rural, paam)) +\n  geom_point(size = 0.5) +\n  geom_smooth()"
   },
   {
-    "objectID": "index.html#meta-show-collection-or-dataset-metadata",
-    "href": "index.html#meta-show-collection-or-dataset-metadata",
-    "title": "pubdata: Interface for public use datasets",
-    "section": "meta(): show collection or dataset metadata",
-    "text": "meta(): show collection or dataset metadata\nObtain the metadata of a specific collection or all keys within the collection (argument collection must be included).\n\ncollection: for data collections, meta() will provide information about:\n\n“desc”: description\n“urls”: a list of link to the source of the data collection\n“data_keys”: the number of keys within the data collection\n\n\nFor example, to print the metadata of the \"ers_rural\" collection:\n\npubdata::meta(\"ers_rural\", print = TRUE)\n\ncollection: ers_rural\ndesc: Rurality classifications from the USDA Economic Research Service (ERS)\nurls:\n  Home: https://www.ers.usda.gov/topics/rural-economy-population/rural-classifications/\n  Rural-Urban Continuum Codes: https://www.ers.usda.gov/data-products/rural-urban-continuum-codes/\n  Urban Influence Codes: https://www.ers.usda.gov/data-products/urban-influence-codes/\n  Rural-Urban Commuting Area Codes: https://www.ers.usda.gov/data-products/rural-urban-commuting-area-codes/\n  Frontier and Remote Area Codes: https://www.ers.usda.gov/data-products/frontier-and-remote-area-codes/\ndata_keys: 38\n\n\n\nkey: for a specific dataset within the data collections, meta() will provide information including:\n\n“mask”: naming pattern\n“desc”: description\n“type”: data format (usually “table”)\n“path”: internal path of the dataset\n“depends”: dataset dependencies\n“schema”: the description for variables in the dataset\n“keys”: regex pattern used to obtain the dataset\n\n\nFor example, to print the metadata of the \"ruc_2023\" dataset within the \"ers_rural\" collection:\n\npubdata::meta(collection = \"ers_rural\", key = \"ruc_2023\", print = TRUE)\n\ndesc: 2023 Rural-Urban Continuum Codes\ntype: table\npath: proc/ruc_2023.pq\ndepends: raw_ruc_2023\nschema:\n  fips:\n    desc: State+county FIPS code\n    orig: FIPS\n    type: character\n  state:\n    desc: State or territory abbreviation\n    orig: State\n    type: character\n  county_name:\n    desc: County or county-equivalent name\n    orig: County_Name\n    type: character\n  population_2020:\n    desc: Total population 2020\n    orig: Population_2020\n    type: integer\n  ruc_code_2023:\n    desc: 2023 Rural-Urban Continuum Code\n    orig: RUCC_2023\n    type: character\n  ruc_desc_2023:\n    desc: Description for 2023 codes\n    orig: Description\n    type: character"
-  },
-  {
-    "objectID": "index.html#get-retrieve-a-dataset",
-    "href": "index.html#get-retrieve-a-dataset",
-    "title": "pubdata: Interface for public use datasets",
-    "section": "get(): retrieve a dataset",
-    "text": "get(): retrieve a dataset\nDownload and read the dataset in specific data collection (argumentscollection and key must be included).\nFor example, to download and read the \"ruc_2023\" dataset in the \"ers_rural\" collection:\npubdata::get(collection = \"ers_rural\", key = \"ruc_2023\")\nHere would be the first 10 rows of the \"ruc_2023\" dataset:\n\npubdata::get(collection = \"ers_rural\", key = \"ruc_2023\") |&gt;\n  head(10)"
+    "objectID": "chrr.html#national-adult-smoking-over-time",
+    "href": "chrr.html#national-adult-smoking-over-time",
+    "title": "County Health Rankings & Roadmaps",
+    "section": "National adult smoking over time",
+    "text": "National adult smoking over time\n\n\nCode\npubdata::ls(\"chrr\") %&gt;%\n  grepv(\"^raw_\", ., invert = TRUE) %&gt;%\n  map_chr(\\(key) pubdata::path(\"chrr\", key)) %&gt;%\n  open_dataset() %&gt;%\n  filter(fipscode == \"00000\", variable == \"v009_rawvalue\") %&gt;%\n  select(year, value) %&gt;%\n  collect() %&gt;%\n  arrange(year)\n\n\n\n\n\n\nyear\nvalue\n\n\n\n\n2010\n0.2053000\n\n\n2011\nNA\n\n\n2012\nNA\n\n\n2013\nNA\n\n\n2014\n0.2030000\n\n\n2015\n0.2030000\n\n\n2016\nNA\n\n\n2017\nNA\n\n\n2018\nNA\n\n\n2019\nNA\n\n\n2020\n0.1708002\n\n\n2021\n0.1662247\n\n\n2022\n0.1649256\n\n\n2023\n0.1600000\n\n\n2024\n0.1500000\n\n\n2025\n0.1320000"
   },
   {
     "objectID": "bea_io.html",
@@ -53,7 +46,7 @@
     "href": "bea_io.html#gdp-by-commodity",
     "title": "Input-Output Tables - Bureau of Economic Analysis",
     "section": "GDP by commodity",
-    "text": "GDP by commodity\nGDP as the sum of final uses: consumption, investment, government spending, net export.\n\\[\nY = C + I + G + X - M\n\\]\nBillions of dollars in 2022.\n\n\nCode\nx &lt;- pubdata::get(\"bea_io\", \"2023_mu_use-bef-pro_sec_2022\")\ncommodity_codes &lt;- x %&gt;%\n  filter(core_matrix) %&gt;%\n  distinct(row_code) %&gt;%\n  pull()\nx %&gt;%\n  mutate(\n    col_name = case_match(\n      col_name,\n      \"Personal consumption expenditures\" ~ \"C\",\n      \"Private fixed investment\" ~ \"I1\",\n      \"Change in private inventories\" ~ \"I2\",\n      \"Exports of goods and services\" ~ \"X\",\n      \"Imports of goods and services\" ~ \"M\",\n      \"Government consumption expenditures and gross investment\" ~ \"G\",\n      \"Total Final Uses (GDP)\" ~ \"Y\"\n    ),\n    value = replace_na(value, 0)\n  ) %&gt;%\n  filter(row_code %in% commodity_codes, !is.na(col_name)) %&gt;%\n  pivot_wider(id_cols = c(row_code, row_name), names_from = col_name) %&gt;%\n  mutate(I = I1 + I2) %&gt;%\n  select(row_code, row_name, Y, C, I, G, X, M) %&gt;%\n  { add_row(., row_code = \"\", row_name = \"TOTAL\", summarize(., across(where(is.numeric), sum)), .before = 1) } %&gt;%\n  mutate(across(where(is.numeric), \\(x) round(x / 1000)))\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nrow_code\nrow_name\nY\nC\nI\nG\nX\nM\n\n\n\n\n\nTOTAL\n25744\n17512\n4757\n4447\n2600\n-3571\n\n\n11\nAgriculture, forestry, fishing, and hunting\n78\n123\n-22\n0\n60\n-83\n\n\n21\nMining\n48\n0\n98\n0\n178\n-228\n\n\n22\nUtilities\n359\n359\n0\n0\n5\n-5\n\n\n23\nConstruction\n1878\n0\n1497\n382\n0\n0\n\n\n31G\nManufacturing\n1977\n2413\n1136\n149\n1029\n-2751\n\n\n42\nWholesale trade\n1495\n706\n327\n39\n321\n102\n\n\n44RT\nRetail trade\n2376\n2258\n118\n0\n0\n0\n\n\n48TW\nTransportation and warehousing\n648\n460\n43\n5\n154\n-14\n\n\n51\nInformation\n1109\n702\n316\n40\n72\n-21\n\n\nFIRE\nFinance, insurance, real estate, rental, and leasing\n4396\n3979\n203\n0\n284\n-70\n\n\nPROF\nProfessional and business services\n1942\n349\n1186\n277\n298\n-167\n\n\n6\nEducational services, health care, and social assistance\n3647\n3642\n0\n0\n16\n-12\n\n\n7\nArts, entertainment, recreation, accommodation, and food services\n1567\n1556\n9\n0\n4\n-2\n\n\n81\nOther services, except government\n761\n764\n0\n0\n0\n-4\n\n\nG\nGovernment\n3664\n94\n0\n3570\n1\n0\n\n\nUsed\nScrap, used and secondhand goods\n-49\n127\n-169\n-15\n32\n-24\n\n\nOther\nNoncomparable imports and rest-of-the-world adjustment\n-152\n-19\n15\n0\n146\n-294"
+    "text": "GDP by commodity\nGDP as the sum of final uses: consumption, investment, government spending, net export.\n\\[\nY = C + I + G + X - M\n\\]\nBillions of dollars in 2022.\n\n\nCode\nx &lt;- pubdata::get(\"bea_io\", \"2023_mu_use-bef-pro_sec_2022\")\ncommodity_codes &lt;- x %&gt;%\n  filter(core_matrix) %&gt;%\n  distinct(row_code) %&gt;%\n  pull()\nx %&gt;%\n  mutate(\n    col_name = case_match(\n      col_name,\n      \"Personal consumption expenditures\" ~ \"C\",\n      \"Private fixed investment\" ~ \"I1\",\n      \"Change in private inventories\" ~ \"I2\",\n      \"Exports of goods and services\" ~ \"X\",\n      \"Imports of goods and services\" ~ \"M\",\n      \"Government consumption expenditures and gross investment\" ~ \"G\",\n      \"Total Final Uses (GDP)\" ~ \"Y\"\n    ),\n    value = replace_na(value, 0)\n  ) %&gt;%\n  filter(row_code %in% commodity_codes, !is.na(col_name)) %&gt;%\n  pivot_wider(id_cols = c(row_code, row_name), names_from = col_name) %&gt;%\n  mutate(I = I1 + I2) %&gt;%\n  select(row_code, row_name, Y, C, I, G, X, M) %&gt;%\n  { add_row(., row_code = \"\", row_name = \"TOTAL\", summarize(., across(where(is.numeric), sum)), .before = 1) } %&gt;%\n  mutate(across(where(is.numeric), \\(x) round(x / 1000)))\n\n\nWarning: There was 1 warning in `mutate()`.\nℹ In argument: `col_name = case_match(...)`.\nCaused by warning:\n! `case_match()` was deprecated in dplyr 1.2.0.\nℹ Please use `recode_values()` instead.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nrow_code\nrow_name\nY\nC\nI\nG\nX\nM\n\n\n\n\n\nTOTAL\n25744\n17512\n4757\n4447\n2600\n-3571\n\n\n11\nAgriculture, forestry, fishing, and hunting\n78\n123\n-22\n0\n60\n-83\n\n\n21\nMining\n48\n0\n98\n0\n178\n-228\n\n\n22\nUtilities\n359\n359\n0\n0\n5\n-5\n\n\n23\nConstruction\n1878\n0\n1497\n382\n0\n0\n\n\n31G\nManufacturing\n1977\n2413\n1136\n149\n1029\n-2751\n\n\n42\nWholesale trade\n1495\n706\n327\n39\n321\n102\n\n\n44RT\nRetail trade\n2376\n2258\n118\n0\n0\n0\n\n\n48TW\nTransportation and warehousing\n648\n460\n43\n5\n154\n-14\n\n\n51\nInformation\n1109\n702\n316\n40\n72\n-21\n\n\nFIRE\nFinance, insurance, real estate, rental, and leasing\n4396\n3979\n203\n0\n284\n-70\n\n\nPROF\nProfessional and business services\n1942\n349\n1186\n277\n298\n-167\n\n\n6\nEducational services, health care, and social assistance\n3647\n3642\n0\n0\n16\n-12\n\n\n7\nArts, entertainment, recreation, accommodation, and food services\n1567\n1556\n9\n0\n4\n-2\n\n\n81\nOther services, except government\n761\n764\n0\n0\n0\n-4\n\n\nG\nGovernment\n3664\n94\n0\n3570\n1\n0\n\n\nUsed\nScrap, used and secondhand goods\n-49\n127\n-169\n-15\n32\n-24\n\n\nOther\nNoncomparable imports and rest-of-the-world adjustment\n-152\n-19\n15\n0\n146\n-294"
   },
   {
     "objectID": "bea_io.html#components-of-value-added-by-industry",
@@ -75,5 +68,40 @@
     "title": "Input-Output Tables - Bureau of Economic Analysis",
     "section": "Inputs to grain farming",
     "text": "Inputs to grain farming\n2017 dollar value of top 10 detail level commodities used is inputs to Grain farming industry.\n\n\nCode\npubdata::get(\"bea_io\", \"2023_mu_use-bef-pro_det_2017\") %&gt;%\n  filter(col_name == \"Grain farming\", core_matrix) %&gt;%\n  arrange(desc(value)) %&gt;%\n  head(10) %&gt;%\n  select(row_code, row_name, value)\n\n\n\n\n\n\n\n\n\n\n\nrow_code\nrow_name\nvalue\n\n\n\n\n115000\nSupport activities for agriculture and forestry\n8007\n\n\n1111B0\nGrain farming\n7694\n\n\n424A00\nOther nondurable goods merchant wholesalers\n6843\n\n\n325320\nPesticide and other agricultural chemical manufacturing\n4234\n\n\n325310\nFertilizer manufacturing\n3608\n\n\n324110\nPetroleum refineries\n2202\n\n\n531ORE\nOther real estate\n2115\n\n\n221300\nWater, sewage and other systems\n1847\n\n\n484000\nTruck transportation\n1206\n\n\n482000\nRail transportation\n807"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "pubdata: Interface for public use datasets",
+    "section": "",
+    "text": "The general package interface for public data (“pubdata”) provide a list of operation that enables exploration and interaction with the data collections, specifically using ls(), meta(),and get()."
+  },
+  {
+    "objectID": "index.html#ls-list-available-data",
+    "href": "index.html#ls-list-available-data",
+    "title": "pubdata: Interface for public use datasets",
+    "section": "ls(): list available data",
+    "text": "ls(): list available data\nPrint a list of all available data collections.\n\npubdata::ls()\n\n[1] \"bds\"       \"bea_fa\"    \"bea_io\"    \"bea_reg\"   \"ers_rural\" \"naics\"    \n[7] \"nass\"      \"qcew\"      \"chrr\"     \n\n\ndetail: print the data collections with additional details for each data collection (description, cache file, etc).\n\npubdata::ls(detail = TRUE)\n\n\n  \n\n\n\ncollection: print the available keys in a specific collection. For example, keys in the \"naics\" collection:\n\npubdata::ls(collection = \"naics\")\n\n[1] \"raw_2007_code\" \"raw_2012_code\" \"raw_2017_code\" \"raw_2022_code\"\n[5] \"2007_code\"     \"2012_code\"     \"2017_code\"     \"2022_code\"    \n\n# obtain the keys with additional details\npubdata::ls(collection = \"naics\", detail = TRUE)\n\n\n  \n\n\n\npattern: print all the keys that match specific regex pattern within the data collection. For example, to print the keys with regex pattern \"2022\" in the \"naics\" collection:\n\npubdata::ls(collection = \"naics\", pattern = \"2022\")\n\n[1] \"raw_2022_code\" \"2022_code\"    \n\n# print the keys with details\npubdata::ls(collection = \"naics\", pattern = \"2022\", detail = TRUE)"
+  },
+  {
+    "objectID": "index.html#meta-show-collection-or-dataset-metadata",
+    "href": "index.html#meta-show-collection-or-dataset-metadata",
+    "title": "pubdata: Interface for public use datasets",
+    "section": "meta(): show collection or dataset metadata",
+    "text": "meta(): show collection or dataset metadata\nObtain the metadata of a specific collection or all keys within the collection (argument collection must be included).\n\ncollection: for data collections, meta() will provide information about:\n\n“desc”: description\n“urls”: a list of link to the source of the data collection\n“data_keys”: the number of keys within the data collection\n\n\nFor example, to print the metadata of the \"ers_rural\" collection:\n\npubdata::meta(\"ers_rural\", print = TRUE)\n\ncollection: ers_rural\ndesc: Rurality classifications from the USDA Economic Research Service (ERS)\nurls:\n  Home: https://www.ers.usda.gov/topics/rural-economy-population/rural-classifications/\n  Rural-Urban Continuum Codes: https://www.ers.usda.gov/data-products/rural-urban-continuum-codes/\n  Urban Influence Codes: https://www.ers.usda.gov/data-products/urban-influence-codes/\n  Rural-Urban Commuting Area Codes: https://www.ers.usda.gov/data-products/rural-urban-commuting-area-codes/\n  Frontier and Remote Area Codes: https://www.ers.usda.gov/data-products/frontier-and-remote-area-codes/\ndata_keys: 38\n\n\n\nkey: for a specific dataset within the data collections, meta() will provide information including:\n\n“mask”: naming pattern\n“desc”: description\n“type”: data format (usually “table”)\n“path”: internal path of the dataset\n“depends”: dataset dependencies\n“schema”: the description for variables in the dataset\n“keys”: regex pattern used to obtain the dataset\n\n\nFor example, to print the metadata of the \"ruc_2023\" dataset within the \"ers_rural\" collection:\n\npubdata::meta(collection = \"ers_rural\", key = \"ruc_2023\", print = TRUE)\n\ndesc: 2023 Rural-Urban Continuum Codes\ntype: table\npath: proc/ruc_2023.pq\ndepends: raw_ruc_2023\nschema:\n  fips:\n    desc: State+county FIPS code\n    orig: FIPS\n    type: character\n  state:\n    desc: State or territory abbreviation\n    orig: State\n    type: character\n  county_name:\n    desc: County or county-equivalent name\n    orig: County_Name\n    type: character\n  population_2020:\n    desc: Total population 2020\n    orig: Population_2020\n    type: integer\n  ruc_code_2023:\n    desc: 2023 Rural-Urban Continuum Code\n    orig: RUCC_2023\n    type: character\n  ruc_desc_2023:\n    desc: Description for 2023 codes\n    orig: Description\n    type: character"
+  },
+  {
+    "objectID": "index.html#get-retrieve-a-dataset",
+    "href": "index.html#get-retrieve-a-dataset",
+    "title": "pubdata: Interface for public use datasets",
+    "section": "get(): retrieve a dataset",
+    "text": "get(): retrieve a dataset\nDownload and read the dataset in specific data collection (argumentscollection and key must be included).\nFor example, to download and read the \"ruc_2023\" dataset in the \"ers_rural\" collection:\npubdata::get(collection = \"ers_rural\", key = \"ruc_2023\")\nHere would be the first 10 rows of the \"ruc_2023\" dataset:\n\npubdata::get(collection = \"ers_rural\", key = \"ruc_2023\") |&gt;\n  head(10)"
+  },
+  {
+    "objectID": "nass.html",
+    "href": "nass.html",
+    "title": "National Agricultural Statistics Service (NASS)",
+    "section": "",
+    "text": "On this page\n   \n  \n  Overview\n  Tables\n  Variables\n  Examples\n  \n\n\nOverview\n\nThe USDA’s National Agricultural Statistics Service (NASS) conducts hundreds of surveys every year and prepares reports covering virtually every aspect of U.S. agriculture. Production and supplies of food and fiber, prices paid and received by farmers, farm labor and wages, farm finances, chemical use, and changes in the demographics of U.S. producers are only a few examples.\n\nData source links.\n\nHome\nData Files\nQuickStats\nQuickStats API\n\n\n\nTables\nList of all tables in the collection. Each table can be retrieved with pubdata::get(\"nass\", key).\n\n\n\n\n\n\n\n\nVariables\nListing of all variables in each table.\n\n\n\n\n\n\n\n\nExamples\nTODO"
   }
 ]
