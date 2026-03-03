@@ -1,7 +1,7 @@
 
-#' BDS data object
+#' BDS data table
 #'
-#' @param key Data object key.
+#' @param key Data table key.
 #'
 #' @return Tidy table or path to raw file.
 bds_get <- function(key) {

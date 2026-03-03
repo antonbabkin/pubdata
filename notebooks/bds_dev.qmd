@@ -238,7 +238,7 @@ x %>% count(across(all_of(count_cols)))
 bulk test
 
 ```{r}
-schema_alignment <- ls("bds", "raw.*2023") %>%
+schema_alignment <- ls("bds", "raw.*2022") %>%
   map(function(raw_key) {
     key <- str_remove(raw_key, "^raw_")
     raw_head <- get("bds", raw_key) %>%
@@ -299,9 +299,15 @@ x %>%
 ```
 
 
+# Build all
+
 
 ```{r}
-x <- bds_get("2023_sec_ez")
-x
+all_key_dims <- ls("bds") %>%
+  grepv("^raw_", ., invert = TRUE) %>%
+  set_names() %>%
+  map(\(k) get("bds", k) %>% dim() %>% set_names(c("nrow", "ncol"))) %>%
+  bind_rows(.id = "key")
 
+all_key_dims
 ```

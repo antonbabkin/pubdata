@@ -453,16 +453,16 @@ data:
     mask: "{revision}_met"
     desc: BDS by metro/non-metro, {revision} revision
     type: table
-    path: proc/{revision}/met.pq
+    path: "proc/{revision}/bds{revision}_met.pq"
     depends: raw_{revision}_met
     schema:
-      <<: [*schema_year, *schema_core, *schema_met]
+      <<: [*schema_year, *schema_met, *schema_core]
 
   2022_st_cty:
     mask: "{revision}_st_cty"
     desc: BDS by county, {revision} revision
     type: table
-    path: proc/{revision}/st_cty.pq
+    path: "proc/{revision}/bds{revision}_st_cty.pq"
     depends: raw_{revision}_st_cty
     schema:
       <<: [*schema_year, *schema_st, *schema_cty, *schema_core]
@@ -471,68 +471,44 @@ data:
     mask: "{revision}_st_cty_sec"
     desc: BDS by county, {revision} revision
     type: table
-    path: proc/{revision}/st_cty_sec.pq
+    path: "proc/{revision}/bds{revision}_st_cty_sec.pq"
     depends: raw_{revision}_st_cty_sec
     schema:
-      <<: [*schema_year, *schema_st, *schema_cty, *schema_core]
-      sector:
-        desc: "2-digit NAICS 2017 Codes"
-        type: category
+      <<: [*schema_year, *schema_st, *schema_cty, *schema_sec, *schema_core]
 
   2022_met_ea:
     mask: "{revision}_met_ea"
     desc: BDS by metro/non-metro and establishment age, {revision} revision
     type: table
-    path: proc/{revision}/met_ea.pq
+    path: "proc/{revision}/bds{revision}_met_ea.pq"
     depends: raw_{revision}_met_ea
     schema:
-      <<: [*schema_year, *schema_core, *schema_met]
-      eage:
-        desc: "Establishment age. This is an employment-based measure of establishment age. An estab born
-          before 1977 is of unknown age and is assigned an age of “Left Censored”. One born during or
-          after 1977 is assigned an age of zero in the first year it reports positive employment, and it ages
-          each year thereafter regardless of employment."
-        type: category
+      <<: [*schema_year, *schema_met, *schema_ea, *schema_core]
 
   2022_met_eac:
     mask: "{revision}_met_eac"
     desc: BDS by metro/non-metro and establishment age coarse, {revision} revision
     type: table
-    path: proc/{revision}/met_eac.pq
+    path: "proc/{revision}/bds{revision}_met_eac.pq"
     depends: raw_{revision}_met_eac
     schema:
-      <<: [*schema_year, *schema_core, *schema_met]
-      eagecoarse:
-        desc: "Establishment age coarse. This is an employment-based measure of establishment age. An estab born
-          before 1977 is of unknown age and is assigned an age of “Left Censored”. One born during or
-          after 1977 is assigned an age of zero in the first year it reports positive employment, and it ages
-          each year thereafter regardless of employment. Includes 5 broader establishment age classes."
-        type: category
-
+      <<: [*schema_year, *schema_met, *schema_eac, *schema_core]
   2022_met_ezc:
     mask: "{revision}_met_ezc"
     desc: BDS by metro/non-metro and establishment size coarse, {revision} revision
     type: table
-    path: proc/{revision}/met_ezc.pq
+    path: "proc/{revision}/bds{revision}_met_ezc.pq"
     depends: raw_{revision}_met_ezc
     schema:
-      <<: [*schema_year, *schema_core, *schema_met]
-      esizecoarse:
-        desc: "Establishment size coarse. A categorical variable defined as the average of the establishment’s year t-1
-          and year t employment. Includes 3 broader size classes."
-        type: category
-
+      <<: [*schema_year, *schema_met, *schema_ezc, *schema_core]
   2022_met_sec:
     mask: "{revision}_met_sec"
     desc: BDS by metro/non-metro and NAICS sector, {revision} revision
     type: table
-    path: proc/{revision}/met_sec.pq
+    path: "proc/{revision}/bds{revision}_met_sec.pq"
     depends: raw_{revision}_met_sec
     schema:
-      <<: [*schema_year, *schema_core, *schema_met]
-      sector:
-        desc: "2-digit NAICS 2017 Codes"
-        type: category
+      <<: [*schema_year, *schema_met, *schema_sec, *schema_core]
 
 ## 2023 revision raw
   raw_2023:
