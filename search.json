@@ -1,31 +1,80 @@
 [
   {
-    "objectID": "chrr.html",
-    "href": "chrr.html",
-    "title": "County Health Rankings & Roadmaps",
+    "objectID": "bds.html",
+    "href": "bds.html",
+    "title": "Business Dynamics Database (BDS)",
     "section": "",
-    "text": "Overview\n  Tables\n  Columns\n  Examples\n  \n  Variables across years\n  Rural premature mortality\n  National adult smoking over time"
+    "text": "Overview\n  Tables\n  Columns\n  Examples\n  \n  Metro vs non-metro exit rates\n  Establishment exit and job creation\n  Jobs in metro vs rural areas\n  Metro vs rural growth\n  Multi-establishment firms"
   },
   {
-    "objectID": "chrr.html#variables-across-years",
-    "href": "chrr.html#variables-across-years",
-    "title": "County Health Rankings & Roadmaps",
-    "section": "Variables across years",
-    "text": "Variables across years\nVariables, descriptions and variable parts.\n\n\nCode\nall_year_vars &lt;- pubdata::ls(\"chrr\") %&gt;%\n  grepv(\"^raw_\", ., invert = TRUE) %&gt;%\n  map(function(key) {\n    pubdata::path(\"chrr\", key) %&gt;%\n      open_dataset() %&gt;%\n      filter(fipscode == \"00000\") %&gt;%\n      select(year, variable, description) %&gt;%\n      collect() %&gt;%\n      separate_wider_regex(\n        variable,\n        cols_remove = FALSE,\n        pattern = c(\n          code = \"^v\\\\d{3}\",\n          \"_\",\n          race = \"(?:race_[^_]+)?\",\n          \"_?\",\n          value = \".*\"\n        )\n      ) %&gt;%\n      relocate(year, variable, description)\n  }) %&gt;%\n  bind_rows()\n\nall_year_vars %&gt;%\n  datatable(filter = \"top\")"
+    "objectID": "bds.html#metro-vs-non-metro-exit-rates",
+    "href": "bds.html#metro-vs-non-metro-exit-rates",
+    "title": "Business Dynamics Database (BDS)",
+    "section": "Metro vs non-metro exit rates",
+    "text": "Metro vs non-metro exit rates\nHow do the exit rates of establishments differ pre and post covid in metro vs non metros?\n\n\nCode\n# load the processed metro/nonmetro dataset\ndf &lt;- pubdata::get(\"bds\", \"2022_met\") %&gt;%\n  mutate(\n    year = as.integer(year),\n    estabs_exit_rate = as.numeric(estabs_exit_rate),\n    metro_status = case_when(\n      metro == \"M\" ~ \"metro\",\n      metro == \"N\" ~ \"nonmetro\",\n      TRUE ~ NA_character_\n    ),\n    covid_period = ifelse(year &lt; 2020, \"pre_covid\", \"post_covid\")\n  ) %&gt;%\n  filter(year &gt;= 2016 & year &lt;= 2022, !is.na(metro_status))\n\n# summarise\nsummary_df &lt;- df %&gt;%\n  group_by(year, metro_status) %&gt;%\n  summarise(avg_exit_rate = mean(estabs_exit_rate, na.rm = TRUE), .groups = \"drop\")\n\n# plot\nggplot(summary_df, aes(x = factor(year), y = avg_exit_rate, fill = metro_status)) +\n  geom_col(position = \"dodge\") +\n  geom_vline(\n    xintercept = which(sort(unique(summary_df$year)) == 2020),\n    linetype = \"dashed\", color = \"red\", size = 1\n  ) +\n  labs(\n    title = \"Exit Rate of Establishments (Metro vs Nonmetro, 2016–2022)\",\n    y = \"Average Exit Rate\",\n    x = \"Year\"\n  ) +\n  theme_minimal()\n\n\n\n\n\n\n\n\n\nThe data indicate that metro establishments were more vulnerable to pandemic-related shocks, hence we see a larger establishment exit rate. Nonmetro establishments showed a smaller relative increase.This suggests that rural economies may have been somewhat more protected from pandemic disruptions which is an important factor to consider when working with business dynamics in rural areas."
   },
   {
-    "objectID": "chrr.html#rural-premature-mortality",
-    "href": "chrr.html#rural-premature-mortality",
-    "title": "County Health Rankings & Roadmaps",
-    "section": "Rural premature mortality",
-    "text": "Rural premature mortality\nCounty relationship between percentage of rural population and premature age-adjusted mortality.\n\n\nCode\nx &lt;- pubdata::get(\"chrr\", \"2025\")\n\nx1 &lt;- x %&gt;%\n  filter(countycode != \"000\") %&gt;%\n  filter(variable %in% c(\"v058_rawvalue\", \"v127_rawvalue\")) %&gt;%\n  pivot_wider(id_cols = fipscode, names_from = variable) %&gt;%\n  rename(rural = v058_rawvalue, paam = v127_rawvalue)\n\nx1 %&gt;%\n  ggplot(aes(rural, paam)) +\n  geom_point(size = 0.5) +\n  geom_smooth()"
+    "objectID": "bds.html#establishment-exit-and-job-creation",
+    "href": "bds.html#establishment-exit-and-job-creation",
+    "title": "Business Dynamics Database (BDS)",
+    "section": "Establishment exit and job creation",
+    "text": "Establishment exit and job creation\nHow does the job creation rate differ with establishment exit rate?\n\n\nCode\n# Load and preprocess correctly\ndf &lt;- pubdata::get(\"bds\", \"2022_met\") %&gt;%\n  mutate(\n    job_creation_rate = as.numeric(job_creation_rate),\n    establishment_exit_rate = as.numeric(estabs_exit_rate),\n    metro_status = case_when(\n      metro == \"M\" ~ \"metro\",\n      metro == \"N\" ~ \"nonmetro\",\n      TRUE ~ NA_character_\n    ),\n  ) %&gt;%\n  filter(\n    metro_status %in% c(\"metro\", \"nonmetro\"),  # keep only metro and nonmetro\n    !is.na(job_creation_rate),\n    !is.na(establishment_exit_rate)\n  )\n\n# Summarize the relationship (linear regression by metro status)\nrelationship_summary &lt;- df %&gt;%\n  group_by(metro_status) %&gt;%\n  do(tidy(lm(establishment_exit_rate ~ job_creation_rate, data = .))) %&gt;%\n  filter(term == \"job_creation_rate\") %&gt;%\n  select(metro_status, estimate, std.error, p.value)\n\nprint(relationship_summary)\n\n\n# A tibble: 2 × 4\n# Groups:   metro_status [2]\n  metro_status estimate std.error      p.value\n  &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt;        &lt;dbl&gt;\n1 metro           0.236    0.0541 0.0000812   \n2 nonmetro        0.395    0.0565 0.0000000133\n\n\nCode\n# Scatterplot with regression lines\nggplot(df, aes(x = job_creation_rate, y = establishment_exit_rate, color = metro_status)) +\n  geom_point(alpha = 0.6) +\n  geom_smooth(method = \"lm\", se = FALSE) +\n  labs(\n    title = \"Job Creation Rate vs Establishment Exit Rate\",\n    subtitle = \"Separate regression lines for Metro (Urban) and Nonmetro (Rural) Areas\",\n    x = \"Job Creation Rate\",\n    y = \"Establishment Exit Rate\",\n    caption = \"Printed table shows slope estimates by area type\"\n  ) +\n  theme_minimal()\n\n\n`geom_smooth()` using formula = 'y ~ x'\n\n\n\n\n\n\n\n\n\nThe linear model above shows that in there is positive relationship between job creation rate and the establishment exit rate in both metro areas and non metro areas but the slope of non metro areas is higher than metro areas which signifies that there is higher instability in rural areas compared to urban areas."
   },
   {
-    "objectID": "chrr.html#national-adult-smoking-over-time",
-    "href": "chrr.html#national-adult-smoking-over-time",
-    "title": "County Health Rankings & Roadmaps",
-    "section": "National adult smoking over time",
-    "text": "National adult smoking over time\n\n\nCode\npubdata::ls(\"chrr\") %&gt;%\n  grepv(\"^raw_\", ., invert = TRUE) %&gt;%\n  map_chr(\\(key) pubdata::path(\"chrr\", key)) %&gt;%\n  open_dataset() %&gt;%\n  filter(fipscode == \"00000\", variable == \"v009_rawvalue\") %&gt;%\n  select(year, value) %&gt;%\n  collect() %&gt;%\n  arrange(year)\n\n\n\n\n\n\nyear\nvalue\n\n\n\n\n2010\n0.2053000\n\n\n2011\nNA\n\n\n2012\nNA\n\n\n2013\nNA\n\n\n2014\n0.2030000\n\n\n2015\n0.2030000\n\n\n2016\nNA\n\n\n2017\nNA\n\n\n2018\nNA\n\n\n2019\nNA\n\n\n2020\n0.1708002\n\n\n2021\n0.1662247\n\n\n2022\n0.1649256\n\n\n2023\n0.1600000\n\n\n2024\n0.1500000\n\n\n2025\n0.1320000"
+    "objectID": "bds.html#jobs-in-metro-vs-rural-areas",
+    "href": "bds.html#jobs-in-metro-vs-rural-areas",
+    "title": "Business Dynamics Database (BDS)",
+    "section": "Jobs in metro vs rural areas",
+    "text": "Jobs in metro vs rural areas\nWhat is the share of total employment in rural vs metro areas?\n\n\nCode\ndf_met &lt;- pubdata::get(\"bds\", \"2022_met\") %&gt;%\n  mutate(\n    emp = as.numeric(emp),  # total employment\n    metro_status = case_when(\n      metro == \"M\" ~ \"metro\",\n      metro == \"N\" ~ \"nonmetro\",\n      TRUE ~ NA_character_\n    )\n  ) %&gt;%\n  filter(metro_status %in% c(\"metro\",\"nonmetro\"))\n\n# Summed employment by type\nemp_summary &lt;- df_met %&gt;%\n  group_by(metro_status) %&gt;%\n  summarise(total_emp = sum(emp, na.rm = TRUE), .groups = \"drop\")\n\n# Add share\ntotal_us_emp &lt;- sum(emp_summary$total_emp, na.rm = TRUE)\n\nemp_summary %&gt;%\n  mutate(share = total_emp / total_us_emp)\n\n\n\n\n\n\nmetro_status\ntotal_emp\nshare\n\n\n\n\nmetro\n4498865989\n0.9607757\n\n\nnonmetro\n183668995\n0.0392243\n\n\n\n\n\n\nWe can see that most of the jobs are concentrated in the metro areas with the employment share being 96% and the non metro’s share of employment being 3%"
+  },
+  {
+    "objectID": "bds.html#metro-vs-rural-growth",
+    "href": "bds.html#metro-vs-rural-growth",
+    "title": "Business Dynamics Database (BDS)",
+    "section": "Metro vs rural growth",
+    "text": "Metro vs rural growth\nWhich area is growing more(firms,employment) in metro vs non metro areas? This also accounts for the change before and after the COVID pandemic.\n\n\nCode\n# Load data (replace year key if needed)\ndf &lt;- pubdata::get(\"bds\", \"2022_met\") %&gt;%\n  mutate(\n    metro_status = case_when(\n      metro == \"M\" ~ \"metro\",\n      metro == \"N\" ~ \"nonmetro\",\n      TRUE ~ NA_character_\n    )\n  ) %&gt;%\n  filter(!is.na(metro_status))\n\n# Summarize total firms and employment by metro status and year\nsummary_df &lt;- df %&gt;%\n  group_by(year, metro_status) %&gt;%\n  summarise(\n    total_firms = sum(firms, na.rm = TRUE),\n    total_emp   = sum(emp, na.rm = TRUE),\n    .groups = \"drop\"\n  )\n\n# Plot trends\np1 &lt;- ggplot(summary_df, aes(x = year, y = total_firms, color = metro_status)) +\n  geom_line(size = 1.2) +\n  labs(title = \"Firm Growth: Metro vs Nonmetro\", y = \"Number of Firms\", x = \"Year\") +\n  theme_minimal()\n\np2 &lt;- ggplot(summary_df, aes(x = year, y = total_emp, color = metro_status)) +\n  geom_line(size = 1.2) +\n  labs(title = \"Employment Growth: Metro vs Nonmetro\", y = \"Total Employment\", x = \"Year\") +\n  theme_minimal() + expand_limits(y=0)\n\n# ---- Growth rates (indexed to first year) ----\nsummary_growth &lt;- summary_df %&gt;%\n  group_by(metro_status) %&gt;%\n  arrange(year) %&gt;%\n  mutate(\n    firms_index = total_firms / first(total_firms) * 100,\n    emp_index   = total_emp / first(total_emp) * 100\n  ) %&gt;%\n  ungroup()\n\np3 &lt;- ggplot(summary_growth, aes(x = year, y = firms_index, color = metro_status)) +\n  geom_line(size = 1.2) +\n  labs(title = \"Firm Growth Rate: Indexed to First Year\", y = \"Index (First Year = 100)\", x = \"Year\") +\n  theme_minimal() +\n  expand_limits(y = 0)\n\np4 &lt;- ggplot(summary_growth, aes(x = year, y = emp_index, color = metro_status)) +\n  geom_line(size = 1.2) +\n  labs(title = \"Employment Growth Rate: Indexed to First Year\", y = \"Index (First Year = 100)\", x = \"Year\") +\n  theme_minimal() +\n  expand_limits(y = 0)\n\n\nprint(p1)\n\n\n\n\n\n\n\n\n\nCode\nprint(p2)\n\n\n\n\n\n\n\n\n\nCode\nprint(p3)\n\n\n\n\n\n\n\n\n\nCode\nprint(p4)\n\n\n\n\n\n\n\n\n\nCode\n# Compute growth rates pre vs post COVID\ngrowth_summary &lt;- summary_df %&gt;%\n  group_by(metro_status) %&gt;%\n  summarise(\n    firms_growth = (last(total_firms) - first(total_firms)) / first(total_firms) * 100,\n    emp_growth   = (last(total_emp) - first(total_emp)) / first(total_emp) * 100,\n    .groups = \"drop\"\n  )\n\nprint(growth_summary)\n\n\n# A tibble: 2 × 3\n  metro_status firms_growth emp_growth\n  &lt;chr&gt;               &lt;dbl&gt;      &lt;dbl&gt;\n1 metro               60.3        91.5\n2 nonmetro             2.48       33.0\n\n\nWe can see that in metro areas the firms grew by 60% post pandemic and only 2.5% where as for the employment rate in non metro areas there has been a 92% growth and only a 32% growth in non metro areas. However according to the plots we cannot clearly comprehend the growth for the non metro regions so we index to first year(base year). By doing this we can see which area is growing faster proportionally.Non metro regions have a lesser growth rate compared to metro regions(We can see this more clearly after we indexed it with a base of 100)."
+  },
+  {
+    "objectID": "bds.html#multi-establishment-firms",
+    "href": "bds.html#multi-establishment-firms",
+    "title": "Business Dynamics Database (BDS)",
+    "section": "Multi-establishment firms",
+    "text": "Multi-establishment firms\nDo rural areas have more single establishment firms vs multi-establishment firms?\n\n\nCode\ndf &lt;- pubdata::get(\"bds\", \"2022_met\") %&gt;%\n  mutate(\n    metro_status = case_when(\n      metro == \"M\" ~ \"metro\",\n      metro == \"N\" ~ \"nonmetro\",\n      TRUE ~ NA_character_\n    )\n  ) %&gt;%\n  filter(!is.na(metro_status))\n\n# Calculate single vs multi establishment counts\ndf_summary &lt;- df %&gt;%\n  group_by(year, metro_status) %&gt;%\n  summarise(\n    total_firms = sum(firms, na.rm = TRUE),\n    total_estabs = sum(estabs, na.rm = TRUE),\n    .groups = \"drop\"\n  ) %&gt;%\n  mutate(\n    single_estab_firms = total_firms,                     # every firm has at least one estab\n    multi_estab_extra  = total_estabs - total_firms,      # establishments beyond 1 per firm\n    share_single_estab = total_firms / total_estabs * 100 # % of establishments that are single-unit\n  )\n\nprint(df_summary)\n\n\n# A tibble: 90 × 7\n    year metro_status total_firms total_estabs single_estab_firms\n   &lt;int&gt; &lt;chr&gt;              &lt;int&gt;        &lt;int&gt;              &lt;int&gt;\n 1  1978 metro            3284606      4005231            3284606\n 2  1978 nonmetro          283387       315444             283387\n 3  1979 metro            3408383      4155226            3408383\n 4  1979 nonmetro          291424       324013             291424\n 5  1980 metro            3457634      4221684            3457634\n 6  1980 nonmetro          290968       324005             290968\n 7  1981 metro            3487558      4281982            3487558\n 8  1981 nonmetro          289157       323219             289157\n 9  1982 metro            3468666      4293546            3468666\n10  1982 nonmetro          283596       318419             283596\n# ℹ 80 more rows\n# ℹ 2 more variables: multi_estab_extra &lt;int&gt;, share_single_estab &lt;dbl&gt;\n\n\nCode\n# Visualization: share of single-unit establishments\nggplot(df_summary, aes(x = year, y = share_single_estab, color = metro_status)) +\n  geom_line(size = 1.2) +\n  labs(\n    title = \"Share of Single-Establishment Firms\",\n    y = \"Percent Single-Establishment\",\n    x = \"Year\"\n  ) +\n  theme_minimal()\n\n\n\n\n\n\n\n\n\nRural areas continue to depend more on small, independent firms, while metros are more dominated by multi-location businesses. But both areas are trending toward fewer single-establishment firms over time, reflecting a national shift toward consolidation and chain expansion."
+  },
+  {
+    "objectID": "nass.html",
+    "href": "nass.html",
+    "title": "National Agricultural Statistics Service (NASS)",
+    "section": "",
+    "text": "On this page\n   \n  \n  Overview\n  Tables\n  Variables\n  Examples\n  \n\n\nOverview\n\nThe USDA’s National Agricultural Statistics Service (NASS) conducts hundreds of surveys every year and prepares reports covering virtually every aspect of U.S. agriculture. Production and supplies of food and fiber, prices paid and received by farmers, farm labor and wages, farm finances, chemical use, and changes in the demographics of U.S. producers are only a few examples.\n\nData source links.\n\nHome\nData Files\nQuickStats\nQuickStats API\n\n\n\nTables\nList of all tables in the collection. Each table can be retrieved with pubdata::get(\"nass\", key).\n\n\n\n\n\n\n\n\nVariables\nListing of all variables in each table.\n\n\n\n\n\n\n\n\nExamples\nTODO"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "pubdata: Interface for public use datasets",
+    "section": "",
+    "text": "The general package interface for public data (“pubdata”) provide a list of operation that enables exploration and interaction with the data collections, specifically using ls(), meta(),and get()."
+  },
+  {
+    "objectID": "index.html#ls-list-available-data",
+    "href": "index.html#ls-list-available-data",
+    "title": "pubdata: Interface for public use datasets",
+    "section": "ls(): list available data",
+    "text": "ls(): list available data\nPrint a list of all available data collections.\n\npubdata::ls()\n\n[1] \"bds\"       \"bea_fa\"    \"bea_io\"    \"bea_reg\"   \"ers_rural\" \"naics\"    \n[7] \"nass\"      \"qcew\"      \"chrr\"     \n\n\ndetail: print the data collections with additional details for each data collection (description, cache file, etc).\n\npubdata::ls(detail = TRUE)\n\n\n  \n\n\n\ncollection: print the available keys in a specific collection. For example, keys in the \"naics\" collection:\n\npubdata::ls(collection = \"naics\")\n\n[1] \"raw_2007_code\" \"raw_2012_code\" \"raw_2017_code\" \"raw_2022_code\"\n[5] \"2007_code\"     \"2012_code\"     \"2017_code\"     \"2022_code\"    \n\n# obtain the keys with additional details\npubdata::ls(collection = \"naics\", detail = TRUE)\n\n\n  \n\n\n\npattern: print all the keys that match specific regex pattern within the data collection. For example, to print the keys with regex pattern \"2022\" in the \"naics\" collection:\n\npubdata::ls(collection = \"naics\", pattern = \"2022\")\n\n[1] \"raw_2022_code\" \"2022_code\"    \n\n# print the keys with details\npubdata::ls(collection = \"naics\", pattern = \"2022\", detail = TRUE)"
+  },
+  {
+    "objectID": "index.html#meta-show-collection-or-dataset-metadata",
+    "href": "index.html#meta-show-collection-or-dataset-metadata",
+    "title": "pubdata: Interface for public use datasets",
+    "section": "meta(): show collection or dataset metadata",
+    "text": "meta(): show collection or dataset metadata\nObtain the metadata of a specific collection or all keys within the collection (argument collection must be included).\n\ncollection: for data collections, meta() will provide information about:\n\n“desc”: description\n“urls”: a list of link to the source of the data collection\n“data_keys”: the number of keys within the data collection\n\n\nFor example, to print the metadata of the \"ers_rural\" collection:\n\npubdata::meta(\"ers_rural\", print = TRUE)\n\ncollection: ers_rural\ndesc: Rurality classifications from the USDA Economic Research Service (ERS)\nurls:\n  Home: https://www.ers.usda.gov/topics/rural-economy-population/rural-classifications/\n  Rural-Urban Continuum Codes: https://www.ers.usda.gov/data-products/rural-urban-continuum-codes/\n  Urban Influence Codes: https://www.ers.usda.gov/data-products/urban-influence-codes/\n  Rural-Urban Commuting Area Codes: https://www.ers.usda.gov/data-products/rural-urban-commuting-area-codes/\n  Frontier and Remote Area Codes: https://www.ers.usda.gov/data-products/frontier-and-remote-area-codes/\ndata_keys: 38\n\n\n\nkey: for a specific dataset within the data collections, meta() will provide information including:\n\n“mask”: naming pattern\n“desc”: description\n“type”: data format (usually “table”)\n“path”: internal path of the dataset\n“depends”: dataset dependencies\n“schema”: the description for variables in the dataset\n“keys”: regex pattern used to obtain the dataset\n\n\nFor example, to print the metadata of the \"ruc_2023\" dataset within the \"ers_rural\" collection:\n\npubdata::meta(collection = \"ers_rural\", key = \"ruc_2023\", print = TRUE)\n\ndesc: 2023 Rural-Urban Continuum Codes\ntype: table\npath: proc/ruc_2023.pq\ndepends: raw_ruc_2023\nschema:\n  fips:\n    desc: State+county FIPS code\n    orig: FIPS\n    type: character\n  state:\n    desc: State or territory abbreviation\n    orig: State\n    type: character\n  county_name:\n    desc: County or county-equivalent name\n    orig: County_Name\n    type: character\n  population_2020:\n    desc: Total population 2020\n    orig: Population_2020\n    type: integer\n  ruc_code_2023:\n    desc: 2023 Rural-Urban Continuum Code\n    orig: RUCC_2023\n    type: character\n  ruc_desc_2023:\n    desc: Description for 2023 codes\n    orig: Description\n    type: character"
+  },
+  {
+    "objectID": "index.html#get-retrieve-a-dataset",
+    "href": "index.html#get-retrieve-a-dataset",
+    "title": "pubdata: Interface for public use datasets",
+    "section": "get(): retrieve a dataset",
+    "text": "get(): retrieve a dataset\nDownload and read the dataset in specific data collection (argumentscollection and key must be included).\nFor example, to download and read the \"ruc_2023\" dataset in the \"ers_rural\" collection:\npubdata::get(collection = \"ers_rural\", key = \"ruc_2023\")\nHere would be the first 10 rows of the \"ruc_2023\" dataset:\n\npubdata::get(collection = \"ers_rural\", key = \"ruc_2023\") |&gt;\n  head(10)"
   },
   {
     "objectID": "bea_io.html",
@@ -70,38 +119,31 @@
     "text": "Inputs to grain farming\n2017 dollar value of top 10 detail level commodities used is inputs to Grain farming industry.\n\n\nCode\npubdata::get(\"bea_io\", \"2023_mu_use-bef-pro_det_2017\") %&gt;%\n  filter(col_name == \"Grain farming\", core_matrix) %&gt;%\n  arrange(desc(value)) %&gt;%\n  head(10) %&gt;%\n  select(row_code, row_name, value)\n\n\n\n\n\n\n\n\n\n\n\nrow_code\nrow_name\nvalue\n\n\n\n\n115000\nSupport activities for agriculture and forestry\n8007\n\n\n1111B0\nGrain farming\n7694\n\n\n424A00\nOther nondurable goods merchant wholesalers\n6843\n\n\n325320\nPesticide and other agricultural chemical manufacturing\n4234\n\n\n325310\nFertilizer manufacturing\n3608\n\n\n324110\nPetroleum refineries\n2202\n\n\n531ORE\nOther real estate\n2115\n\n\n221300\nWater, sewage and other systems\n1847\n\n\n484000\nTruck transportation\n1206\n\n\n482000\nRail transportation\n807"
   },
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "pubdata: Interface for public use datasets",
+    "objectID": "chrr.html",
+    "href": "chrr.html",
+    "title": "County Health Rankings & Roadmaps (CHRR)",
     "section": "",
-    "text": "The general package interface for public data (“pubdata”) provide a list of operation that enables exploration and interaction with the data collections, specifically using ls(), meta(),and get()."
+    "text": "Overview\n  Tables\n  Columns\n  Examples\n  \n  Variables across years\n  Rural premature mortality\n  National adult smoking over time"
   },
   {
-    "objectID": "index.html#ls-list-available-data",
-    "href": "index.html#ls-list-available-data",
-    "title": "pubdata: Interface for public use datasets",
-    "section": "ls(): list available data",
-    "text": "ls(): list available data\nPrint a list of all available data collections.\n\npubdata::ls()\n\n[1] \"bds\"       \"bea_fa\"    \"bea_io\"    \"bea_reg\"   \"ers_rural\" \"naics\"    \n[7] \"nass\"      \"qcew\"      \"chrr\"     \n\n\ndetail: print the data collections with additional details for each data collection (description, cache file, etc).\n\npubdata::ls(detail = TRUE)\n\n\n  \n\n\n\ncollection: print the available keys in a specific collection. For example, keys in the \"naics\" collection:\n\npubdata::ls(collection = \"naics\")\n\n[1] \"raw_2007_code\" \"raw_2012_code\" \"raw_2017_code\" \"raw_2022_code\"\n[5] \"2007_code\"     \"2012_code\"     \"2017_code\"     \"2022_code\"    \n\n# obtain the keys with additional details\npubdata::ls(collection = \"naics\", detail = TRUE)\n\n\n  \n\n\n\npattern: print all the keys that match specific regex pattern within the data collection. For example, to print the keys with regex pattern \"2022\" in the \"naics\" collection:\n\npubdata::ls(collection = \"naics\", pattern = \"2022\")\n\n[1] \"raw_2022_code\" \"2022_code\"    \n\n# print the keys with details\npubdata::ls(collection = \"naics\", pattern = \"2022\", detail = TRUE)"
+    "objectID": "chrr.html#variables-across-years",
+    "href": "chrr.html#variables-across-years",
+    "title": "County Health Rankings & Roadmaps (CHRR)",
+    "section": "Variables across years",
+    "text": "Variables across years\nVariables, descriptions and variable parts.\n\n\nCode\nall_year_vars &lt;- pubdata::ls(\"chrr\") %&gt;%\n  grepv(\"^raw_\", ., invert = TRUE) %&gt;%\n  map(function(key) {\n    pubdata::path(\"chrr\", key) %&gt;%\n      open_dataset() %&gt;%\n      filter(fipscode == \"00000\") %&gt;%\n      select(year, variable, description) %&gt;%\n      collect() %&gt;%\n      separate_wider_regex(\n        variable,\n        cols_remove = FALSE,\n        pattern = c(\n          code = \"^v\\\\d{3}\",\n          \"_\",\n          race = \"(?:race_[^_]+)?\",\n          \"_?\",\n          value = \".*\"\n        )\n      ) %&gt;%\n      relocate(year, variable, description)\n  }) %&gt;%\n  bind_rows()\n\nall_year_vars %&gt;%\n  datatable(filter = \"top\")"
   },
   {
-    "objectID": "index.html#meta-show-collection-or-dataset-metadata",
-    "href": "index.html#meta-show-collection-or-dataset-metadata",
-    "title": "pubdata: Interface for public use datasets",
-    "section": "meta(): show collection or dataset metadata",
-    "text": "meta(): show collection or dataset metadata\nObtain the metadata of a specific collection or all keys within the collection (argument collection must be included).\n\ncollection: for data collections, meta() will provide information about:\n\n“desc”: description\n“urls”: a list of link to the source of the data collection\n“data_keys”: the number of keys within the data collection\n\n\nFor example, to print the metadata of the \"ers_rural\" collection:\n\npubdata::meta(\"ers_rural\", print = TRUE)\n\ncollection: ers_rural\ndesc: Rurality classifications from the USDA Economic Research Service (ERS)\nurls:\n  Home: https://www.ers.usda.gov/topics/rural-economy-population/rural-classifications/\n  Rural-Urban Continuum Codes: https://www.ers.usda.gov/data-products/rural-urban-continuum-codes/\n  Urban Influence Codes: https://www.ers.usda.gov/data-products/urban-influence-codes/\n  Rural-Urban Commuting Area Codes: https://www.ers.usda.gov/data-products/rural-urban-commuting-area-codes/\n  Frontier and Remote Area Codes: https://www.ers.usda.gov/data-products/frontier-and-remote-area-codes/\ndata_keys: 38\n\n\n\nkey: for a specific dataset within the data collections, meta() will provide information including:\n\n“mask”: naming pattern\n“desc”: description\n“type”: data format (usually “table”)\n“path”: internal path of the dataset\n“depends”: dataset dependencies\n“schema”: the description for variables in the dataset\n“keys”: regex pattern used to obtain the dataset\n\n\nFor example, to print the metadata of the \"ruc_2023\" dataset within the \"ers_rural\" collection:\n\npubdata::meta(collection = \"ers_rural\", key = \"ruc_2023\", print = TRUE)\n\ndesc: 2023 Rural-Urban Continuum Codes\ntype: table\npath: proc/ruc_2023.pq\ndepends: raw_ruc_2023\nschema:\n  fips:\n    desc: State+county FIPS code\n    orig: FIPS\n    type: character\n  state:\n    desc: State or territory abbreviation\n    orig: State\n    type: character\n  county_name:\n    desc: County or county-equivalent name\n    orig: County_Name\n    type: character\n  population_2020:\n    desc: Total population 2020\n    orig: Population_2020\n    type: integer\n  ruc_code_2023:\n    desc: 2023 Rural-Urban Continuum Code\n    orig: RUCC_2023\n    type: character\n  ruc_desc_2023:\n    desc: Description for 2023 codes\n    orig: Description\n    type: character"
+    "objectID": "chrr.html#rural-premature-mortality",
+    "href": "chrr.html#rural-premature-mortality",
+    "title": "County Health Rankings & Roadmaps (CHRR)",
+    "section": "Rural premature mortality",
+    "text": "Rural premature mortality\nCounty relationship between percentage of rural population and premature age-adjusted mortality.\n\n\nCode\nx &lt;- pubdata::get(\"chrr\", \"2025\")\n\nx1 &lt;- x %&gt;%\n  filter(countycode != \"000\") %&gt;%\n  filter(variable %in% c(\"v058_rawvalue\", \"v127_rawvalue\")) %&gt;%\n  pivot_wider(id_cols = fipscode, names_from = variable) %&gt;%\n  rename(rural = v058_rawvalue, paam = v127_rawvalue)\n\nx1 %&gt;%\n  ggplot(aes(rural, paam)) +\n  geom_point(size = 0.5) +\n  geom_smooth()"
   },
   {
-    "objectID": "index.html#get-retrieve-a-dataset",
-    "href": "index.html#get-retrieve-a-dataset",
-    "title": "pubdata: Interface for public use datasets",
-    "section": "get(): retrieve a dataset",
-    "text": "get(): retrieve a dataset\nDownload and read the dataset in specific data collection (argumentscollection and key must be included).\nFor example, to download and read the \"ruc_2023\" dataset in the \"ers_rural\" collection:\npubdata::get(collection = \"ers_rural\", key = \"ruc_2023\")\nHere would be the first 10 rows of the \"ruc_2023\" dataset:\n\npubdata::get(collection = \"ers_rural\", key = \"ruc_2023\") |&gt;\n  head(10)"
-  },
-  {
-    "objectID": "nass.html",
-    "href": "nass.html",
-    "title": "National Agricultural Statistics Service (NASS)",
-    "section": "",
-    "text": "On this page\n   \n  \n  Overview\n  Tables\n  Variables\n  Examples\n  \n\n\nOverview\n\nThe USDA’s National Agricultural Statistics Service (NASS) conducts hundreds of surveys every year and prepares reports covering virtually every aspect of U.S. agriculture. Production and supplies of food and fiber, prices paid and received by farmers, farm labor and wages, farm finances, chemical use, and changes in the demographics of U.S. producers are only a few examples.\n\nData source links.\n\nHome\nData Files\nQuickStats\nQuickStats API\n\n\n\nTables\nList of all tables in the collection. Each table can be retrieved with pubdata::get(\"nass\", key).\n\n\n\n\n\n\n\n\nVariables\nListing of all variables in each table.\n\n\n\n\n\n\n\n\nExamples\nTODO"
+    "objectID": "chrr.html#national-adult-smoking-over-time",
+    "href": "chrr.html#national-adult-smoking-over-time",
+    "title": "County Health Rankings & Roadmaps (CHRR)",
+    "section": "National adult smoking over time",
+    "text": "National adult smoking over time\n\n\nCode\npubdata::ls(\"chrr\") %&gt;%\n  grepv(\"^raw_\", ., invert = TRUE) %&gt;%\n  map_chr(\\(key) pubdata::path(\"chrr\", key)) %&gt;%\n  open_dataset() %&gt;%\n  filter(fipscode == \"00000\", variable == \"v009_rawvalue\") %&gt;%\n  select(year, value) %&gt;%\n  collect() %&gt;%\n  arrange(year)\n\n\n\n\n\n\nyear\nvalue\n\n\n\n\n2010\n0.2053000\n\n\n2011\nNA\n\n\n2012\nNA\n\n\n2013\nNA\n\n\n2014\n0.2030000\n\n\n2015\n0.2030000\n\n\n2016\nNA\n\n\n2017\nNA\n\n\n2018\nNA\n\n\n2019\nNA\n\n\n2020\n0.1708002\n\n\n2021\n0.1662247\n\n\n2022\n0.1649256\n\n\n2023\n0.1600000\n\n\n2024\n0.1500000\n\n\n2025\n0.1320000"
   }
 ]
