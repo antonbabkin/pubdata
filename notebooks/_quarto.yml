@@ -5,7 +5,7 @@ project:
     - bea_io.qmd
     - nass.qmd
     - chrr.qmd
-    # - bds.qmd
+    - bds.qmd
     # - qcew.qmd
   post-render: touch _site/.nojekyll
 
@@ -22,8 +22,8 @@ website:
         href: nass.qmd
       - text: CHRR
         href: chrr.qmd
-      # - text: BDS
-      #   href: bds.qmd
+      - text: BDS
+        href: bds.qmd
       # - text: QCEW
       #   href: qcew.qmd
 

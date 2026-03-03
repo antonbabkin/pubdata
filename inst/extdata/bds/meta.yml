@@ -5,6 +5,8 @@ urls:
     https://www.census.gov/programs-surveys/bds.html
   "CSV datasets":
     https://www.census.gov/data/datasets/time-series/econ/bds/bds-datasets.html
+  "Methodology":
+    https://www.census.gov/programs-surveys/bds/documentation/methodology.html
   "Codebook and Glossary":
     https://www.census.gov/programs-surveys/bds/documentation/codebook-glossary.html
 
