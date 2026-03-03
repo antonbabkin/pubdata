@@ -1,0 +1,307 @@
+---
+title: "BDS development"
+format:
+  html:
+    code-fold: true
+
+---
+
+```{r}
+library(tidyverse)
+library(yaml)
+library(rvest)
+
+logger::log_threshold(logger::DEBUG)
+```
+
+
+# Datasets
+
+Descriptions and links to BDS source data files.
+
+YAML metadata entry template:
+
+```
+raw_2023_fa:
+  desc: BDS by Firm Age, 2023 revision
+  type: raw
+  path: raw/2023/bds2023_fa.csv
+  url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_fa.csv
+```
+
+
+```{r}
+dataset_list_page <- "tmp/bds_2023_datasets.html"
+# download_file("https://www.census.gov/programs-surveys/bds/data.Datasets.html", dataset_list_page)
+
+page <- read_html(dataset_list_page)
+
+nodes <- page |> html_elements("a")
+
+links <- tibble(
+    url = html_attr(nodes, "href"),
+    desc = html_text2(nodes)
+  ) |>
+  filter(str_detect(url, "\\.csv(\\?.*)?$")) |>
+  mutate(
+    desc = desc |>
+      str_squish() |>
+      str_remove("\\s*\\[.*?\\]\\s*") |>
+      str_c("BDS ", ... = _, ", 2023 revision"),
+    file = url |> basename() |> str_remove("\\?.*$"),
+    key = str_remove(file, "\\.csv$") |> str_remove("bds") |> str_to_lower(),
+    path = paste0("raw/2023/", file)
+  ) |>
+  distinct(url, .keep_all = TRUE)
+
+yaml_list <- links |>
+  mutate(
+    entry = pmap(
+      list(key, desc, path, url),
+      \(key, desc, path, url) {
+        setNames(
+          list(
+            list(
+              desc = desc,
+              type = "raw",
+              path = path,
+              url = url
+            )
+          ),
+          paste0("raw_", key)
+        )
+      }
+    )
+  ) |>
+  pull(entry) |>
+  reduce(c)
+
+yaml_str <- as.yaml(yaml_list)
+
+cat(yaml_str)
+
+```
+
+
+
+```{r}
+pubdata::ls("bds", "2023.*cty", TRUE)
+
+
+```
+
+# Schema
+
+Parse codebook PDF to use in YAML schema constructon.
+
+```{r}
+# download_file("https://www.census.gov/content/dam/Census/programs-surveys/business-dynamics-statistics/codebook-glossary.pdf", "tmp/codebook-glossary.pdf")
+
+# library(pdftools)
+# txt <- pdf_text("tmp/codebook-glossary.pdf")[1:6]
+# writeLines(txt, "tmp/codebook-glossary-pages1-6.txt")
+
+
+txt <- readLines("tmp/codebook-glossary-pages1-6.txt")
+
+# Remove page number lines (standalone numbers or lines with only spaces and a number)
+txt <- txt[!str_detect(txt, "^\\s*\\d+\\s*$")]
+# Remove the header line
+txt <- txt[!str_detect(txt, "BDS CODEBOOK AND GLOSSARY")]
+txt <- txt[!str_detect(txt, "BDS VARIABLE DEFINITIONS AND CODES")]
+
+# Collapse into single string for regex parsing
+full <- paste(txt, collapse = "\n")
+
+# Split on variable names (left-aligned words at start of line)
+# Variable names appear as lines starting with no leading whitespace
+chunks <- str_split(full, "(?=\n[a-z][a-z_0-9]*\n)")[[1]]
+# Drop preamble
+chunks <- chunks[str_detect(chunks, "Values:|Description:")]
+
+parse_chunk <- function(chunk) {
+  # Extract variable name (first non-blank line with no indentation)
+  name <- str_extract(chunk, "(?<=\n)[a-z][a-z_0-9]*(?=\n)")
+  if (is.na(name)) return(NULL)
+
+  # Extract values
+  values_match <- str_match(chunk, "Values:\\s*(.*?)(?=\\n\\s*\\n|\\n\\s*Description:)")
+  # values <- str_squish(values_match[, 2]) %|% ""
+  values <- str_squish(values_match[, 2]) |> replace_na("")
+  
+  # Extract description (everything after "Description:" until end)
+  desc_match <- str_match(chunk, regex("Description:\\s*(.*)", dotall = TRUE))
+  desc_raw <- desc_match[, 2]
+  if (is.na(desc_raw)) return(NULL)
+
+  # Clean up description: collapse multi-line, normalize whitespace
+  desc_lines <- str_split(desc_raw, "\n")[[1]]
+  desc_lines <- str_squish(desc_lines)
+  desc_lines <- desc_lines[desc_lines != ""]
+  desc <- paste(desc_lines, collapse = "\n")
+
+  # Build desc block: description + values if present
+  desc_block <- desc
+  if (!is.na(values) && values != "") {
+    desc_block <- paste0(desc, "\nValues: ", values)
+  }
+
+  list(name = name, desc_block = desc_block)
+}
+
+parsed <- map(chunks, parse_chunk) |> compact()
+
+# Build YAML list
+yaml_entries <- map(parsed, \(p) {
+  setNames(list(list(type = "character", desc = p$desc_block)), p$name)
+}) |> reduce(c)
+
+yaml_out <- as.yaml(yaml_entries, indent.mapping.sequence = TRUE)
+
+writeLines(yaml_out, "tmp/codebook.yml")
+```
+
+
+Schema stubs from raw.
+
+
+```{r}
+dblq <- \(x) paste0("\"", x, "\"")
+yaml_text <- ls("bds", "raw.*2023") %>%
+  str_remove("^raw_") %>%
+  set_names() %>%
+  map(function(key) {
+    raw_key <- paste0("raw_", key)
+    met <- meta("bds", raw_key, FALSE)
+    mask <- str_replace(key, "2023", "{revision}")
+    sch <- str_remove(key, ".*2023_") |>
+      str_split_1("_") |>
+      c("year", ... = _, "core") |>
+      paste0("*schema_", ... = _) |>
+      paste(collapse = ", ") |>
+      paste0("[", ... = _, "]")
+    list(
+      mask = dblq(mask),
+      desc = str_replace(met$desc, "2023", "{revision}") |> dblq(),
+      type = "table",
+      path = paste0("proc/{revision}/bds", mask, ".pq") |> dblq(),
+      depends = str_replace(raw_key, "2023", "{revision}") |> dblq(),
+      schema = list(
+        "<<" = sch
+      )
+    )
+  }) %>%
+    as.yaml() %>%
+    str_replace_all("'", "")
+
+cat(yaml_text)
+clipr::write_clip(capture.output(cat(yaml_text)))
+
+```
+
+
+
+```{r}
+get("bds", "raw_2023_fac_fzc")
+```
+
+Compare alignment of raw csv columns and schema columns
+
+```{r}
+key <- "2023_sec"
+count_cols <- c("sector")
+raw_head <- get("bds", paste0("raw_", key)) %>%
+  read_csv(n_max = 1, show_col_types = FALSE)
+meta_schema <- meta("bds", key, FALSE)$schema
+non_flag_cols <- names(meta_schema) %>% grepv("_f$", ., invert = TRUE)
+meta_schema <- meta_schema[non_flag_cols]
+# compare overlap
+cmp <- full_join(
+  tibble(col = names(raw_head), raw = "raw"),
+  tibble(col = names(meta_schema), meta = "meta"),
+  by = "col"
+) %>%
+  mutate(res = paste(raw, meta, sep = "+"))
+
+cmp %>% count(res)
+cmp %>% filter(res != "raw+meta")
+
+# compare ordering
+cmp1 <- bind_cols(list(raw = names(raw_head), meta = names(meta_schema)))
+cmp1 %>% filter(raw != meta)
+
+x <- get("bds", paste0("raw_", key)) %>%
+  read_csv(col_types = list(.default = "c"), show_col_types = FALSE)
+x %>% count(across(all_of(count_cols)))
+```
+
+bulk test
+
+```{r}
+schema_alignment <- ls("bds", "raw.*2023") %>%
+  map(function(raw_key) {
+    key <- str_remove(raw_key, "^raw_")
+    raw_head <- get("bds", raw_key) %>%
+      read_csv(n_max = 1, show_col_types = FALSE)
+    meta_schema <- meta("bds", key, FALSE)$schema
+    non_flag_cols <- names(meta_schema) %>% grepv("_f$", ., invert = TRUE)
+    meta_schema <- meta_schema[non_flag_cols]
+    # compare overlap
+    overlap <- full_join(
+      tibble(col = names(raw_head), raw = "raw"),
+      tibble(col = names(meta_schema), meta = "meta"),
+      by = "col"
+    ) %>%
+      mutate(res = paste(raw, meta, sep = "+")) %>% 
+      filter(res != "raw+meta") %>% 
+      nrow()
+
+    # compare order
+    order <- bind_cols(list(raw = names(raw_head), meta = names(meta_schema))) %>%
+      filter(raw != meta) %>%
+      nrow()
+    list(key = key, raw_key = raw_key, nraw = ncol(raw_head), nsch = length(meta_schema), overlap = overlap, order = order)
+  }) %>%
+    bind_rows()
+
+schema_alignment %>%
+  filter(overlap > 0 | order > 0)
+
+
+```
+
+
+
+```{r}
+ls("bds", "2023.*ez")
+meta("bds", "2023_sec_ez")
+meta("bds", "2023_sec_ez", FALSE)$schema %>%
+  map(\(x) x$type) %>%
+  {tibble(column = names(.), type = unlist(.))} %>%
+  count(type)
+```
+
+## handle NaN values
+
+[Suppression flags](https://www.census.gov/programs-surveys/bds/documentation/methodology.html)
+
+> In addition to noise infusion, cells with fewer than three firms are suppressed with a publication flag 'D'. In addition, cells with identified data quality concerns are suppressed with a publication flag 'S'. Cells that are "structurally missing" or "structurally zero" are indicated with a publication flag 'X'. Finally, rate cells that cannot be calculated are indicated with a publication flag 'N'.
+
+
+```{r}
+x <- get("bds", "raw_2023_sec_ez") %>%
+  read_csv(col_types = list(.default = "c"))
+x %>%
+  mutate(across(everything(), str_squish)) %>%
+  mutate(across(everything(), \(x) if_else(str_detect(x, "^-?\\d+(\\.\\d+)?$"), "num", x))) %>%
+  map(table)
+
+```
+
+
+
+```{r}
+x <- bds_get("2023_sec_ez")
+x
+
+```

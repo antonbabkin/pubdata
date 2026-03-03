@@ -8,130 +8,404 @@ urls:
   "Codebook and Glossary":
     https://www.census.gov/programs-surveys/bds/documentation/codebook-glossary.html
 
-
+## schema blocks
 schema:
-  # shared variables
-  core: &schema_core
+  # year - always first column
+  year: &schema_year
     year:
-      desc: "Record year."
-      type: number
+      type: integer
+      desc: "Record year"
+  # shared columns
+  core: &schema_core
     firms:
       desc: "A simple count of the number of firms in the cell.
         For state level tables, a firm with establishments in multiple states be
         counted multiple times, once in each state, irrespective of the portion
         of the firm residing in that state."
-      type: number
+      type: integer
+    firms_f:
+      type: character
+      desc: |
+        "firms" supression flag.
+        "D": fewer than three firms, "S": identified data quality concerns, "X": structurally missing or structurally zero, "N": cannot be calculated.
     estabs:
       desc: "A simple count of the number of establishments in the cell."
-      type: number
+      type: integer
+    estabs_f:
+      type: character
+      desc: |
+        "estabs" supression flag.
+        "D": fewer than three firms, "S": identified data quality concerns, "X": structurally missing or structurally zero, "N": cannot be calculated.
     emp:
       desc: "Paid employment consists of full and part-time employees, including salaried officers and
         executives of corporations, who are on the payroll in the pay period including March 12. Included
         are employees on paid sick leave, holidays, and vacations."
-      type: number
+      type: integer
+    emp_f:
+      type: character
+      desc: |
+        "emp" supression flag.
+        "D": fewer than three firms, "S": identified data quality concerns, "X": structurally missing or structurally zero, "N": cannot be calculated.
     denom:
       desc: "Davis-Haltiwanger-Schuh (DHS) denominator. For time t, denom is the average of employment
         for times t and t-1. This variable attempts to prevent transitory shocks from creating a bias to the
         relationship between net growth from t-1 to t and size."
-      type: number
+      type: integer
+    denom_f:
+      type: character
+      desc: |
+        "denom" supression flag.
+        "D": fewer than three firms, "S": identified data quality concerns, "X": structurally missing or structurally zero, "N": cannot be calculated.
     estabs_entry:
       desc: "A count of establishments born within the cell during the last 12 months."
-      type: number
+      type: integer
+    estabs_entry_f:
+      type: character
+      desc: |
+        "estabs_entry" supression flag.
+        "D": fewer than three firms, "S": identified data quality concerns, "X": structurally missing or structurally zero, "N": cannot be calculated.
     estabs_entry_rate:
       desc: "100 * (estabs_entry at time t divided by the average of estabs at t and t-1)."
-      type: number
+      type: double
+    estabs_entry_rate_f:
+      type: character
+      desc: |
+        "estabs_entry_rate" supression flag.
+        "D": fewer than three firms, "S": identified data quality concerns, "X": structurally missing or structurally zero, "N": cannot be calculated.
     estabs_exit:
       desc: "A count of establishments exiting from within the cell during the last 12 months."
-      type: number
+      type: integer
+    estabs_exit_f:
+      type: character
+      desc: |
+        "estabs_exit" supression flag.
+        "D": fewer than three firms, "S": identified data quality concerns, "X": structurally missing or structurally zero, "N": cannot be calculated.
     estabs_exit_rate:
       desc: "100 * (estabs_exit at time t divided by the average of estabs at t and t-1)."
-      type: number
+      type: double
+    estabs_exit_rate_f:
+      type: character
+      desc: |
+        "estabs_exit_rate" supression flag.
+        "D": fewer than three firms, "S": identified data quality concerns, "X": structurally missing or structurally zero, "N": cannot be calculated.
     job_creation:
       desc: "Count of all employment gains within the cell from expanding and opening establishments
         between the week of March 12 of the prior year to the current year."
-      type: number
+      type: integer
+    job_creation_f:
+      type: character
+      desc: |
+        "job_creation" supression flag.
+        "D": fewer than three firms, "S": identified data quality concerns, "X": structurally missing or structurally zero, "N": cannot be calculated.
     job_creation_births:
       desc: "Count of employment gains within the cell from establishment openings (births) between the week
         of March 12 of the prior year to the current year."
-      type: number
+      type: integer
+    job_creation_births_f:
+      type: character
+      desc: |
+        "job_creation_births" supression flag.
+        "D": fewer than three firms, "S": identified data quality concerns, "X": structurally missing or structurally zero, "N": cannot be calculated.
     job_creation_continuers:
       desc: "Count of employment gains within the cell from continuing establishments that expanded between
         the week of March 12 of the prior year to the current year."
-      type: number
+      type: integer
+    job_creation_continuers_f:
+      type: character
+      desc: |
+        "job_creation_continuers" supression flag.
+        "D": fewer than three firms, "S": identified data quality concerns, "X": structurally missing or structurally zero, "N": cannot be calculated.
     job_creation_rate_births:
       desc: "100 * (job_creation_births / denom)"
-      type: number
+      type: double
+    job_creation_rate_births_f:
+      type: character
+      desc: |
+        "job_creation_rate_births" supression flag.
+        "D": fewer than three firms, "S": identified data quality concerns, "X": structurally missing or structurally zero, "N": cannot be calculated.
     job_creation_rate:
       desc: "100 * (job_creation / denom)"
-      type: number
+      type: double
+    job_creation_rate_f:
+      type: character
+      desc: |
+        "job_creation_rate" supression flag.
+        "D": fewer than three firms, "S": identified data quality concerns, "X": structurally missing or structurally zero, "N": cannot be calculated.
     job_destruction:
       desc: "Count of all employment losses within the cell from contracting and closing establishments
         between the week of March 12 of the prior year to the current year."
-      type: number
+      type: integer
+    job_destruction_f:
+      type: character
+      desc: |
+        "job_destruction" supression flag.
+        "D": fewer than three firms, "S": identified data quality concerns, "X": structurally missing or structurally zero, "N": cannot be calculated.
     job_destruction_deaths:
       desc: "Count of all employment losses within the cell from establishment closings (deaths) between the
         week of March 12 of the prior year to the current year."
-      type: number
+      type: integer
+    job_destruction_deaths_f:
+      type: character
+      desc: |
+        "job_destruction_deaths" supression flag.
+        "D": fewer than three firms, "S": identified data quality concerns, "X": structurally missing or structurally zero, "N": cannot be calculated.
     job_destruction_continuers:
       desc: "Count of employment losses within the cell from continuing establishments that contracted
         between the week of March 12 of the prior year to the current year."
-      type: number
+      type: integer
+    job_destruction_continuers_f:
+      type: character
+      desc: |
+        "job_destruction_continuers" supression flag.
+        "D": fewer than three firms, "S": identified data quality concerns, "X": structurally missing or structurally zero, "N": cannot be calculated.
     job_destruction_rate_deaths:
       desc: "100 * (job_destruction_deaths / denom)"
-      type: number
+      type: double
+    job_destruction_rate_deaths_f:
+      type: character
+      desc: |
+        "job_destruction_rate_deaths" supression flag.
+        "D": fewer than three firms, "S": identified data quality concerns, "X": structurally missing or structurally zero, "N": cannot be calculated.
     job_destruction_rate:
       desc: "100 * (job_destruction / denom)"
-      type: number
+      type: double
+    job_destruction_rate_f:
+      type: character
+      desc: |
+        "job_destruction_rate" supression flag.
+        "D": fewer than three firms, "S": identified data quality concerns, "X": structurally missing or structurally zero, "N": cannot be calculated.
     net_job_creation:
       desc: "job_creation - job_destruction"
-      type: number
+      type: integer
+    net_job_creation_f:
+      type: character
+      desc: |
+        "net_job_creation" supression flag.
+        "D": fewer than three firms, "S": identified data quality concerns, "X": structurally missing or structurally zero, "N": cannot be calculated.
     net_job_creation_rate:
       desc: "job_creation_rate - job_destruction_rate"
-      type: number
+      type: double
+    net_job_creation_rate_f:
+      type: character
+      desc: |
+        "net_job_creation_rate" supression flag.
+        "D": fewer than three firms, "S": identified data quality concerns, "X": structurally missing or structurally zero, "N": cannot be calculated.
     reallocation_rate:
       desc: "job_creation_rate + job_destruction_rate - abs(net_job_creation_rate). This is often referred to as
         an “excess” reallocation rate since it measures the rate of job reallocation over and above that
         needed to accommodate the net job creation in the cell. A gross reallocation measure is simply the
         sum of the job_creation_rate and the job_destruction_rate."
-      type: number
+      type: double
+    reallocation_rate_f:
+      type: character
+      desc: |
+        "reallocation_rate" supression flag.
+        "D": fewer than three firms, "S": identified data quality concerns, "X": structurally missing or structurally zero, "N": cannot be calculated.
     firmdeath_firms:
       desc: "Count of firms that have exited in their entirety during the period. All establishments owned by the
         firm must exit to be considered a firm death. This definition of firm death is narrow and strictly
         applied, so that a firm with 100 establishments would not qualify as a firm death if 99 exited while
         1 continued under different ownership. Note firm legal entities that cease to exist because of
         merger and acquisition activity are not classified as firm deaths in the BDS data."
-      type: number
+      type: integer
+    firdeath_firms_f:
+      type: character
+      desc: |
+        "firmdeath_firms" supression flag.
+        "D": fewer than three firms, "S": identified data quality concerns, "X": structurally missing or structurally zero, "N": cannot be calculated.
     firmdeath_estabs:
       desc: "Count of establishments associated with firm deaths."
-      type: number
+      type: integer
+    firmdeath_estabs_f:
+      type: character
+      desc: |
+        "firmdeath_estabs" supression flag.
+        "D": fewer than three firms, "S": identified data quality concerns, "X": structurally missing or structurally zero, "N": cannot be calculated.
     firmdeath_emp:
       desc: "Count of employment associated with firm deaths."
-      type: number
+      type: integer
+    firmdeath_emp_f:
+      type: character
+      desc: |
+        "firmdeath_emp" supression flag.
+        "D": fewer than three firms, "S": identified data quality concerns, "X": structurally missing or structurally zero, "N": cannot be calculated.
+  fa: &schema_fa
+    fage:
+      type: character
+      desc: |
+        This is an employment-based measure of firm age. A firm born before 1977 is of unknown age and is assigned a firm age of “Left Censored”. A firm born during or after 1977 is assigned a firm age as follows:
+        1. One or more pre-existing establishments with prior employment, the firm will be born with a non-zero age based on the earliest year any establishment reported employment.
+        2. One or more pre-existing establishments with no prior employment in any establishment, the firm is born with no firm age. The firm will be age zero in the first year any establishment reports employment.
+        3. One or more newly founded establishments with employment, the firm will be born with age of zero.
+        4. One or more newly founded establishments with no employment in any establishment, the firm will be born with no firm age. The firm will be age zero in the first year any establishment reports employment.
+        Values: a) 0, b) 1, c) 2, d) 3, e) 4, f) 5, g) 6 to 10, h) 11 to 15, i) 16 to 20, j) 21 to 25, k) 26+, l) Left Censored
+  fac: &schema_fac
+    fagecoarse:
+      type: character
+      desc: |
+        Firm age coarse. This is a coarse version of the firm age variable. Includes 5 broader firm age classes.
+        This is an employment-based measure of firm age. A firm born before 1977 is of unknown age and is assigned a firm age of “Left Censored”. A firm born during or after 1977 is assigned a firm age as follows:
+        1. One or more pre-existing establishments with prior employment, the firm will be born with a non-zero age based on the earliest year any establishment reported employment.
+        2. One or more pre-existing establishments with no prior employment in any establishment, the firm is born with no firm age. The firm will be age zero in the first year any establishment reports employment.
+        3. One or more newly founded establishments with employment, the firm will be born with age of zero.
+        4. One or more newly founded establishments with no employment in any establishment, the firm will be born with no firm age. The firm will be age zero in the first year any establishment reports employment.
+        Values: a) 0, b) 1 to 5, c) 6 to 10, d) 11+, e) Left Censored
+  ea: &schema_ea
+    eage:
+      type: character
+      desc: |
+        Establishment age. This is an employment-based measure of establishment age. An estab born before 1977 is of unknown age and is assigned an age of “Left Censored”. One born during or after 1977 is assigned an age of zero in the first year it reports positive employment, and it ages each year thereafter regardless of employment.
+        Values: a) 0, b) 1, c) 2, d) 3, e) 4, f) 5, g) 6 to 10, h) 11 to 15, i) 16 to 20, j) 21 to 25, k) 26+, l) Left Censored
+  eac: &schema_eac
+    eagecoarse:
+      type: character
+      desc: |
+        Description: Establishment age coarse. This is the coarse version of the establishment age variable. Includes 5 broader establishment age classes.
+        This is an employment-based measure of establishment age. An estab born before 1977 is of unknown age and is assigned an age of “Left Censored”. One born during or after 1977 is assigned an age of zero in the first year it reports positive employment, and it ages each year thereafter regardless of employment.
+        Values: a) 0, b) 1 to 5, c) 6 to 10, d) 11+, e) Left Censored
+  fz: &schema_fz
+    fsize:
+      type: character
+      desc: |
+        Firm size. A categorical variable defined as the average of the firm's year t-1 and year t employment.
+        Values: a) 1 to 4, b) 5 to 9, c) 10 to 19, d) 20 to 99, e) 100 to 499, f) 500 to 999, g) 1000 to 2499, h) 2500 to 4999, i) 5000 to 9999, j) 10000+
+  fzc: &schema_fzc
+    fsizecoarse:
+      type: character
+      desc: |
+        Firm size coarse. Coarse version of firm size variable. Includes 3 broader firm size classes.
+        A categorical variable defined as the average of the firm's year t-1 and year t employment.
+        Values: a) 1 to 19, b) 20 to 499, c) 500+
+  ez: &schema_ez
+    esize:
+      type: character
+      desc: |
+        Establishment size. A categorical variable defined as the average of the establishment's year t-1
+        and year t employment.
+        Values: a) 1 to 4, b) 5 to 9, c) 10 to 19, d) 20 to 99, e) 100 to 499, f) 500 to 999, g) 1000+
+  ezc: &schema_ezc
+    esizecoarse:
+      type: character
+      desc: |
+        Establishment size coarse. Coarse version of establishment size variable. Includes 3 broader size classes.
+        A categorical variable defined as the average of the establishment's year t-1 and year t employment.
+        Values: a) 1 to 19, b) 20 to 499, c) 500+
+  ifz: &schema_ifz
+    ifsize:
+      type: character
+      desc: |
+        Initial firm size. A categorical variable defined for any given consecutive two-year period as the
+        size at year t-1 except in cases when year t-1 employment is equal to zero in which case initial size
+        is year t employment.
+        Values: a) 1 to 4, b) 5 to 9, c) 10 to 19, d) 20 to 99, e) 100 to 499, f) 500 to 999, g) 1000 to 2499, h) 2500 to 4999, i) 5000 to 9999, j) 10000+
+  ifzc: &schema_ifzc
+    ifsizecoarse:
+      type: character
+      desc: |
+        Initial firm size coarse. Coarse version of initial firm size variable. Includes 3 broader initial firm size classes.
+        A categorical variable defined for any given consecutive two-year period as the
+        size at year t-1 except in cases when year t-1 employment is equal to zero in which case initial size
+        is year t employment.
+        Values: a) 1 to 19, b) 20 to 499, c) 500+
+  iez: &schema_iez
+    iesize:
+      type: character
+      desc: |
+        Initial establishment size. A categorical variable defined for any given consecutive two-year
+        period as the size at year t-1 except in cases when year t-1 employment is equal to zero in which
+        case initial size is year t employment.
+        Values: a) 1 to 4, b) 5 to 9, c) 10 to 19, d) 20 to 99, e) 100 to 499, f) 500 to 999, g) 1000+
+  iezc: &schema_iezc
+    iesizecoarse:
+      type: character
+      desc: |
+        Initial establishment size coarse. Coarse version of initial establishment size variable. Includes 3 broader initial establishment size classes.
+        A categorical variable defined for any given consecutive two-year
+        period as the size at year t-1 except in cases when year t-1 employment is equal to zero in which
+        case initial size is year t employment.
+        Values: a) 1 to 19, b) 20 to 499, c) 500+
   metro: &schema_met
     metro:
-      desc: "Establishments located in Metropolitan or Micropolitan Statistical Areas are in cells designated
+      type: character
+      desc: |
+        Establishments located in Metropolitan or Micropolitan Statistical Areas are in cells designated
         with “M”, while those in non-metropolitan areas are aggregated into cells designated with “N”.
         Cells designated as “SW” (signifying “statewide”) are assigned to establishments without a fixed
-        location such as employee leasing establishments. Cells designated as “U” (signifying
-        “unclassified”) are assigned to establishments without a valid county code."
-      type: category
-  stcty: &schema_stcty
+        location such as employee leasing establishments.
+        Values: M, N, SW
+      # 2022 revision also had this:
+      # Cells designated as “U” (signifying “unclassified”) are assigned to establishments without a valid county code.
+  st: &schema_st
     st:
-      desc: "FIPS state code."
-      type: string
+      type: character
+      desc: |
+        Two-character numeric code corresponding to the Federal Information Processing Series (FIPS)
+        code for each state. These codes are vintage consistent and currently reflect 2023 geography. The
+        state codes take on the values listed in the table below:
+        01-AL 15-HI 26-MI 37-NC 49-UT
+        02-AK 16-ID 27-MN 38-ND 50-VT
+        04-AZ 17-IL 28-MS 39-OH 51-VA
+        05-AR 18-IN 29-MO 40-OK 53-WA
+        06-CA 19-IA 30-MT 41-OR 54-WV
+        08-CO 20-KS 31-NE 42-PA 55-WI
+        09-CT 21-KY 32-NV 44-RI 56-WY
+        10-DE 22-LA 33-NH 45-SC 72-PR
+        11-DC 23-ME 34-NJ 46-SD
+        12-FL 24-MD 35-NM 47-TN
+        13-GA 25-MA 36-NY 48-TX
+        Values: 01, 02, 04, 05, 06, 08, 09, 10, 11, 12, 13, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 44, 45, 46, 47, 48, 49, 50, 51, 53, 54, 55, 56
+  cty: &schema_cty
     cty:
-      desc: "Three-character numeric code for county within a given state. Users can refer to the CBP county
-        reference files for listings of valid county codes (https://www.census.gov/programs-
-        surveys/cbp/technical-documentation/reference/state-county-geography-reference.html). The BDS
-        also includes statewide (999) and unclassified (998) county codes. Statewide county codes are
-        assigned to establishments without a fixed location such as employee leasing establishments.
-        Unclassified establishments are those with a county code that cannot be found in any of the CBP
-        county reference files."
-      type: string
-
-
+      type: character
+      desc: |
+        Three-character numeric code for county within a given state. Users can refer to the CBP county
+        reference files for listings of valid county codes (https://www.census.gov/programs-surveys/cbp/technical-documentation/reference/state-county-geography-reference.html). The BDS
+        also includes statewide (999) county codes. Statewide county codes are assigned to establishments
+        without a fixed location such as employee leasing establishments. County codes are vintage
+        consistent and currently reflect 2023 geography.
+  msa: &schema_msa
+    msa:
+      type: character
+      desc: |
+        Numeric code for metropolitan and micropolitan statistical areas, as established by Office of
+        Management and Budget (OMB). The definitions from July 2023 are used:
+        https://www.census.gov/geographies/reference-files/time-series/demo/metro-micro/delineation-files.html
+  sec: &schema_sec
+    sector:
+      type: character
+      desc: |
+        2-digit NAICS 2017 Codes:
+        11 - Agriculture, Forestry, Fishing and Hunting
+        21 - Mining, Quarrying, and Oil and Gas Extraction
+        22 - Utilities
+        23 - Construction
+        31-33 - Manufacturing
+        42 - Wholesale Trade
+        44-45 - Retail Trade
+        48-49 - Transportation and Warehousing
+        51 - Information
+        52 - Finance and Insurance
+        53 - Real Estate and Rental and Leasing
+        54 - Professional, Scientific, and Technical Services
+        55 - Management of Companies and Enterprises
+        56 - Administrative and Support and Waste Management and Remediation Services
+        61 - Educational Services
+        62 - Health Care and Social Assistance
+        71 - Arts, Entertainment, and Recreation
+        72 - Accommodation and Food Services
+        81 - Other Services (except Public Administration)
+        Values: 11, 21, 22, 23, 31-33, 42, 44-45, 48-49, 51, 52, 53, 54, 55, 56, 61, 62, 71, 72, 81
+  vcn3: &schema_vcn3
+    vcnaics3:
+      type: character
+      desc: Vintage consistent 3-digit NAICS 2017 codes
+  vcn4: &schema_vcn4
+    vcnaics4:
+      type: character
+      desc: Vintage consistent 4-digit NAICS 2017 codes
 
 data:
+## 2022 revision raw
   raw_2022_met:
     desc: BDS by metro/non-metro, 2022 revision
     type: raw
@@ -174,6 +448,7 @@ data:
     path: raw/2022/bds2022_met_sec.csv
     url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2022/bds2022_met_sec.csv
 
+## 2022 revision processed
   2022_met:
     mask: "{revision}_met"
     desc: BDS by metro/non-metro, {revision} revision
@@ -181,8 +456,7 @@ data:
     path: proc/{revision}/met.pq
     depends: raw_{revision}_met
     schema:
-      <<: *schema_core
-      <<: *schema_met
+      <<: [*schema_year, *schema_core, *schema_met]
 
   2022_st_cty:
     mask: "{revision}_st_cty"
@@ -191,8 +465,7 @@ data:
     path: proc/{revision}/st_cty.pq
     depends: raw_{revision}_st_cty
     schema:
-      <<: *schema_core
-      <<: *schema_stcty
+      <<: [*schema_year, *schema_st, *schema_cty, *schema_core]
 
   2022_st_cty_sec:
     mask: "{revision}_st_cty_sec"
@@ -201,8 +474,7 @@ data:
     path: proc/{revision}/st_cty_sec.pq
     depends: raw_{revision}_st_cty_sec
     schema:
-      <<: *schema_core
-      <<: *schema_stcty
+      <<: [*schema_year, *schema_st, *schema_cty, *schema_core]
       sector:
         desc: "2-digit NAICS 2017 Codes"
         type: category
@@ -214,8 +486,7 @@ data:
     path: proc/{revision}/met_ea.pq
     depends: raw_{revision}_met_ea
     schema:
-      <<: *schema_core
-      <<: *schema_met
+      <<: [*schema_year, *schema_core, *schema_met]
       eage:
         desc: "Establishment age. This is an employment-based measure of establishment age. An estab born
           before 1977 is of unknown age and is assigned an age of “Left Censored”. One born during or
@@ -230,8 +501,7 @@ data:
     path: proc/{revision}/met_eac.pq
     depends: raw_{revision}_met_eac
     schema:
-      <<: *schema_core
-      <<: *schema_met
+      <<: [*schema_year, *schema_core, *schema_met]
       eagecoarse:
         desc: "Establishment age coarse. This is an employment-based measure of establishment age. An estab born
           before 1977 is of unknown age and is assigned an age of “Left Censored”. One born during or
@@ -246,8 +516,7 @@ data:
     path: proc/{revision}/met_ezc.pq
     depends: raw_{revision}_met_ezc
     schema:
-      <<: *schema_core
-      <<: *schema_met
+      <<: [*schema_year, *schema_core, *schema_met]
       esizecoarse:
         desc: "Establishment size coarse. A categorical variable defined as the average of the establishment’s year t-1
           and year t employment. Includes 3 broader size classes."
@@ -260,9 +529,2488 @@ data:
     path: proc/{revision}/met_sec.pq
     depends: raw_{revision}_met_sec
     schema:
-      <<: *schema_core
-      <<: *schema_met
+      <<: [*schema_year, *schema_core, *schema_met]
       sector:
         desc: "2-digit NAICS 2017 Codes"
         type: category
 
+## 2023 revision raw
+  raw_2023:
+    desc: BDS Economy-wide, 2023 revision
+    type: raw
+    path: raw/2023/bds2023.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023.csv
+  raw_2023_fa:
+    desc: BDS Firm Age, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_fa.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_fa.csv
+  raw_2023_fac:
+    desc: BDS Firm Age Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_fac.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_fac.csv
+  raw_2023_ea:
+    desc: BDS Establishment Age, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_ea.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_ea.csv
+  raw_2023_eac:
+    desc: BDS Establishment Age Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_eac.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_eac.csv
+  raw_2023_fz:
+    desc: BDS Firm Size, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_fz.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_fz.csv
+  raw_2023_fzc:
+    desc: BDS Firm Size Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_fzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_fzc.csv
+  raw_2023_ez:
+    desc: BDS Establishment Size, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_ez.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_ez.csv
+  raw_2023_ezc:
+    desc: BDS Establishment Size Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_ezc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_ezc.csv
+  raw_2023_ifz:
+    desc: BDS Initial Firm Size, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_ifz.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_ifz.csv
+  raw_2023_ifzc:
+    desc: BDS Initial Firm Size Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_ifzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_ifzc.csv
+  raw_2023_iez:
+    desc: BDS Initial Establishment Size, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_iez.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_iez.csv
+  raw_2023_iezc:
+    desc: BDS Initial Establishment Size Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_iezc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_iezc.csv
+  raw_2023_met:
+    desc: BDS Metro/Non-Metro, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_met.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_met.csv
+  raw_2023_st:
+    desc: BDS State, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_st.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_st.csv
+  raw_2023_st_cty:
+    desc: BDS County, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_st_cty.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_st_cty.csv
+  raw_2023_msa:
+    desc: BDS MSA, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_msa.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_msa.csv
+  raw_2023_sec:
+    desc: BDS Sector, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_sec.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_sec.csv
+  raw_2023_vcn3:
+    desc: BDS 3-digit NAICS, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_vcn3.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_vcn3.csv
+  raw_2023_vcn4:
+    desc: BDS 4-digit NAICS, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_vcn4.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_vcn4.csv
+  raw_2023_fa_fz:
+    desc: BDS Firm Age by Firm Size, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_fa_fz.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_fa_fz.csv
+  raw_2023_fac_fzc:
+    desc: BDS Firm Age Coarse by Firm Size Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_fac_fzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_fac_fzc.csv
+  raw_2023_fa_ifz:
+    desc: BDS Firm Age by Initial Firm Size, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_fa_ifz.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_fa_ifz.csv
+  raw_2023_fac_ifzc:
+    desc: BDS Firm Age Coarse by Initial Firm Size Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_fac_ifzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_fac_ifzc.csv
+  raw_2023_ea_ez:
+    desc: BDS Establishment Age by Establishment Size, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_ea_ez.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_ea_ez.csv
+  raw_2023_eac_ezc:
+    desc: BDS Establishment Age Coarse by Establishment Size Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_eac_ezc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_eac_ezc.csv
+  raw_2023_ea_iez:
+    desc: BDS Establishment Age by Initial Establishment Size, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_ea_iez.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_ea_iez.csv
+  raw_2023_eac_iezc:
+    desc: BDS Establishment Age Coarse by Initial Establishment Size Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_eac_iezc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_eac_iezc.csv
+  raw_2023_st_sec:
+    desc: BDS State by Sector, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_st_sec.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_st_sec.csv
+  raw_2023_st_met:
+    desc: BDS State by Metro/Non-Metro, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_st_met.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_st_met.csv
+  raw_2023_st_fa:
+    desc: BDS State by Firm Age, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_st_fa.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_st_fa.csv
+  raw_2023_st_fac:
+    desc: BDS State by Firm Age Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_st_fac.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_st_fac.csv
+  raw_2023_st_fz:
+    desc: BDS State by Firm Size, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_st_fz.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_st_fz.csv
+  raw_2023_st_fzc:
+    desc: BDS State by Firm Size Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_st_fzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_st_fzc.csv
+  raw_2023_st_ifz:
+    desc: BDS State by Initial Firm Size, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_st_ifz.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_st_ifz.csv
+  raw_2023_st_ifzc:
+    desc: BDS State by Initial Firm Size Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_st_ifzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_st_ifzc.csv
+  raw_2023_st_ea:
+    desc: BDS State by Establishment Age, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_st_ea.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_st_ea.csv
+  raw_2023_st_eac:
+    desc: BDS State by Establishment Age Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_st_eac.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_st_eac.csv
+  raw_2023_st_ez:
+    desc: BDS State by Establishment Size, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_st_ez.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_st_ez.csv
+  raw_2023_st_ezc:
+    desc: BDS State by Establishment Size Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_st_ezc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_st_ezc.csv
+  raw_2023_st_iez:
+    desc: BDS State by Initial Establishment Size, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_st_iez.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_st_iez.csv
+  raw_2023_st_iezc:
+    desc: BDS State by Initial Establishment Size Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_st_iezc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_st_iezc.csv
+  raw_2023_sec_fa:
+    desc: BDS Sector by Firm Age, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_sec_fa.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_sec_fa.csv
+  raw_2023_sec_fac:
+    desc: BDS Sector by Firm Age Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_sec_fac.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_sec_fac.csv
+  raw_2023_sec_fz:
+    desc: BDS Sector by Firm Size, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_sec_fz.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_sec_fz.csv
+  raw_2023_sec_fzc:
+    desc: BDS Sector by Firm Size Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_sec_fzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_sec_fzc.csv
+  raw_2023_sec_ifz:
+    desc: BDS Sector by Initial Firm Size, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_sec_ifz.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_sec_ifz.csv
+  raw_2023_sec_ifzc:
+    desc: BDS Sector by Initial Firm Size Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_sec_ifzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_sec_ifzc.csv
+  raw_2023_sec_ea:
+    desc: BDS Sector by Establishment Age, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_sec_ea.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_sec_ea.csv
+  raw_2023_sec_eac:
+    desc: BDS Sector by Establishment Age Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_sec_eac.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_sec_eac.csv
+  raw_2023_sec_ez:
+    desc: BDS Sector by Establishment Size, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_sec_ez.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_sec_ez.csv
+  raw_2023_sec_ezc:
+    desc: BDS Sector by Establishment Size Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_sec_ezc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_sec_ezc.csv
+  raw_2023_sec_iez:
+    desc: BDS Sector by Initial Establishment Size, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_sec_iez.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_sec_iez.csv
+  raw_2023_sec_iezc:
+    desc: BDS Sector by Initial Establishment Size Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_sec_iezc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_sec_iezc.csv
+  raw_2023_vcn3_fa:
+    desc: BDS 3-digit NAICS by Firm Age, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_vcn3_fa.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_vcn3_fa.csv
+  raw_2023_vcn3_fac:
+    desc: BDS 3-digit NAICS by Firm Age Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_vcn3_fac.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_vcn3_fac.csv
+  raw_2023_vcn3_fz:
+    desc: BDS 3-digit NAICS by Firm Size, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_vcn3_fz.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_vcn3_fz.csv
+  raw_2023_vcn3_fzc:
+    desc: BDS 3-digit NAICS by Firm Size Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_vcn3_fzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_vcn3_fzc.csv
+  raw_2023_vcn3_ifz:
+    desc: BDS 3-digit NAICS by Initial Firm Size, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_vcn3_ifz.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_vcn3_ifz.csv
+  raw_2023_vcn3_ifzc:
+    desc: BDS 3-digit NAICS by Initial Firm Size Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_vcn3_ifzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_vcn3_ifzc.csv
+  raw_2023_vcn3_ea:
+    desc: BDS 3-digit NAICS by Establishment Age, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_vcn3_ea.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_vcn3_ea.csv
+  raw_2023_vcn3_eac:
+    desc: BDS 3-digit NAICS by Establishment Age Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_vcn3_eac.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_vcn3_eac.csv
+  raw_2023_vcn4_fa:
+    desc: BDS 4-digit NAICS by Firm Age, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_vcn4_fa.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_vcn4_fa.csv
+  raw_2023_vcn4_fac:
+    desc: BDS 4-digit NAICS by Firm Age Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_vcn4_fac.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_vcn4_fac.csv
+  raw_2023_vcn4_fz:
+    desc: BDS 4-digit NAICS by Firm Size, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_vcn4_fz.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_vcn4_fz.csv
+  raw_2023_vcn4_fzc:
+    desc: BDS 4-digit NAICS by Firm Size Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_vcn4_fzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_vcn4_fzc.csv
+  raw_2023_vcn4_ifz:
+    desc: BDS 4-digit NAICS by Initial Firm Size, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_vcn4_ifz.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_vcn4_ifz.csv
+  raw_2023_vcn4_ifzc:
+    desc: BDS 4-digit NAICS by Initial Firm Size Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_vcn4_ifzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_vcn4_ifzc.csv
+  raw_2023_vcn4_ea:
+    desc: BDS 4-digit NAICS by Establishment Age, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_vcn4_ea.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_vcn4_ea.csv
+  raw_2023_vcn4_eac:
+    desc: BDS 4-digit NAICS by Establishment Age Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_vcn4_eac.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_vcn4_eac.csv
+  raw_2023_met_fa:
+    desc: BDS Metro/Non-Metro by Firm Age, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_met_fa.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_met_fa.csv
+  raw_2023_met_fac:
+    desc: BDS Metro/Non-Metro by Firm Age Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_met_fac.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_met_fac.csv
+  raw_2023_met_fz:
+    desc: BDS Metro/Non-Metro by Firm Size, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_met_fz.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_met_fz.csv
+  raw_2023_met_fzc:
+    desc: BDS Metro/Non-Metro by Firm Size Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_met_fzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_met_fzc.csv
+  raw_2023_met_ifz:
+    desc: BDS Metro/Non-Metro by Initial Firm Size, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_met_ifz.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_met_ifz.csv
+  raw_2023_met_ifzc:
+    desc: BDS Metro/Non-Metro by Initial Firm Size Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_met_ifzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_met_ifzc.csv
+  raw_2023_met_ea:
+    desc: BDS Metro/Non-Metro by Establishment Age, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_met_ea.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_met_ea.csv
+  raw_2023_met_eac:
+    desc: BDS Metro/Non-Metro by Establishment Age Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_met_eac.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_met_eac.csv
+  raw_2023_met_ez:
+    desc: BDS Metro/Non-Metro by Establishment Size, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_met_ez.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_met_ez.csv
+  raw_2023_met_ezc:
+    desc: BDS Metro/Non-Metro by Establishment Size Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_met_ezc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_met_ezc.csv
+  raw_2023_met_iez:
+    desc: BDS Metro/Non-Metro by Initial Establishment Size, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_met_iez.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_met_iez.csv
+  raw_2023_met_iezc:
+    desc: BDS Metro/Non-Metro by Initial Establishment Size Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_met_iezc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_met_iezc.csv
+  raw_2023_met_sec:
+    desc: BDS Metro/Non-Metro by NAICS Sector, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_met_sec.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_met_sec.csv
+  raw_2023_msa_fac:
+    desc: BDS MSA by Firm Age Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_msa_fac.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_msa_fac.csv
+  raw_2023_msa_fzc:
+    desc: BDS MSA by Firm Size Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_msa_fzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_msa_fzc.csv
+  raw_2023_msa_ifzc:
+    desc: BDS MSA by Initial Firm Size Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_msa_ifzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_msa_ifzc.csv
+  raw_2023_msa_eac:
+    desc: BDS MSA by Establishment Age Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_msa_eac.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_msa_eac.csv
+  raw_2023_msa_sec:
+    desc: BDS MSA by Sector, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_msa_sec.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_msa_sec.csv
+  raw_2023_st_cty_fac:
+    desc: BDS County by Firm Age Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_st_cty_fac.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_st_cty_fac.csv
+  raw_2023_st_cty_fzc:
+    desc: BDS County by Firm Size Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_st_cty_fzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_st_cty_fzc.csv
+  raw_2023_st_cty_ifzc:
+    desc: BDS County by Initial Firm Size Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_st_cty_ifzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_st_cty_ifzc.csv
+  raw_2023_st_cty_eac:
+    desc: BDS County by Establishment Age Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_st_cty_eac.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_st_cty_eac.csv
+  raw_2023_st_cty_sec:
+    desc: BDS County by Sector, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_st_cty_sec.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_st_cty_sec.csv
+  raw_2023_msa_sec_fac:
+    desc: BDS MSA by Sector by Firm Age Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_msa_sec_fac.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_msa_sec_fac.csv
+  raw_2023_msa_sec_fzc:
+    desc: BDS MSA by Sector by Firm Size Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_msa_sec_fzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_msa_sec_fzc.csv
+  raw_2023_msa_sec_ifzc:
+    desc: BDS MSA by Sector by Initial Firm Size Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_msa_sec_ifzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_msa_sec_ifzc.csv
+  raw_2023_msa_sec_eac:
+    desc: BDS MSA by Sector by Establishment Age Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_msa_sec_eac.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_msa_sec_eac.csv
+  raw_2023_st_sec_fa:
+    desc: BDS State by Sector by Firm Age, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_st_sec_fa.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_st_sec_fa.csv
+  raw_2023_st_sec_fac:
+    desc: BDS State by Sector by Firm Age Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_st_sec_fac.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_st_sec_fac.csv
+  raw_2023_st_sec_fz:
+    desc: BDS State by Sector by Firm Size, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_st_sec_fz.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_st_sec_fz.csv
+  raw_2023_st_sec_fzc:
+    desc: BDS State by Sector by Firm Size Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_st_sec_fzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_st_sec_fzc.csv
+  raw_2023_st_sec_ifz:
+    desc: BDS State by Sector by Initial Firm Size, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_st_sec_ifz.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_st_sec_ifz.csv
+  raw_2023_st_sec_ifzc:
+    desc: BDS State by Sector by Initial Firm Size Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_st_sec_ifzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_st_sec_ifzc.csv
+  raw_2023_st_sec_ea:
+    desc: BDS State by Sector by Establishment Age, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_st_sec_ea.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_st_sec_ea.csv
+  raw_2023_st_sec_eac:
+    desc: BDS State by Sector by Establishment Age Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_st_sec_eac.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_st_sec_eac.csv
+  raw_2023_met_sec_fa:
+    desc: BDS Metro/Non-Metro by Sector by Firm Age, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_met_sec_fa.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_met_sec_fa.csv
+  raw_2023_met_sec_fac:
+    desc: BDS Metro/Non-Metro by Sector by Firm Age Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_met_sec_fac.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_met_sec_fac.csv
+  raw_2023_met_sec_fz:
+    desc: BDS Metro/Non-Metro by Sector by Firm Size, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_met_sec_fz.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_met_sec_fz.csv
+  raw_2023_met_sec_fzc:
+    desc: BDS Metro/Non-Metro by Sector by Firm Size Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_met_sec_fzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_met_sec_fzc.csv
+  raw_2023_met_sec_ifz:
+    desc: BDS Metro/Non-Metro by Sector by Initial Firm Size, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_met_sec_ifz.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_met_sec_ifz.csv
+  raw_2023_met_sec_ifzc:
+    desc: BDS Metro/Non-Metro by Sector by Initial Firm Size Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_met_sec_ifzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_met_sec_ifzc.csv
+  raw_2023_met_sec_ea:
+    desc: BDS Metro/Non-Metro by Sector by Establishment Age, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_met_sec_ea.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_met_sec_ea.csv
+  raw_2023_met_sec_eac:
+    desc: BDS Metro/Non-Metro by Sector by Establishment Age Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_met_sec_eac.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_met_sec_eac.csv
+  raw_2023_met_st_fa:
+    desc: BDS Metro/Non-Metro by State by Firm Age, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_met_st_fa.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_met_st_fa.csv
+  raw_2023_met_st_fac:
+    desc: BDS Metro/Non-Metro by State by Firm Age Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_met_st_fac.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_met_st_fac.csv
+  raw_2023_met_st_fz:
+    desc: BDS Metro/Non-Metro by State by Firm Size, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_met_st_fz.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_met_st_fz.csv
+  raw_2023_met_st_fzc:
+    desc: BDS Metro/Non-Metro by State by Firm Size Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_met_st_fzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_met_st_fzc.csv
+  raw_2023_met_st_ifz:
+    desc: BDS Metro/Non-Metro by State by Initial Firm Size, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_met_st_ifz.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_met_st_ifz.csv
+  raw_2023_met_st_ifzc:
+    desc: BDS Metro/Non-Metro by State by Initial Firm Size Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_met_st_ifzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_met_st_ifzc.csv
+  raw_2023_met_st_ea:
+    desc: BDS Metro/Non-Metro by State by Establishment Age, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_met_st_ea.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_met_st_ea.csv
+  raw_2023_met_st_eac:
+    desc: BDS Metro/Non-Metro by State by Establishment Age Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_met_st_eac.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_met_st_eac.csv
+  raw_2023_st_met_sec:
+    desc: BDS State by Metro/Non-Metro by Sector, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_st_met_sec.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_st_met_sec.csv
+  raw_2023_sec_fa_fz:
+    desc: BDS Sector by Firm Age by Firm Size, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_sec_fa_fz.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_sec_fa_fz.csv
+  raw_2023_sec_fac_fzc:
+    desc: BDS Sector by Firm Age Coarse by Firm Size Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_sec_fac_fzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_sec_fac_fzc.csv
+  raw_2023_sec_fa_ifz:
+    desc: BDS Sector by Firm Age by Initial Firm Size, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_sec_fa_ifz.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_sec_fa_ifz.csv
+  raw_2023_sec_fac_ifzc:
+    desc: BDS Sector by Firm Age Coarse by Initial Firm Size Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_sec_fac_ifzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_sec_fac_ifzc.csv
+  raw_2023_st_met_sec_fa:
+    desc: BDS State by Metro/Non-Metro by Sector by Firm Age, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_st_met_sec_fa.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_st_met_sec_fa.csv
+  raw_2023_st_met_sec_fac:
+    desc: BDS State by Metro/Non-Metro by Sector by Firm Age Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_st_met_sec_fac.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_st_met_sec_fac.csv
+  raw_2023_st_met_sec_fz:
+    desc: BDS State by Metro/Non-Metro by Sector by Firm Size, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_st_met_sec_fz.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_st_met_sec_fz.csv
+  raw_2023_st_met_sec_fzc:
+    desc: BDS State by Metro/Non-Metro by Sector by Firm Size Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_st_met_sec_fzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_st_met_sec_fzc.csv
+  raw_2023_st_met_sec_ifz:
+    desc: BDS State by Metro/Non-Metro by Sector by Initial Firm Size, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_st_met_sec_ifz.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_st_met_sec_ifz.csv
+  raw_2023_st_met_sec_ifzc:
+    desc: BDS State by Metro/Non-Metro by Sector by Initial Firm Size Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_st_met_sec_ifzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_st_met_sec_ifzc.csv
+  raw_2023_st_met_sec_ea:
+    desc: BDS State by Metro/Non-Metro by Sector by Establishment Age, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_st_met_sec_ea.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_st_met_sec_ea.csv
+  raw_2023_st_met_sec_eac:
+    desc: BDS State by Metro/Non-Metro by Sector by Establishment Age Coarse, 2023 revision
+    type: raw
+    path: raw/2023/bds2023_st_met_sec_eac.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bds2023_st_met_sec_eac.csv
+  raw_pr2023_st:
+    desc: BDS Puerto Rico (PR) Economy-wide, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_st.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_st.csv
+  raw_pr2023_st_eac:
+    desc: BDS PR by Establishment Age Course, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_st_eac.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_st_eac.csv
+  raw_pr2023_st_ea:
+    desc: BDS PR by Establishment Age, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_st_ea.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_st_ea.csv
+  raw_pr2023_st_ezc:
+    desc: BDS PR by Establishment Size Course, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_st_ezc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_st_ezc.csv
+  raw_pr2023_st_ez:
+    desc: BDS PR by Establishment Size, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_st_ez.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_st_ez.csv
+  raw_pr2023_st_fac:
+    desc: BDS PR by Firm Age Course, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_st_fac.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_st_fac.csv
+  raw_pr2023_st_fa:
+    desc: BDS PR by Firm Age, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_st_fa.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_st_fa.csv
+  raw_pr2023_st_fzc:
+    desc: BDS PR by Firm Size Course, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_st_fzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_st_fzc.csv
+  raw_pr2023_st_fz:
+    desc: BDS PR by Firm Size, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_st_fz.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_st_fz.csv
+  raw_pr2023_st_iezc:
+    desc: BDS PR by Initial Establishment Size Course, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_st_iezc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_st_iezc.csv
+  raw_pr2023_st_iez:
+    desc: BDS PR by Initial Establishment Size, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_st_iez.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_st_iez.csv
+  raw_pr2023_st_ifzc:
+    desc: BDS PR by Initial Firm Size Course, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_st_ifzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_st_ifzc.csv
+  raw_pr2023_st_ifz:
+    desc: BDS PR by Initial Firm Size, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_st_ifz.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_st_ifz.csv
+  raw_pr2023_st_cty:
+    desc: BDS PR County, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_st_cty.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_st_cty.csv
+  raw_pr2023_st_cty_eac:
+    desc: BDS PR County by Establishment Age Course, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_st_cty_eac.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_st_cty_eac.csv
+  raw_pr2023_st_cty_fac:
+    desc: BDS PR County by Firm Age Course, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_st_cty_fac.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_st_cty_fac.csv
+  raw_pr2023_st_cty_fzc:
+    desc: BDS PR County by Firm Size Course, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_st_cty_fzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_st_cty_fzc.csv
+  raw_pr2023_st_cty_ifzc:
+    desc: BDS PR County by Initial Firm Size Course, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_st_cty_ifzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_st_cty_ifzc.csv
+  raw_pr2023_st_cty_sec:
+    desc: BDS PR County by Sector, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_st_cty_sec.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_st_cty_sec.csv
+  raw_pr2023_st_met:
+    desc: BDS PR by Metro/Non-Metro, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_st_met.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_st_met.csv
+  raw_pr2023_st_met_sec:
+    desc: BDS PR by Metro/Non-Metro by Sector, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_st_met_sec.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_st_met_sec.csv
+  raw_pr2023_st_met_sec_eac:
+    desc: BDS PR by Metro/Non-Metro by Sector by Establishment Age Course, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_st_met_sec_eac.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_st_met_sec_eac.csv
+  raw_pr2023_st_met_sec_ea:
+    desc: BDS PR by Metro/Non-Metro by Sector by Establishment Age, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_st_met_sec_ea.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_st_met_sec_ea.csv
+  raw_pr2023_st_met_sec_fac:
+    desc: BDS PR by Metro/Non-Metro by Sector by Firm Age Course, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_st_met_sec_fac.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_st_met_sec_fac.csv
+  raw_pr2023_st_met_sec_fa:
+    desc: BDS PR by Metro/Non-Metro by Sector by Firm Age, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_st_met_sec_fa.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_st_met_sec_fa.csv
+  raw_pr2023_st_met_sec_fzc:
+    desc: BDS PR by Metro/Non-Metro by Sector by Firm Size Course, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_st_met_sec_fzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_st_met_sec_fzc.csv
+  raw_pr2023_st_met_sec_fz:
+    desc: BDS PR by Metro/Non-Metro by Sector by Firm Size, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_st_met_sec_fz.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_st_met_sec_fz.csv
+  raw_pr2023_st_met_sec_ifzc:
+    desc: BDS PR by Metro/Non-Metro by Sector by Initial Firm Size Course, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_st_met_sec_ifzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_st_met_sec_ifzc.csv
+  raw_pr2023_st_met_sec_ifz:
+    desc: BDS PR by Metro/Non-Metro by Sector by Initial Firm Size, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_st_met_sec_ifz.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_st_met_sec_ifz.csv
+  raw_pr2023_st_sec:
+    desc: BDS PR by Sector, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_st_sec.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_st_sec.csv
+  raw_pr2023_st_sec_eac:
+    desc: BDS PR by Sector by Establishment Age Course, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_st_sec_eac.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_st_sec_eac.csv
+  raw_pr2023_st_sec_ea:
+    desc: BDS PR by Sector by Establishment Age, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_st_sec_ea.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_st_sec_ea.csv
+  raw_pr2023_st_sec_fac:
+    desc: BDS PR by Sector by Firm Age Course, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_st_sec_fac.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_st_sec_fac.csv
+  raw_pr2023_st_sec_fa:
+    desc: BDS PR by Sector by Firm Age, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_st_sec_fa.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_st_sec_fa.csv
+  raw_pr2023_st_sec_fzc:
+    desc: BDS PR by Sector by Firm Size Course, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_st_sec_fzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_st_sec_fzc.csv
+  raw_pr2023_st_sec_fz:
+    desc: BDS PR by Sector by Firm Size, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_st_sec_fz.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_st_sec_fz.csv
+  raw_pr2023_st_sec_ifzc:
+    desc: BDS PR by Sector by Initial Firm Size Course, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_st_sec_ifzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_st_sec_ifzc.csv
+  raw_pr2023_st_sec_ifz:
+    desc: BDS PR by Sector by Initial Firm Size, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_st_sec_ifz.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_st_sec_ifz.csv
+  raw_pr2023_met_st_eac:
+    desc: BDS Metro/Non-Metro by PR by Establishment Age Course, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_met_st_eac.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_met_st_eac.csv
+  raw_pr2023_met_st_ea:
+    desc: BDS Metro/Non-Metro by PR by Establishment Age, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_met_st_ea.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_met_st_ea.csv
+  raw_pr2023_met_st_fac:
+    desc: BDS Metro/Non-Metro by PR by Firm Age Course, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_met_st_fac.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_met_st_fac.csv
+  raw_pr2023_met_st_fa:
+    desc: BDS Metro/Non-Metro by PR by Firm Age, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_met_st_fa.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_met_st_fa.csv
+  raw_pr2023_met_st_fzc:
+    desc: BDS Metro/Non-Metro by PR by Firm Size Course, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_met_st_fzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_met_st_fzc.csv
+  raw_pr2023_met_st_fz:
+    desc: BDS Metro/Non-Metro by PR by Firm Size, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_met_st_fz.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_met_st_fz.csv
+  raw_pr2023_met_st_ifzc:
+    desc: BDS Metro/Non-Metro by PR by Initial Firm Size Course, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_met_st_ifzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_met_st_ifzc.csv
+  raw_pr2023_met_st_ifz:
+    desc: BDS Metro/Non-Metro by PR by Initial Firm Size, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_met_st_ifz.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_met_st_ifz.csv
+  raw_pr2023_msa:
+    desc: BDS PR MSA, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_msa.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_msa.csv
+  raw_pr2023_msa_eac:
+    desc: BDS PR MSA by Establishment Age Course, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_msa_eac.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_msa_eac.csv
+  raw_pr2023_msa_fac:
+    desc: BDS PR MSA by Firm Age Course, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_msa_fac.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_msa_fac.csv
+  raw_pr2023_msa_fzc:
+    desc: BDS PR MSA by Firm Size Course, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_msa_fzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_msa_fzc.csv
+  raw_pr2023_msa_ifzc:
+    desc: BDS PR MSA by Initial Firm Size Course, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_msa_ifzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_msa_ifzc.csv
+  raw_pr2023_msa_sec:
+    desc: BDS PR MSA by Sector, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_msa_sec.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_msa_sec.csv
+  raw_pr2023_msa_sec_eac:
+    desc: BDS PR MSA by Sector by Establishment Age Course, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_msa_sec_eac.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_msa_sec_eac.csv
+  raw_pr2023_msa_sec_fac:
+    desc: BDS PR MSA by Sector by Firm Age Course, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_msa_sec_fac.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_msa_sec_fac.csv
+  raw_pr2023_msa_sec_fzc:
+    desc: BDS PR MSA by Sector by Firm Size Course, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_msa_sec_fzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_msa_sec_fzc.csv
+  raw_pr2023_msa_sec_ifzc:
+    desc: BDS PR MSA by Sector by Initial Firm Size Course, 2023 revision
+    type: raw
+    path: raw/2023/bdspr2023_msa_sec_ifzc.csv
+    url: https://www2.census.gov/programs-surveys/bds/tables/time-series/2023/bdspr2023_msa_sec_ifzc.csv
+
+## 2023 revision processed
+  "2023":
+    mask: "{revision}"
+    desc: "BDS Economy-wide, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}.pq"
+    depends: "raw_{revision}"
+    schema:
+      <<: [*schema_year, *schema_core]
+  2023_fa:
+    mask: "{revision}_fa"
+    desc: "BDS Firm Age, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_fa.pq"
+    depends: "raw_{revision}_fa"
+    schema:
+      <<: [*schema_year, *schema_fa, *schema_core]
+  2023_fac:
+    mask: "{revision}_fac"
+    desc: "BDS Firm Age Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_fac.pq"
+    depends: "raw_{revision}_fac"
+    schema:
+      <<: [*schema_year, *schema_fac, *schema_core]
+  2023_ea:
+    mask: "{revision}_ea"
+    desc: "BDS Establishment Age, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_ea.pq"
+    depends: "raw_{revision}_ea"
+    schema:
+      <<: [*schema_year, *schema_ea, *schema_core]
+  2023_eac:
+    mask: "{revision}_eac"
+    desc: "BDS Establishment Age Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_eac.pq"
+    depends: "raw_{revision}_eac"
+    schema:
+      <<: [*schema_year, *schema_eac, *schema_core]
+  2023_fz:
+    mask: "{revision}_fz"
+    desc: "BDS Firm Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_fz.pq"
+    depends: "raw_{revision}_fz"
+    schema:
+      <<: [*schema_year, *schema_fz, *schema_core]
+  2023_fzc:
+    mask: "{revision}_fzc"
+    desc: "BDS Firm Size Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_fzc.pq"
+    depends: "raw_{revision}_fzc"
+    schema:
+      <<: [*schema_year, *schema_fzc, *schema_core]
+  2023_ez:
+    mask: "{revision}_ez"
+    desc: "BDS Establishment Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_ez.pq"
+    depends: "raw_{revision}_ez"
+    schema:
+      <<: [*schema_year, *schema_ez, *schema_core]
+  2023_ezc:
+    mask: "{revision}_ezc"
+    desc: "BDS Establishment Size Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_ezc.pq"
+    depends: "raw_{revision}_ezc"
+    schema:
+      <<: [*schema_year, *schema_ezc, *schema_core]
+  2023_ifz:
+    mask: "{revision}_ifz"
+    desc: "BDS Initial Firm Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_ifz.pq"
+    depends: "raw_{revision}_ifz"
+    schema:
+      <<: [*schema_year, *schema_ifz, *schema_core]
+  2023_ifzc:
+    mask: "{revision}_ifzc"
+    desc: "BDS Initial Firm Size Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_ifzc.pq"
+    depends: "raw_{revision}_ifzc"
+    schema:
+      <<: [*schema_year, *schema_ifzc, *schema_core]
+  2023_iez:
+    mask: "{revision}_iez"
+    desc: "BDS Initial Establishment Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_iez.pq"
+    depends: "raw_{revision}_iez"
+    schema:
+      <<: [*schema_year, *schema_iez, *schema_core]
+  2023_iezc:
+    mask: "{revision}_iezc"
+    desc: "BDS Initial Establishment Size Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_iezc.pq"
+    depends: "raw_{revision}_iezc"
+    schema:
+      <<: [*schema_year, *schema_iezc, *schema_core]
+  2023_met:
+    mask: "{revision}_met"
+    desc: "BDS Metro/Non-Metro, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_met.pq"
+    depends: "raw_{revision}_met"
+    schema:
+      <<: [*schema_year, *schema_met, *schema_core]
+  2023_st:
+    mask: "{revision}_st"
+    desc: "BDS State, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_st.pq"
+    depends: "raw_{revision}_st"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_core]
+  2023_st_cty:
+    mask: "{revision}_st_cty"
+    desc: "BDS County, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_st_cty.pq"
+    depends: "raw_{revision}_st_cty"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_cty, *schema_core]
+  2023_msa:
+    mask: "{revision}_msa"
+    desc: "BDS MSA, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_msa.pq"
+    depends: "raw_{revision}_msa"
+    schema:
+      <<: [*schema_year, *schema_msa, *schema_core]
+  2023_sec:
+    mask: "{revision}_sec"
+    desc: "BDS Sector, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_sec.pq"
+    depends: "raw_{revision}_sec"
+    schema:
+      <<: [*schema_year, *schema_sec, *schema_core]
+  2023_vcn3:
+    mask: "{revision}_vcn3"
+    desc: "BDS 3-digit NAICS, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_vcn3.pq"
+    depends: "raw_{revision}_vcn3"
+    schema:
+      <<: [*schema_year, *schema_vcn3, *schema_core]
+  2023_vcn4:
+    mask: "{revision}_vcn4"
+    desc: "BDS 4-digit NAICS, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_vcn4.pq"
+    depends: "raw_{revision}_vcn4"
+    schema:
+      <<: [*schema_year, *schema_vcn4, *schema_core]
+  2023_fa_fz:
+    mask: "{revision}_fa_fz"
+    desc: "BDS Firm Age by Firm Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_fa_fz.pq"
+    depends: "raw_{revision}_fa_fz"
+    schema:
+      <<: [*schema_year, *schema_fa, *schema_fz, *schema_core]
+  2023_fac_fzc:
+    mask: "{revision}_fac_fzc"
+    desc: "BDS Firm Age Coarse by Firm Size Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_fac_fzc.pq"
+    depends: "raw_{revision}_fac_fzc"
+    schema:
+      <<: [*schema_year, *schema_fac, *schema_fzc, *schema_core]
+  2023_fa_ifz:
+    mask: "{revision}_fa_ifz"
+    desc: "BDS Firm Age by Initial Firm Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_fa_ifz.pq"
+    depends: "raw_{revision}_fa_ifz"
+    schema:
+      <<: [*schema_year, *schema_fa, *schema_ifz, *schema_core]
+  2023_fac_ifzc:
+    mask: "{revision}_fac_ifzc"
+    desc: "BDS Firm Age Coarse by Initial Firm Size Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_fac_ifzc.pq"
+    depends: "raw_{revision}_fac_ifzc"
+    schema:
+      <<: [*schema_year, *schema_fac, *schema_ifzc, *schema_core]
+  2023_ea_ez:
+    mask: "{revision}_ea_ez"
+    desc: "BDS Establishment Age by Establishment Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_ea_ez.pq"
+    depends: "raw_{revision}_ea_ez"
+    schema:
+      <<: [*schema_year, *schema_ea, *schema_ez, *schema_core]
+  2023_eac_ezc:
+    mask: "{revision}_eac_ezc"
+    desc: "BDS Establishment Age Coarse by Establishment Size Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_eac_ezc.pq"
+    depends: "raw_{revision}_eac_ezc"
+    schema:
+      <<: [*schema_year, *schema_eac, *schema_ezc, *schema_core]
+  2023_ea_iez:
+    mask: "{revision}_ea_iez"
+    desc: "BDS Establishment Age by Initial Establishment Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_ea_iez.pq"
+    depends: "raw_{revision}_ea_iez"
+    schema:
+      <<: [*schema_year, *schema_ea, *schema_iez, *schema_core]
+  2023_eac_iezc:
+    mask: "{revision}_eac_iezc"
+    desc: "BDS Establishment Age Coarse by Initial Establishment Size Coarse, {revision}
+      revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_eac_iezc.pq"
+    depends: "raw_{revision}_eac_iezc"
+    schema:
+      <<: [*schema_year, *schema_eac, *schema_iezc, *schema_core]
+  2023_st_sec:
+    mask: "{revision}_st_sec"
+    desc: "BDS State by Sector, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_st_sec.pq"
+    depends: "raw_{revision}_st_sec"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_sec, *schema_core]
+  2023_st_met:
+    mask: "{revision}_st_met"
+    desc: "BDS State by Metro/Non-Metro, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_st_met.pq"
+    depends: "raw_{revision}_st_met"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_met, *schema_core]
+  2023_st_fa:
+    mask: "{revision}_st_fa"
+    desc: "BDS State by Firm Age, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_st_fa.pq"
+    depends: "raw_{revision}_st_fa"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_fa, *schema_core]
+  2023_st_fac:
+    mask: "{revision}_st_fac"
+    desc: "BDS State by Firm Age Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_st_fac.pq"
+    depends: "raw_{revision}_st_fac"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_fac, *schema_core]
+  2023_st_fz:
+    mask: "{revision}_st_fz"
+    desc: "BDS State by Firm Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_st_fz.pq"
+    depends: "raw_{revision}_st_fz"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_fz, *schema_core]
+  2023_st_fzc:
+    mask: "{revision}_st_fzc"
+    desc: "BDS State by Firm Size Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_st_fzc.pq"
+    depends: "raw_{revision}_st_fzc"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_fzc, *schema_core]
+  2023_st_ifz:
+    mask: "{revision}_st_ifz"
+    desc: "BDS State by Initial Firm Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_st_ifz.pq"
+    depends: "raw_{revision}_st_ifz"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_ifz, *schema_core]
+  2023_st_ifzc:
+    mask: "{revision}_st_ifzc"
+    desc: "BDS State by Initial Firm Size Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_st_ifzc.pq"
+    depends: "raw_{revision}_st_ifzc"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_ifzc, *schema_core]
+  2023_st_ea:
+    mask: "{revision}_st_ea"
+    desc: "BDS State by Establishment Age, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_st_ea.pq"
+    depends: "raw_{revision}_st_ea"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_ea, *schema_core]
+  2023_st_eac:
+    mask: "{revision}_st_eac"
+    desc: "BDS State by Establishment Age Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_st_eac.pq"
+    depends: "raw_{revision}_st_eac"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_eac, *schema_core]
+  2023_st_ez:
+    mask: "{revision}_st_ez"
+    desc: "BDS State by Establishment Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_st_ez.pq"
+    depends: "raw_{revision}_st_ez"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_ez, *schema_core]
+  2023_st_ezc:
+    mask: "{revision}_st_ezc"
+    desc: "BDS State by Establishment Size Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_st_ezc.pq"
+    depends: "raw_{revision}_st_ezc"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_ezc, *schema_core]
+  2023_st_iez:
+    mask: "{revision}_st_iez"
+    desc: "BDS State by Initial Establishment Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_st_iez.pq"
+    depends: "raw_{revision}_st_iez"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_iez, *schema_core]
+  2023_st_iezc:
+    mask: "{revision}_st_iezc"
+    desc: "BDS State by Initial Establishment Size Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_st_iezc.pq"
+    depends: "raw_{revision}_st_iezc"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_iezc, *schema_core]
+  2023_sec_fa:
+    mask: "{revision}_sec_fa"
+    desc: "BDS Sector by Firm Age, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_sec_fa.pq"
+    depends: "raw_{revision}_sec_fa"
+    schema:
+      <<: [*schema_year, *schema_sec, *schema_fa, *schema_core]
+  2023_sec_fac:
+    mask: "{revision}_sec_fac"
+    desc: "BDS Sector by Firm Age Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_sec_fac.pq"
+    depends: "raw_{revision}_sec_fac"
+    schema:
+      <<: [*schema_year, *schema_sec, *schema_fac, *schema_core]
+  2023_sec_fz:
+    mask: "{revision}_sec_fz"
+    desc: "BDS Sector by Firm Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_sec_fz.pq"
+    depends: "raw_{revision}_sec_fz"
+    schema:
+      <<: [*schema_year, *schema_sec, *schema_fz, *schema_core]
+  2023_sec_fzc:
+    mask: "{revision}_sec_fzc"
+    desc: "BDS Sector by Firm Size Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_sec_fzc.pq"
+    depends: "raw_{revision}_sec_fzc"
+    schema:
+      <<: [*schema_year, *schema_sec, *schema_fzc, *schema_core]
+  2023_sec_ifz:
+    mask: "{revision}_sec_ifz"
+    desc: "BDS Sector by Initial Firm Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_sec_ifz.pq"
+    depends: "raw_{revision}_sec_ifz"
+    schema:
+      <<: [*schema_year, *schema_sec, *schema_ifz, *schema_core]
+  2023_sec_ifzc:
+    mask: "{revision}_sec_ifzc"
+    desc: "BDS Sector by Initial Firm Size Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_sec_ifzc.pq"
+    depends: "raw_{revision}_sec_ifzc"
+    schema:
+      <<: [*schema_year, *schema_sec, *schema_ifzc, *schema_core]
+  2023_sec_ea:
+    mask: "{revision}_sec_ea"
+    desc: "BDS Sector by Establishment Age, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_sec_ea.pq"
+    depends: "raw_{revision}_sec_ea"
+    schema:
+      <<: [*schema_year, *schema_sec, *schema_ea, *schema_core]
+  2023_sec_eac:
+    mask: "{revision}_sec_eac"
+    desc: "BDS Sector by Establishment Age Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_sec_eac.pq"
+    depends: "raw_{revision}_sec_eac"
+    schema:
+      <<: [*schema_year, *schema_sec, *schema_eac, *schema_core]
+  2023_sec_ez:
+    mask: "{revision}_sec_ez"
+    desc: "BDS Sector by Establishment Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_sec_ez.pq"
+    depends: "raw_{revision}_sec_ez"
+    schema:
+      <<: [*schema_year, *schema_sec, *schema_ez, *schema_core]
+  2023_sec_ezc:
+    mask: "{revision}_sec_ezc"
+    desc: "BDS Sector by Establishment Size Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_sec_ezc.pq"
+    depends: "raw_{revision}_sec_ezc"
+    schema:
+      <<: [*schema_year, *schema_sec, *schema_ezc, *schema_core]
+  2023_sec_iez:
+    mask: "{revision}_sec_iez"
+    desc: "BDS Sector by Initial Establishment Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_sec_iez.pq"
+    depends: "raw_{revision}_sec_iez"
+    schema:
+      <<: [*schema_year, *schema_sec, *schema_iez, *schema_core]
+  2023_sec_iezc:
+    mask: "{revision}_sec_iezc"
+    desc: "BDS Sector by Initial Establishment Size Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_sec_iezc.pq"
+    depends: "raw_{revision}_sec_iezc"
+    schema:
+      <<: [*schema_year, *schema_sec, *schema_iezc, *schema_core]
+  2023_vcn3_fa:
+    mask: "{revision}_vcn3_fa"
+    desc: "BDS 3-digit NAICS by Firm Age, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_vcn3_fa.pq"
+    depends: "raw_{revision}_vcn3_fa"
+    schema:
+      <<: [*schema_year, *schema_vcn3, *schema_fa, *schema_core]
+  2023_vcn3_fac:
+    mask: "{revision}_vcn3_fac"
+    desc: "BDS 3-digit NAICS by Firm Age Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_vcn3_fac.pq"
+    depends: "raw_{revision}_vcn3_fac"
+    schema:
+      <<: [*schema_year, *schema_vcn3, *schema_fac, *schema_core]
+  2023_vcn3_fz:
+    mask: "{revision}_vcn3_fz"
+    desc: "BDS 3-digit NAICS by Firm Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_vcn3_fz.pq"
+    depends: "raw_{revision}_vcn3_fz"
+    schema:
+      <<: [*schema_year, *schema_vcn3, *schema_fz, *schema_core]
+  2023_vcn3_fzc:
+    mask: "{revision}_vcn3_fzc"
+    desc: "BDS 3-digit NAICS by Firm Size Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_vcn3_fzc.pq"
+    depends: "raw_{revision}_vcn3_fzc"
+    schema:
+      <<: [*schema_year, *schema_vcn3, *schema_fzc, *schema_core]
+  2023_vcn3_ifz:
+    mask: "{revision}_vcn3_ifz"
+    desc: "BDS 3-digit NAICS by Initial Firm Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_vcn3_ifz.pq"
+    depends: "raw_{revision}_vcn3_ifz"
+    schema:
+      <<: [*schema_year, *schema_vcn3, *schema_ifz, *schema_core]
+  2023_vcn3_ifzc:
+    mask: "{revision}_vcn3_ifzc"
+    desc: "BDS 3-digit NAICS by Initial Firm Size Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_vcn3_ifzc.pq"
+    depends: "raw_{revision}_vcn3_ifzc"
+    schema:
+      <<: [*schema_year, *schema_vcn3, *schema_ifzc, *schema_core]
+  2023_vcn3_ea:
+    mask: "{revision}_vcn3_ea"
+    desc: "BDS 3-digit NAICS by Establishment Age, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_vcn3_ea.pq"
+    depends: "raw_{revision}_vcn3_ea"
+    schema:
+      <<: [*schema_year, *schema_vcn3, *schema_ea, *schema_core]
+  2023_vcn3_eac:
+    mask: "{revision}_vcn3_eac"
+    desc: "BDS 3-digit NAICS by Establishment Age Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_vcn3_eac.pq"
+    depends: "raw_{revision}_vcn3_eac"
+    schema:
+      <<: [*schema_year, *schema_vcn3, *schema_eac, *schema_core]
+  2023_vcn4_fa:
+    mask: "{revision}_vcn4_fa"
+    desc: "BDS 4-digit NAICS by Firm Age, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_vcn4_fa.pq"
+    depends: "raw_{revision}_vcn4_fa"
+    schema:
+      <<: [*schema_year, *schema_vcn4, *schema_fa, *schema_core]
+  2023_vcn4_fac:
+    mask: "{revision}_vcn4_fac"
+    desc: "BDS 4-digit NAICS by Firm Age Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_vcn4_fac.pq"
+    depends: "raw_{revision}_vcn4_fac"
+    schema:
+      <<: [*schema_year, *schema_vcn4, *schema_fac, *schema_core]
+  2023_vcn4_fz:
+    mask: "{revision}_vcn4_fz"
+    desc: "BDS 4-digit NAICS by Firm Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_vcn4_fz.pq"
+    depends: "raw_{revision}_vcn4_fz"
+    schema:
+      <<: [*schema_year, *schema_vcn4, *schema_fz, *schema_core]
+  2023_vcn4_fzc:
+    mask: "{revision}_vcn4_fzc"
+    desc: "BDS 4-digit NAICS by Firm Size Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_vcn4_fzc.pq"
+    depends: "raw_{revision}_vcn4_fzc"
+    schema:
+      <<: [*schema_year, *schema_vcn4, *schema_fzc, *schema_core]
+  2023_vcn4_ifz:
+    mask: "{revision}_vcn4_ifz"
+    desc: "BDS 4-digit NAICS by Initial Firm Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_vcn4_ifz.pq"
+    depends: "raw_{revision}_vcn4_ifz"
+    schema:
+      <<: [*schema_year, *schema_vcn4, *schema_ifz, *schema_core]
+  2023_vcn4_ifzc:
+    mask: "{revision}_vcn4_ifzc"
+    desc: "BDS 4-digit NAICS by Initial Firm Size Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_vcn4_ifzc.pq"
+    depends: "raw_{revision}_vcn4_ifzc"
+    schema:
+      <<: [*schema_year, *schema_vcn4, *schema_ifzc, *schema_core]
+  2023_vcn4_ea:
+    mask: "{revision}_vcn4_ea"
+    desc: "BDS 4-digit NAICS by Establishment Age, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_vcn4_ea.pq"
+    depends: "raw_{revision}_vcn4_ea"
+    schema:
+      <<: [*schema_year, *schema_vcn4, *schema_ea, *schema_core]
+  2023_vcn4_eac:
+    mask: "{revision}_vcn4_eac"
+    desc: "BDS 4-digit NAICS by Establishment Age Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_vcn4_eac.pq"
+    depends: "raw_{revision}_vcn4_eac"
+    schema:
+      <<: [*schema_year, *schema_vcn4, *schema_eac, *schema_core]
+  2023_met_fa:
+    mask: "{revision}_met_fa"
+    desc: "BDS Metro/Non-Metro by Firm Age, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_met_fa.pq"
+    depends: "raw_{revision}_met_fa"
+    schema:
+      <<: [*schema_year, *schema_met, *schema_fa, *schema_core]
+  2023_met_fac:
+    mask: "{revision}_met_fac"
+    desc: "BDS Metro/Non-Metro by Firm Age Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_met_fac.pq"
+    depends: "raw_{revision}_met_fac"
+    schema:
+      <<: [*schema_year, *schema_met, *schema_fac, *schema_core]
+  2023_met_fz:
+    mask: "{revision}_met_fz"
+    desc: "BDS Metro/Non-Metro by Firm Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_met_fz.pq"
+    depends: "raw_{revision}_met_fz"
+    schema:
+      <<: [*schema_year, *schema_met, *schema_fz, *schema_core]
+  2023_met_fzc:
+    mask: "{revision}_met_fzc"
+    desc: "BDS Metro/Non-Metro by Firm Size Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_met_fzc.pq"
+    depends: "raw_{revision}_met_fzc"
+    schema:
+      <<: [*schema_year, *schema_met, *schema_fzc, *schema_core]
+  2023_met_ifz:
+    mask: "{revision}_met_ifz"
+    desc: "BDS Metro/Non-Metro by Initial Firm Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_met_ifz.pq"
+    depends: "raw_{revision}_met_ifz"
+    schema:
+      <<: [*schema_year, *schema_met, *schema_ifz, *schema_core]
+  2023_met_ifzc:
+    mask: "{revision}_met_ifzc"
+    desc: "BDS Metro/Non-Metro by Initial Firm Size Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_met_ifzc.pq"
+    depends: "raw_{revision}_met_ifzc"
+    schema:
+      <<: [*schema_year, *schema_met, *schema_ifzc, *schema_core]
+  2023_met_ea:
+    mask: "{revision}_met_ea"
+    desc: "BDS Metro/Non-Metro by Establishment Age, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_met_ea.pq"
+    depends: "raw_{revision}_met_ea"
+    schema:
+      <<: [*schema_year, *schema_met, *schema_ea, *schema_core]
+  2023_met_eac:
+    mask: "{revision}_met_eac"
+    desc: "BDS Metro/Non-Metro by Establishment Age Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_met_eac.pq"
+    depends: "raw_{revision}_met_eac"
+    schema:
+      <<: [*schema_year, *schema_met, *schema_eac, *schema_core]
+  2023_met_ez:
+    mask: "{revision}_met_ez"
+    desc: "BDS Metro/Non-Metro by Establishment Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_met_ez.pq"
+    depends: "raw_{revision}_met_ez"
+    schema:
+      <<: [*schema_year, *schema_met, *schema_ez, *schema_core]
+  2023_met_ezc:
+    mask: "{revision}_met_ezc"
+    desc: "BDS Metro/Non-Metro by Establishment Size Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_met_ezc.pq"
+    depends: "raw_{revision}_met_ezc"
+    schema:
+      <<: [*schema_year, *schema_met, *schema_ezc, *schema_core]
+  2023_met_iez:
+    mask: "{revision}_met_iez"
+    desc: "BDS Metro/Non-Metro by Initial Establishment Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_met_iez.pq"
+    depends: "raw_{revision}_met_iez"
+    schema:
+      <<: [*schema_year, *schema_met, *schema_iez, *schema_core]
+  2023_met_iezc:
+    mask: "{revision}_met_iezc"
+    desc: "BDS Metro/Non-Metro by Initial Establishment Size Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_met_iezc.pq"
+    depends: "raw_{revision}_met_iezc"
+    schema:
+      <<: [*schema_year, *schema_met, *schema_iezc, *schema_core]
+  2023_met_sec:
+    mask: "{revision}_met_sec"
+    desc: "BDS Metro/Non-Metro by NAICS Sector, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_met_sec.pq"
+    depends: "raw_{revision}_met_sec"
+    schema:
+      <<: [*schema_year, *schema_met, *schema_sec, *schema_core]
+  2023_msa_fac:
+    mask: "{revision}_msa_fac"
+    desc: "BDS MSA by Firm Age Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_msa_fac.pq"
+    depends: "raw_{revision}_msa_fac"
+    schema:
+      <<: [*schema_year, *schema_msa, *schema_fac, *schema_core]
+  2023_msa_fzc:
+    mask: "{revision}_msa_fzc"
+    desc: "BDS MSA by Firm Size Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_msa_fzc.pq"
+    depends: "raw_{revision}_msa_fzc"
+    schema:
+      <<: [*schema_year, *schema_msa, *schema_fzc, *schema_core]
+  2023_msa_ifzc:
+    mask: "{revision}_msa_ifzc"
+    desc: "BDS MSA by Initial Firm Size Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_msa_ifzc.pq"
+    depends: "raw_{revision}_msa_ifzc"
+    schema:
+      <<: [*schema_year, *schema_msa, *schema_ifzc, *schema_core]
+  2023_msa_eac:
+    mask: "{revision}_msa_eac"
+    desc: "BDS MSA by Establishment Age Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_msa_eac.pq"
+    depends: "raw_{revision}_msa_eac"
+    schema:
+      <<: [*schema_year, *schema_msa, *schema_eac, *schema_core]
+  2023_msa_sec:
+    mask: "{revision}_msa_sec"
+    desc: "BDS MSA by Sector, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_msa_sec.pq"
+    depends: "raw_{revision}_msa_sec"
+    schema:
+      <<: [*schema_year, *schema_msa, *schema_sec, *schema_core]
+  2023_st_cty_fac:
+    mask: "{revision}_st_cty_fac"
+    desc: "BDS County by Firm Age Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_st_cty_fac.pq"
+    depends: "raw_{revision}_st_cty_fac"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_cty, *schema_fac, *schema_core]
+  2023_st_cty_fzc:
+    mask: "{revision}_st_cty_fzc"
+    desc: "BDS County by Firm Size Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_st_cty_fzc.pq"
+    depends: "raw_{revision}_st_cty_fzc"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_cty, *schema_fzc, *schema_core]
+  2023_st_cty_ifzc:
+    mask: "{revision}_st_cty_ifzc"
+    desc: "BDS County by Initial Firm Size Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_st_cty_ifzc.pq"
+    depends: "raw_{revision}_st_cty_ifzc"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_cty, *schema_ifzc, *schema_core]
+  2023_st_cty_eac:
+    mask: "{revision}_st_cty_eac"
+    desc: "BDS County by Establishment Age Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_st_cty_eac.pq"
+    depends: "raw_{revision}_st_cty_eac"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_cty, *schema_eac, *schema_core]
+  2023_st_cty_sec:
+    mask: "{revision}_st_cty_sec"
+    desc: "BDS County by Sector, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_st_cty_sec.pq"
+    depends: "raw_{revision}_st_cty_sec"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_cty, *schema_sec, *schema_core]
+  2023_msa_sec_fac:
+    mask: "{revision}_msa_sec_fac"
+    desc: "BDS MSA by Sector by Firm Age Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_msa_sec_fac.pq"
+    depends: "raw_{revision}_msa_sec_fac"
+    schema:
+      <<: [*schema_year, *schema_msa, *schema_sec, *schema_fac, *schema_core]
+  2023_msa_sec_fzc:
+    mask: "{revision}_msa_sec_fzc"
+    desc: "BDS MSA by Sector by Firm Size Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_msa_sec_fzc.pq"
+    depends: "raw_{revision}_msa_sec_fzc"
+    schema:
+      <<: [*schema_year, *schema_msa, *schema_sec, *schema_fzc, *schema_core]
+  2023_msa_sec_ifzc:
+    mask: "{revision}_msa_sec_ifzc"
+    desc: "BDS MSA by Sector by Initial Firm Size Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_msa_sec_ifzc.pq"
+    depends: "raw_{revision}_msa_sec_ifzc"
+    schema:
+      <<: [*schema_year, *schema_msa, *schema_sec, *schema_ifzc, *schema_core]
+  2023_msa_sec_eac:
+    mask: "{revision}_msa_sec_eac"
+    desc: "BDS MSA by Sector by Establishment Age Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_msa_sec_eac.pq"
+    depends: "raw_{revision}_msa_sec_eac"
+    schema:
+      <<: [*schema_year, *schema_msa, *schema_sec, *schema_eac, *schema_core]
+  2023_st_sec_fa:
+    mask: "{revision}_st_sec_fa"
+    desc: "BDS State by Sector by Firm Age, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_st_sec_fa.pq"
+    depends: "raw_{revision}_st_sec_fa"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_sec, *schema_fa, *schema_core]
+  2023_st_sec_fac:
+    mask: "{revision}_st_sec_fac"
+    desc: "BDS State by Sector by Firm Age Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_st_sec_fac.pq"
+    depends: "raw_{revision}_st_sec_fac"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_sec, *schema_fac, *schema_core]
+  2023_st_sec_fz:
+    mask: "{revision}_st_sec_fz"
+    desc: "BDS State by Sector by Firm Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_st_sec_fz.pq"
+    depends: "raw_{revision}_st_sec_fz"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_sec, *schema_fz, *schema_core]
+  2023_st_sec_fzc:
+    mask: "{revision}_st_sec_fzc"
+    desc: "BDS State by Sector by Firm Size Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_st_sec_fzc.pq"
+    depends: "raw_{revision}_st_sec_fzc"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_sec, *schema_fzc, *schema_core]
+  2023_st_sec_ifz:
+    mask: "{revision}_st_sec_ifz"
+    desc: "BDS State by Sector by Initial Firm Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_st_sec_ifz.pq"
+    depends: "raw_{revision}_st_sec_ifz"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_sec, *schema_ifz, *schema_core]
+  2023_st_sec_ifzc:
+    mask: "{revision}_st_sec_ifzc"
+    desc: "BDS State by Sector by Initial Firm Size Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_st_sec_ifzc.pq"
+    depends: "raw_{revision}_st_sec_ifzc"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_sec, *schema_ifzc, *schema_core]
+  2023_st_sec_ea:
+    mask: "{revision}_st_sec_ea"
+    desc: "BDS State by Sector by Establishment Age, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_st_sec_ea.pq"
+    depends: "raw_{revision}_st_sec_ea"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_sec, *schema_ea, *schema_core]
+  2023_st_sec_eac:
+    mask: "{revision}_st_sec_eac"
+    desc: "BDS State by Sector by Establishment Age Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_st_sec_eac.pq"
+    depends: "raw_{revision}_st_sec_eac"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_sec, *schema_eac, *schema_core]
+  2023_met_sec_fa:
+    mask: "{revision}_met_sec_fa"
+    desc: "BDS Metro/Non-Metro by Sector by Firm Age, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_met_sec_fa.pq"
+    depends: "raw_{revision}_met_sec_fa"
+    schema:
+      <<: [*schema_year, *schema_met, *schema_sec, *schema_fa, *schema_core]
+  2023_met_sec_fac:
+    mask: "{revision}_met_sec_fac"
+    desc: "BDS Metro/Non-Metro by Sector by Firm Age Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_met_sec_fac.pq"
+    depends: "raw_{revision}_met_sec_fac"
+    schema:
+      <<: [*schema_year, *schema_met, *schema_sec, *schema_fac, *schema_core]
+  2023_met_sec_fz:
+    mask: "{revision}_met_sec_fz"
+    desc: "BDS Metro/Non-Metro by Sector by Firm Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_met_sec_fz.pq"
+    depends: "raw_{revision}_met_sec_fz"
+    schema:
+      <<: [*schema_year, *schema_met, *schema_sec, *schema_fz, *schema_core]
+  2023_met_sec_fzc:
+    mask: "{revision}_met_sec_fzc"
+    desc: "BDS Metro/Non-Metro by Sector by Firm Size Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_met_sec_fzc.pq"
+    depends: "raw_{revision}_met_sec_fzc"
+    schema:
+      <<: [*schema_year, *schema_met, *schema_sec, *schema_fzc, *schema_core]
+  2023_met_sec_ifz:
+    mask: "{revision}_met_sec_ifz"
+    desc: "BDS Metro/Non-Metro by Sector by Initial Firm Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_met_sec_ifz.pq"
+    depends: "raw_{revision}_met_sec_ifz"
+    schema:
+      <<: [*schema_year, *schema_met, *schema_sec, *schema_ifz, *schema_core]
+  2023_met_sec_ifzc:
+    mask: "{revision}_met_sec_ifzc"
+    desc: "BDS Metro/Non-Metro by Sector by Initial Firm Size Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_met_sec_ifzc.pq"
+    depends: "raw_{revision}_met_sec_ifzc"
+    schema:
+      <<: [*schema_year, *schema_met, *schema_sec, *schema_ifzc, *schema_core]
+  2023_met_sec_ea:
+    mask: "{revision}_met_sec_ea"
+    desc: "BDS Metro/Non-Metro by Sector by Establishment Age, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_met_sec_ea.pq"
+    depends: "raw_{revision}_met_sec_ea"
+    schema:
+      <<: [*schema_year, *schema_met, *schema_sec, *schema_ea, *schema_core]
+  2023_met_sec_eac:
+    mask: "{revision}_met_sec_eac"
+    desc: "BDS Metro/Non-Metro by Sector by Establishment Age Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_met_sec_eac.pq"
+    depends: "raw_{revision}_met_sec_eac"
+    schema:
+      <<: [*schema_year, *schema_met, *schema_sec, *schema_eac, *schema_core]
+  2023_met_st_fa:
+    mask: "{revision}_met_st_fa"
+    desc: "BDS Metro/Non-Metro by State by Firm Age, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_met_st_fa.pq"
+    depends: "raw_{revision}_met_st_fa"
+    schema:
+      <<: [*schema_year, *schema_met, *schema_st, *schema_fa, *schema_core]
+  2023_met_st_fac:
+    mask: "{revision}_met_st_fac"
+    desc: "BDS Metro/Non-Metro by State by Firm Age Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_met_st_fac.pq"
+    depends: "raw_{revision}_met_st_fac"
+    schema:
+      <<: [*schema_year, *schema_met, *schema_st, *schema_fac, *schema_core]
+  2023_met_st_fz:
+    mask: "{revision}_met_st_fz"
+    desc: "BDS Metro/Non-Metro by State by Firm Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_met_st_fz.pq"
+    depends: "raw_{revision}_met_st_fz"
+    schema:
+      <<: [*schema_year, *schema_met, *schema_st, *schema_fz, *schema_core]
+  2023_met_st_fzc:
+    mask: "{revision}_met_st_fzc"
+    desc: "BDS Metro/Non-Metro by State by Firm Size Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_met_st_fzc.pq"
+    depends: "raw_{revision}_met_st_fzc"
+    schema:
+      <<: [*schema_year, *schema_met, *schema_st, *schema_fzc, *schema_core]
+  2023_met_st_ifz:
+    mask: "{revision}_met_st_ifz"
+    desc: "BDS Metro/Non-Metro by State by Initial Firm Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_met_st_ifz.pq"
+    depends: "raw_{revision}_met_st_ifz"
+    schema:
+      <<: [*schema_year, *schema_met, *schema_st, *schema_ifz, *schema_core]
+  2023_met_st_ifzc:
+    mask: "{revision}_met_st_ifzc"
+    desc: "BDS Metro/Non-Metro by State by Initial Firm Size Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_met_st_ifzc.pq"
+    depends: "raw_{revision}_met_st_ifzc"
+    schema:
+      <<: [*schema_year, *schema_met, *schema_st, *schema_ifzc, *schema_core]
+  2023_met_st_ea:
+    mask: "{revision}_met_st_ea"
+    desc: "BDS Metro/Non-Metro by State by Establishment Age, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_met_st_ea.pq"
+    depends: "raw_{revision}_met_st_ea"
+    schema:
+      <<: [*schema_year, *schema_met, *schema_st, *schema_ea, *schema_core]
+  2023_met_st_eac:
+    mask: "{revision}_met_st_eac"
+    desc: "BDS Metro/Non-Metro by State by Establishment Age Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_met_st_eac.pq"
+    depends: "raw_{revision}_met_st_eac"
+    schema:
+      <<: [*schema_year, *schema_met, *schema_st, *schema_eac, *schema_core]
+  2023_st_met_sec:
+    mask: "{revision}_st_met_sec"
+    desc: "BDS State by Metro/Non-Metro by Sector, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_st_met_sec.pq"
+    depends: "raw_{revision}_st_met_sec"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_met, *schema_sec, *schema_core]
+  2023_sec_fa_fz:
+    mask: "{revision}_sec_fa_fz"
+    desc: "BDS Sector by Firm Age by Firm Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_sec_fa_fz.pq"
+    depends: "raw_{revision}_sec_fa_fz"
+    schema:
+      <<: [*schema_year, *schema_sec, *schema_fa, *schema_fz, *schema_core]
+  2023_sec_fac_fzc:
+    mask: "{revision}_sec_fac_fzc"
+    desc: "BDS Sector by Firm Age Coarse by Firm Size Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_sec_fac_fzc.pq"
+    depends: "raw_{revision}_sec_fac_fzc"
+    schema:
+      <<: [*schema_year, *schema_sec, *schema_fac, *schema_fzc, *schema_core]
+  2023_sec_fa_ifz:
+    mask: "{revision}_sec_fa_ifz"
+    desc: "BDS Sector by Firm Age by Initial Firm Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_sec_fa_ifz.pq"
+    depends: "raw_{revision}_sec_fa_ifz"
+    schema:
+      <<: [*schema_year, *schema_sec, *schema_fa, *schema_ifz, *schema_core]
+  2023_sec_fac_ifzc:
+    mask: "{revision}_sec_fac_ifzc"
+    desc: "BDS Sector by Firm Age Coarse by Initial Firm Size Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_sec_fac_ifzc.pq"
+    depends: "raw_{revision}_sec_fac_ifzc"
+    schema:
+      <<: [*schema_year, *schema_sec, *schema_fac, *schema_ifzc, *schema_core]
+  2023_st_met_sec_fa:
+    mask: "{revision}_st_met_sec_fa"
+    desc: "BDS State by Metro/Non-Metro by Sector by Firm Age, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_st_met_sec_fa.pq"
+    depends: "raw_{revision}_st_met_sec_fa"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_met, *schema_sec, *schema_fa, *schema_core]
+  2023_st_met_sec_fac:
+    mask: "{revision}_st_met_sec_fac"
+    desc: "BDS State by Metro/Non-Metro by Sector by Firm Age Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_st_met_sec_fac.pq"
+    depends: "raw_{revision}_st_met_sec_fac"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_met, *schema_sec, *schema_fac, *schema_core]
+  2023_st_met_sec_fz:
+    mask: "{revision}_st_met_sec_fz"
+    desc: "BDS State by Metro/Non-Metro by Sector by Firm Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_st_met_sec_fz.pq"
+    depends: "raw_{revision}_st_met_sec_fz"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_met, *schema_sec, *schema_fz, *schema_core]
+  2023_st_met_sec_fzc:
+    mask: "{revision}_st_met_sec_fzc"
+    desc: "BDS State by Metro/Non-Metro by Sector by Firm Size Coarse, {revision} revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_st_met_sec_fzc.pq"
+    depends: "raw_{revision}_st_met_sec_fzc"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_met, *schema_sec, *schema_fzc, *schema_core]
+  2023_st_met_sec_ifz:
+    mask: "{revision}_st_met_sec_ifz"
+    desc: "BDS State by Metro/Non-Metro by Sector by Initial Firm Size, {revision}
+      revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_st_met_sec_ifz.pq"
+    depends: "raw_{revision}_st_met_sec_ifz"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_met, *schema_sec, *schema_ifz, *schema_core]
+  2023_st_met_sec_ifzc:
+    mask: "{revision}_st_met_sec_ifzc"
+    desc: "BDS State by Metro/Non-Metro by Sector by Initial Firm Size Coarse, {revision}
+      revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_st_met_sec_ifzc.pq"
+    depends: "raw_{revision}_st_met_sec_ifzc"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_met, *schema_sec, *schema_ifzc, *schema_core]
+  2023_st_met_sec_ea:
+    mask: "{revision}_st_met_sec_ea"
+    desc: "BDS State by Metro/Non-Metro by Sector by Establishment Age, {revision}
+      revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_st_met_sec_ea.pq"
+    depends: "raw_{revision}_st_met_sec_ea"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_met, *schema_sec, *schema_ea, *schema_core]
+  2023_st_met_sec_eac:
+    mask: "{revision}_st_met_sec_eac"
+    desc: "BDS State by Metro/Non-Metro by Sector by Establishment Age Coarse, {revision}
+      revision"
+    type: table
+    path: "proc/{revision}/bds{revision}_st_met_sec_eac.pq"
+    depends: "raw_{revision}_st_met_sec_eac"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_met, *schema_sec, *schema_eac, *schema_core]
+  pr2023_st:
+    mask: "pr{revision}_st"
+    desc: "BDS Puerto Rico (PR) Economy-wide, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_st.pq"
+    depends: "raw_pr{revision}_st"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_core]
+  pr2023_st_eac:
+    mask: "pr{revision}_st_eac"
+    desc: "BDS PR by Establishment Age Course, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_st_eac.pq"
+    depends: "raw_pr{revision}_st_eac"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_eac, *schema_core]
+  pr2023_st_ea:
+    mask: "pr{revision}_st_ea"
+    desc: "BDS PR by Establishment Age, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_st_ea.pq"
+    depends: "raw_pr{revision}_st_ea"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_ea, *schema_core]
+  pr2023_st_ezc:
+    mask: "pr{revision}_st_ezc"
+    desc: "BDS PR by Establishment Size Course, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_st_ezc.pq"
+    depends: "raw_pr{revision}_st_ezc"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_ezc, *schema_core]
+  pr2023_st_ez:
+    mask: "pr{revision}_st_ez"
+    desc: "BDS PR by Establishment Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_st_ez.pq"
+    depends: "raw_pr{revision}_st_ez"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_ez, *schema_core]
+  pr2023_st_fac:
+    mask: "pr{revision}_st_fac"
+    desc: "BDS PR by Firm Age Course, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_st_fac.pq"
+    depends: "raw_pr{revision}_st_fac"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_fac, *schema_core]
+  pr2023_st_fa:
+    mask: "pr{revision}_st_fa"
+    desc: "BDS PR by Firm Age, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_st_fa.pq"
+    depends: "raw_pr{revision}_st_fa"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_fa, *schema_core]
+  pr2023_st_fzc:
+    mask: "pr{revision}_st_fzc"
+    desc: "BDS PR by Firm Size Course, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_st_fzc.pq"
+    depends: "raw_pr{revision}_st_fzc"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_fzc, *schema_core]
+  pr2023_st_fz:
+    mask: "pr{revision}_st_fz"
+    desc: "BDS PR by Firm Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_st_fz.pq"
+    depends: "raw_pr{revision}_st_fz"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_fz, *schema_core]
+  pr2023_st_iezc:
+    mask: "pr{revision}_st_iezc"
+    desc: "BDS PR by Initial Establishment Size Course, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_st_iezc.pq"
+    depends: "raw_pr{revision}_st_iezc"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_iezc, *schema_core]
+  pr2023_st_iez:
+    mask: "pr{revision}_st_iez"
+    desc: "BDS PR by Initial Establishment Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_st_iez.pq"
+    depends: "raw_pr{revision}_st_iez"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_iez, *schema_core]
+  pr2023_st_ifzc:
+    mask: "pr{revision}_st_ifzc"
+    desc: "BDS PR by Initial Firm Size Course, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_st_ifzc.pq"
+    depends: "raw_pr{revision}_st_ifzc"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_ifzc, *schema_core]
+  pr2023_st_ifz:
+    mask: "pr{revision}_st_ifz"
+    desc: "BDS PR by Initial Firm Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_st_ifz.pq"
+    depends: "raw_pr{revision}_st_ifz"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_ifz, *schema_core]
+  pr2023_st_cty:
+    mask: "pr{revision}_st_cty"
+    desc: "BDS PR County, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_st_cty.pq"
+    depends: "raw_pr{revision}_st_cty"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_cty, *schema_core]
+  pr2023_st_cty_eac:
+    mask: "pr{revision}_st_cty_eac"
+    desc: "BDS PR County by Establishment Age Course, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_st_cty_eac.pq"
+    depends: "raw_pr{revision}_st_cty_eac"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_cty, *schema_eac, *schema_core]
+  pr2023_st_cty_fac:
+    mask: "pr{revision}_st_cty_fac"
+    desc: "BDS PR County by Firm Age Course, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_st_cty_fac.pq"
+    depends: "raw_pr{revision}_st_cty_fac"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_cty, *schema_fac, *schema_core]
+  pr2023_st_cty_fzc:
+    mask: "pr{revision}_st_cty_fzc"
+    desc: "BDS PR County by Firm Size Course, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_st_cty_fzc.pq"
+    depends: "raw_pr{revision}_st_cty_fzc"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_cty, *schema_fzc, *schema_core]
+  pr2023_st_cty_ifzc:
+    mask: "pr{revision}_st_cty_ifzc"
+    desc: "BDS PR County by Initial Firm Size Course, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_st_cty_ifzc.pq"
+    depends: "raw_pr{revision}_st_cty_ifzc"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_cty, *schema_ifzc, *schema_core]
+  pr2023_st_cty_sec:
+    mask: "pr{revision}_st_cty_sec"
+    desc: "BDS PR County by Sector, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_st_cty_sec.pq"
+    depends: "raw_pr{revision}_st_cty_sec"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_cty, *schema_sec, *schema_core]
+  pr2023_st_met:
+    mask: "pr{revision}_st_met"
+    desc: "BDS PR by Metro/Non-Metro, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_st_met.pq"
+    depends: "raw_pr{revision}_st_met"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_met, *schema_core]
+  pr2023_st_met_sec:
+    mask: "pr{revision}_st_met_sec"
+    desc: "BDS PR by Metro/Non-Metro by Sector, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_st_met_sec.pq"
+    depends: "raw_pr{revision}_st_met_sec"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_met, *schema_sec, *schema_core]
+  pr2023_st_met_sec_eac:
+    mask: "pr{revision}_st_met_sec_eac"
+    desc: "BDS PR by Metro/Non-Metro by Sector by Establishment Age Course, {revision}
+      revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_st_met_sec_eac.pq"
+    depends: "raw_pr{revision}_st_met_sec_eac"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_met, *schema_sec, *schema_eac, *schema_core]
+  pr2023_st_met_sec_ea:
+    mask: "pr{revision}_st_met_sec_ea"
+    desc: "BDS PR by Metro/Non-Metro by Sector by Establishment Age, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_st_met_sec_ea.pq"
+    depends: "raw_pr{revision}_st_met_sec_ea"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_met, *schema_sec, *schema_ea, *schema_core]
+  pr2023_st_met_sec_fac:
+    mask: "pr{revision}_st_met_sec_fac"
+    desc: "BDS PR by Metro/Non-Metro by Sector by Firm Age Course, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_st_met_sec_fac.pq"
+    depends: "raw_pr{revision}_st_met_sec_fac"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_met, *schema_sec, *schema_fac, *schema_core]
+  pr2023_st_met_sec_fa:
+    mask: "pr{revision}_st_met_sec_fa"
+    desc: "BDS PR by Metro/Non-Metro by Sector by Firm Age, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_st_met_sec_fa.pq"
+    depends: "raw_pr{revision}_st_met_sec_fa"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_met, *schema_sec, *schema_fa, *schema_core]
+  pr2023_st_met_sec_fzc:
+    mask: "pr{revision}_st_met_sec_fzc"
+    desc: "BDS PR by Metro/Non-Metro by Sector by Firm Size Course, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_st_met_sec_fzc.pq"
+    depends: "raw_pr{revision}_st_met_sec_fzc"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_met, *schema_sec, *schema_fzc, *schema_core]
+  pr2023_st_met_sec_fz:
+    mask: "pr{revision}_st_met_sec_fz"
+    desc: "BDS PR by Metro/Non-Metro by Sector by Firm Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_st_met_sec_fz.pq"
+    depends: "raw_pr{revision}_st_met_sec_fz"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_met, *schema_sec, *schema_fz, *schema_core]
+  pr2023_st_met_sec_ifzc:
+    mask: "pr{revision}_st_met_sec_ifzc"
+    desc: "BDS PR by Metro/Non-Metro by Sector by Initial Firm Size Course, {revision}
+      revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_st_met_sec_ifzc.pq"
+    depends: "raw_pr{revision}_st_met_sec_ifzc"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_met, *schema_sec, *schema_ifzc, *schema_core]
+  pr2023_st_met_sec_ifz:
+    mask: "pr{revision}_st_met_sec_ifz"
+    desc: "BDS PR by Metro/Non-Metro by Sector by Initial Firm Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_st_met_sec_ifz.pq"
+    depends: "raw_pr{revision}_st_met_sec_ifz"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_met, *schema_sec, *schema_ifz, *schema_core]
+  pr2023_st_sec:
+    mask: "pr{revision}_st_sec"
+    desc: "BDS PR by Sector, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_st_sec.pq"
+    depends: "raw_pr{revision}_st_sec"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_sec, *schema_core]
+  pr2023_st_sec_eac:
+    mask: "pr{revision}_st_sec_eac"
+    desc: "BDS PR by Sector by Establishment Age Course, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_st_sec_eac.pq"
+    depends: "raw_pr{revision}_st_sec_eac"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_sec, *schema_eac, *schema_core]
+  pr2023_st_sec_ea:
+    mask: "pr{revision}_st_sec_ea"
+    desc: "BDS PR by Sector by Establishment Age, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_st_sec_ea.pq"
+    depends: "raw_pr{revision}_st_sec_ea"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_sec, *schema_ea, *schema_core]
+  pr2023_st_sec_fac:
+    mask: "pr{revision}_st_sec_fac"
+    desc: "BDS PR by Sector by Firm Age Course, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_st_sec_fac.pq"
+    depends: "raw_pr{revision}_st_sec_fac"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_sec, *schema_fac, *schema_core]
+  pr2023_st_sec_fa:
+    mask: "pr{revision}_st_sec_fa"
+    desc: "BDS PR by Sector by Firm Age, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_st_sec_fa.pq"
+    depends: "raw_pr{revision}_st_sec_fa"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_sec, *schema_fa, *schema_core]
+  pr2023_st_sec_fzc:
+    mask: "pr{revision}_st_sec_fzc"
+    desc: "BDS PR by Sector by Firm Size Course, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_st_sec_fzc.pq"
+    depends: "raw_pr{revision}_st_sec_fzc"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_sec, *schema_fzc, *schema_core]
+  pr2023_st_sec_fz:
+    mask: "pr{revision}_st_sec_fz"
+    desc: "BDS PR by Sector by Firm Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_st_sec_fz.pq"
+    depends: "raw_pr{revision}_st_sec_fz"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_sec, *schema_fz, *schema_core]
+  pr2023_st_sec_ifzc:
+    mask: "pr{revision}_st_sec_ifzc"
+    desc: "BDS PR by Sector by Initial Firm Size Course, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_st_sec_ifzc.pq"
+    depends: "raw_pr{revision}_st_sec_ifzc"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_sec, *schema_ifzc, *schema_core]
+  pr2023_st_sec_ifz:
+    mask: "pr{revision}_st_sec_ifz"
+    desc: "BDS PR by Sector by Initial Firm Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_st_sec_ifz.pq"
+    depends: "raw_pr{revision}_st_sec_ifz"
+    schema:
+      <<: [*schema_year, *schema_st, *schema_sec, *schema_ifz, *schema_core]
+  pr2023_met_st_eac:
+    mask: "pr{revision}_met_st_eac"
+    desc: "BDS Metro/Non-Metro by PR by Establishment Age Course, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_met_st_eac.pq"
+    depends: "raw_pr{revision}_met_st_eac"
+    schema:
+      <<: [*schema_year, *schema_met, *schema_st, *schema_eac, *schema_core]
+  pr2023_met_st_ea:
+    mask: "pr{revision}_met_st_ea"
+    desc: "BDS Metro/Non-Metro by PR by Establishment Age, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_met_st_ea.pq"
+    depends: "raw_pr{revision}_met_st_ea"
+    schema:
+      <<: [*schema_year, *schema_met, *schema_st, *schema_ea, *schema_core]
+  pr2023_met_st_fac:
+    mask: "pr{revision}_met_st_fac"
+    desc: "BDS Metro/Non-Metro by PR by Firm Age Course, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_met_st_fac.pq"
+    depends: "raw_pr{revision}_met_st_fac"
+    schema:
+      <<: [*schema_year, *schema_met, *schema_st, *schema_fac, *schema_core]
+  pr2023_met_st_fa:
+    mask: "pr{revision}_met_st_fa"
+    desc: "BDS Metro/Non-Metro by PR by Firm Age, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_met_st_fa.pq"
+    depends: "raw_pr{revision}_met_st_fa"
+    schema:
+      <<: [*schema_year, *schema_met, *schema_st, *schema_fa, *schema_core]
+  pr2023_met_st_fzc:
+    mask: "pr{revision}_met_st_fzc"
+    desc: "BDS Metro/Non-Metro by PR by Firm Size Course, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_met_st_fzc.pq"
+    depends: "raw_pr{revision}_met_st_fzc"
+    schema:
+      <<: [*schema_year, *schema_met, *schema_st, *schema_fzc, *schema_core]
+  pr2023_met_st_fz:
+    mask: "pr{revision}_met_st_fz"
+    desc: "BDS Metro/Non-Metro by PR by Firm Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_met_st_fz.pq"
+    depends: "raw_pr{revision}_met_st_fz"
+    schema:
+      <<: [*schema_year, *schema_met, *schema_st, *schema_fz, *schema_core]
+  pr2023_met_st_ifzc:
+    mask: "pr{revision}_met_st_ifzc"
+    desc: "BDS Metro/Non-Metro by PR by Initial Firm Size Course, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_met_st_ifzc.pq"
+    depends: "raw_pr{revision}_met_st_ifzc"
+    schema:
+      <<: [*schema_year, *schema_met, *schema_st, *schema_ifzc, *schema_core]
+  pr2023_met_st_ifz:
+    mask: "pr{revision}_met_st_ifz"
+    desc: "BDS Metro/Non-Metro by PR by Initial Firm Size, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_met_st_ifz.pq"
+    depends: "raw_pr{revision}_met_st_ifz"
+    schema:
+      <<: [*schema_year, *schema_met, *schema_st, *schema_ifz, *schema_core]
+  pr2023_msa:
+    mask: "pr{revision}_msa"
+    desc: "BDS PR MSA, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_msa.pq"
+    depends: "raw_pr{revision}_msa"
+    schema:
+      <<: [*schema_year, *schema_msa, *schema_core]
+  pr2023_msa_eac:
+    mask: "pr{revision}_msa_eac"
+    desc: "BDS PR MSA by Establishment Age Course, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_msa_eac.pq"
+    depends: "raw_pr{revision}_msa_eac"
+    schema:
+      <<: [*schema_year, *schema_msa, *schema_eac, *schema_core]
+  pr2023_msa_fac:
+    mask: "pr{revision}_msa_fac"
+    desc: "BDS PR MSA by Firm Age Course, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_msa_fac.pq"
+    depends: "raw_pr{revision}_msa_fac"
+    schema:
+      <<: [*schema_year, *schema_msa, *schema_fac, *schema_core]
+  pr2023_msa_fzc:
+    mask: "pr{revision}_msa_fzc"
+    desc: "BDS PR MSA by Firm Size Course, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_msa_fzc.pq"
+    depends: "raw_pr{revision}_msa_fzc"
+    schema:
+      <<: [*schema_year, *schema_msa, *schema_fzc, *schema_core]
+  pr2023_msa_ifzc:
+    mask: "pr{revision}_msa_ifzc"
+    desc: "BDS PR MSA by Initial Firm Size Course, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_msa_ifzc.pq"
+    depends: "raw_pr{revision}_msa_ifzc"
+    schema:
+      <<: [*schema_year, *schema_msa, *schema_ifzc, *schema_core]
+  pr2023_msa_sec:
+    mask: "pr{revision}_msa_sec"
+    desc: "BDS PR MSA by Sector, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_msa_sec.pq"
+    depends: "raw_pr{revision}_msa_sec"
+    schema:
+      <<: [*schema_year, *schema_msa, *schema_sec, *schema_core]
+  pr2023_msa_sec_eac:
+    mask: "pr{revision}_msa_sec_eac"
+    desc: "BDS PR MSA by Sector by Establishment Age Course, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_msa_sec_eac.pq"
+    depends: "raw_pr{revision}_msa_sec_eac"
+    schema:
+      <<: [*schema_year, *schema_msa, *schema_sec, *schema_eac, *schema_core]
+  pr2023_msa_sec_fac:
+    mask: "pr{revision}_msa_sec_fac"
+    desc: "BDS PR MSA by Sector by Firm Age Course, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_msa_sec_fac.pq"
+    depends: "raw_pr{revision}_msa_sec_fac"
+    schema:
+      <<: [*schema_year, *schema_msa, *schema_sec, *schema_fac, *schema_core]
+  pr2023_msa_sec_fzc:
+    mask: "pr{revision}_msa_sec_fzc"
+    desc: "BDS PR MSA by Sector by Firm Size Course, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_msa_sec_fzc.pq"
+    depends: "raw_pr{revision}_msa_sec_fzc"
+    schema:
+      <<: [*schema_year, *schema_msa, *schema_sec, *schema_fzc, *schema_core]
+  pr2023_msa_sec_ifzc:
+    mask: "pr{revision}_msa_sec_ifzc"
+    desc: "BDS PR MSA by Sector by Initial Firm Size Course, {revision} revision"
+    type: table
+    path: "proc/{revision}/bdspr{revision}_msa_sec_ifzc.pq"
+    depends: "raw_pr{revision}_msa_sec_ifzc"
+    schema:
+      <<: [*schema_year, *schema_msa, *schema_sec, *schema_ifzc, *schema_core]
