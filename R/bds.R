@@ -17,7 +17,10 @@ bds_get <- function(key) {
     flag_col <- paste0(col, "_f")
     if (!is.null(key_meta$schema[[flag_col]])) {
       df <- df %>%
-        dplyr::mutate(!!flag_col := dplyr::if_else(!!sym(col) %in% suppression_flags, !!sym(col), NA), .after = !!sym(col))
+        dplyr::mutate(
+          !!flag_col := dplyr::if_else(!!dplyr::sym(col) %in% suppression_flags, !!dplyr::sym(col), NA), 
+          .after = !!dplyr::sym(col)
+        )
     }
     # convert numeric cols, dropping non-numeric values already captured in the flag columns
     if (key_meta$schema[[col]]$type == "integer") {
