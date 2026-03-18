@@ -6,11 +6,11 @@ collections <- c(
   "bea_fa",
   "bea_io",
   "bea_reg",
+  "chrr",
   "ers_rural",
   "naics",
   "nass",
-  "qcew",
-  "chrr"
+  "qcew"
 )
 
 
