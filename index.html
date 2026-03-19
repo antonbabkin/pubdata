@@ -6,8 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="dcterms.date" content="2026-03-19">
 
-<title>pubdata: Interface for public use datasets – pubdata</title>
+<title>Tidy Public Data – pubdata</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -3832,1277 +3833,6 @@ vertical-align: -.125em;
     "search-label": "Search"
   }
 }</script>
-<style type="text/css">.pagedtable {
-overflow: auto;
-padding-left: 8px;
-padding-right: 8px;
-}
-.pagedtable-wrapper {
-border: 1px solid #ccc;
-border-radius: 4px;
-margin-bottom: 10px;
-}
-.pagedtable table {
-width: 100%;
-max-width: 100%;
-margin: 0;
-}
-.pagedtable th {
-padding: 0 5px 0 5px;
-border: none;
-border-bottom: 2px solid #dddddd;
-min-width: 45px;
-}
-.pagedtable-empty th {
-display: none;
-}
-.pagedtable td {
-padding: 0 4px 0 4px;
-}
-.pagedtable .even {
-background-color: rgba(140, 140, 140, 0.1);
-}
-.pagedtable-padding-col {
-display: none;
-}
-.pagedtable a {
--webkit-touch-callout: none;
--webkit-user-select: none;
--khtml-user-select: none;
--moz-user-select: none;
--ms-user-select: none;
-user-select: none;
-}
-.pagedtable-index-nav {
-cursor: pointer;
-padding: 0 5px 0 5px;
-float: right;
-border: 0;
-}
-.pagedtable-index-nav-disabled {
-cursor: default;
-text-decoration: none;
-color: #999;
-}
-a.pagedtable-index-nav-disabled:hover {
-text-decoration: none;
-color: #999;
-}
-.pagedtable-indexes {
-cursor: pointer;
-float: right;
-border: 0;
-}
-.pagedtable-index-current {
-cursor: default;
-text-decoration: none;
-font-weight: bold;
-color: #333;
-border: 0;
-}
-a.pagedtable-index-current:hover {
-text-decoration: none;
-font-weight: bold;
-color: #333;
-}
-.pagedtable-index {
-width: 30px;
-display: inline-block;
-text-align: center;
-border: 0;
-}
-.pagedtable-index-separator-left {
-display: inline-block;
-color: #333;
-font-size: 9px;
-padding: 0 0 0 0;
-cursor: default;
-}
-.pagedtable-index-separator-right {
-display: inline-block;
-color: #333;
-font-size: 9px;
-padding: 0 4px 0 0;
-cursor: default;
-}
-.pagedtable-footer {
-padding-top: 4px;
-padding-bottom: 5px;
-}
-.pagedtable-not-empty .pagedtable-footer {
-border-top: 2px solid #dddddd;
-}
-.pagedtable-info {
-overflow: hidden;
-color: #999;
-white-space: nowrap;
-text-overflow: ellipsis;
-}
-.pagedtable-header-name {
-overflow: hidden;
-text-overflow: ellipsis;
-}
-.pagedtable-header-type {
-color: #999;
-font-weight: 400;
-}
-.pagedtable-na-cell {
-font-style: italic;
-opacity: 0.3;
-}
-</style>
-<script>// Production steps of ECMA-262, Edition 5, 15.4.4.18
-// Reference: http://es5.github.io/#x15.4.4.18
-if (!Array.prototype.forEach) {
-
-  Array.prototype.forEach = function(callback, thisArg) {
-
-    var T, k;
-
-    if (this === null) {
-      throw new TypeError(' this is null or not defined');
-    }
-
-    // 1. Let O be the result of calling toObject() passing the
-    // |this| value as the argument.
-    var O = Object(this);
-
-    // 2. Let lenValue be the result of calling the Get() internal
-    // method of O with the argument "length".
-    // 3. Let len be toUint32(lenValue).
-    var len = O.length >>> 0;
-
-    // 4. If isCallable(callback) is false, throw a TypeError exception.
-    // See: http://es5.github.com/#x9.11
-    if (typeof callback !== "function") {
-      throw new TypeError(callback + ' is not a function');
-    }
-
-    // 5. If thisArg was supplied, let T be thisArg; else let
-    // T be undefined.
-    if (arguments.length > 1) {
-      T = thisArg;
-    }
-
-    // 6. Let k be 0
-    k = 0;
-
-    // 7. Repeat, while k < len
-    while (k < len) {
-
-      var kValue;
-
-      // a. Let Pk be ToString(k).
-      //    This is implicit for LHS operands of the in operator
-      // b. Let kPresent be the result of calling the HasProperty
-      //    internal method of O with argument Pk.
-      //    This step can be combined with c
-      // c. If kPresent is true, then
-      if (k in O) {
-
-        // i. Let kValue be the result of calling the Get internal
-        // method of O with argument Pk.
-        kValue = O[k];
-
-        // ii. Call the Call internal method of callback with T as
-        // the this value and argument list containing kValue, k, and O.
-        callback.call(T, kValue, k, O);
-      }
-      // d. Increase k by 1.
-      k++;
-    }
-    // 8. return undefined
-  };
-}
-
-// Production steps of ECMA-262, Edition 5, 15.4.4.19
-// Reference: http://es5.github.io/#x15.4.4.19
-if (!Array.prototype.map) {
-
-  Array.prototype.map = function(callback, thisArg) {
-
-    var T, A, k;
-
-    if (this == null) {
-      throw new TypeError(' this is null or not defined');
-    }
-
-    // 1. Let O be the result of calling ToObject passing the |this|
-    //    value as the argument.
-    var O = Object(this);
-
-    // 2. Let lenValue be the result of calling the Get internal
-    //    method of O with the argument "length".
-    // 3. Let len be ToUint32(lenValue).
-    var len = O.length >>> 0;
-
-    // 4. If IsCallable(callback) is false, throw a TypeError exception.
-    // See: http://es5.github.com/#x9.11
-    if (typeof callback !== 'function') {
-      throw new TypeError(callback + ' is not a function');
-    }
-
-    // 5. If thisArg was supplied, let T be thisArg; else let T be undefined.
-    if (arguments.length > 1) {
-      T = thisArg;
-    }
-
-    // 6. Let A be a new array created as if by the expression new Array(len)
-    //    where Array is the standard built-in constructor with that name and
-    //    len is the value of len.
-    A = new Array(len);
-
-    // 7. Let k be 0
-    k = 0;
-
-    // 8. Repeat, while k < len
-    while (k < len) {
-
-      var kValue, mappedValue;
-
-      // a. Let Pk be ToString(k).
-      //   This is implicit for LHS operands of the in operator
-      // b. Let kPresent be the result of calling the HasProperty internal
-      //    method of O with argument Pk.
-      //   This step can be combined with c
-      // c. If kPresent is true, then
-      if (k in O) {
-
-        // i. Let kValue be the result of calling the Get internal
-        //    method of O with argument Pk.
-        kValue = O[k];
-
-        // ii. Let mappedValue be the result of calling the Call internal
-        //     method of callback with T as the this value and argument
-        //     list containing kValue, k, and O.
-        mappedValue = callback.call(T, kValue, k, O);
-
-        // iii. Call the DefineOwnProperty internal method of A with arguments
-        // Pk, Property Descriptor
-        // { Value: mappedValue,
-        //   Writable: true,
-        //   Enumerable: true,
-        //   Configurable: true },
-        // and false.
-
-        // In browsers that support Object.defineProperty, use the following:
-        // Object.defineProperty(A, k, {
-        //   value: mappedValue,
-        //   writable: true,
-        //   enumerable: true,
-        //   configurable: true
-        // });
-
-        // For best browser support, use the following:
-        A[k] = mappedValue;
-      }
-      // d. Increase k by 1.
-      k++;
-    }
-
-    // 9. return A
-    return A;
-  };
-}
-
-var PagedTable = function (pagedTable) {
-  var me = this;
-
-  var source = function(pagedTable) {
-    var sourceElems = [].slice.call(pagedTable.children).filter(function(e) {
-      return e.hasAttribute("data-pagedtable-source");
-    });
-
-    if (sourceElems === null || sourceElems.length !== 1) {
-      throw("A single data-pagedtable-source was not found");
-    }
-
-    return JSON.parse(sourceElems[0].innerHTML);
-  }(pagedTable);
-
-  var options = function(source) {
-    var options = typeof(source.options) !== "undefined" &&
-      source.options !== null ? source.options : {};
-
-    var columns = typeof(options.columns) !== "undefined" ? options.columns : {};
-    var rows = typeof(options.rows) !== "undefined" ? options.rows : {};
-
-    var positiveIntOrNull = function(value) {
-      return parseInt(value) >= 0 ? parseInt(value) : null;
-    };
-
-    return {
-      pages: positiveIntOrNull(options.pages),
-      rows: {
-        min: positiveIntOrNull(rows.min),
-        max: positiveIntOrNull(rows.max),
-        total: positiveIntOrNull(rows.total)
-      },
-      columns: {
-        min: positiveIntOrNull(columns.min),
-        max: positiveIntOrNull(columns.max),
-        total: positiveIntOrNull(columns.total)
-      }
-    };
-  }(source);
-
-  var Measurer = function() {
-
-    // set some default initial values that will get adjusted in runtime
-    me.measures = {
-      padding: 12,
-      character: 8,
-      height: 15,
-      defaults: true
-    };
-
-    me.calculate = function(measuresCell) {
-      if (!me.measures.defaults)
-        return;
-
-      var measuresCellStyle = window.getComputedStyle(measuresCell, null);
-
-      var newPadding = parsePadding(measuresCellStyle.paddingLeft) +
-            parsePadding(measuresCellStyle.paddingRight);
-
-      var sampleString = "ABCDEFGHIJ0123456789";
-      var newCharacter = Math.ceil(measuresCell.clientWidth / sampleString.length);
-
-      if (newPadding <= 0 || newCharacter <= 0)
-        return;
-
-      me.measures.padding = newPadding;
-      me.measures.character = newCharacter;
-      me.measures.height = measuresCell.clientHeight;
-      me.measures.defaults = false;
-    };
-
-    return me;
-  };
-
-  var Page = function(data, options) {
-    var me = this;
-
-    var defaults = {
-      max: 7,
-      rows: 10
-    };
-
-    var totalPages = function() {
-      return Math.ceil(data.length / me.rows);
-    };
-
-    me.number = 0;
-    me.max = options.pages !== null ? options.pages : defaults.max;
-    me.visible = me.max;
-    me.rows = options.rows.min !== null ? options.rows.min : defaults.rows;
-    me.total = totalPages();
-
-    me.setRows = function(newRows) {
-      me.rows = newRows;
-      me.total = totalPages();
-    };
-
-    me.setPageNumber = function(newPageNumber) {
-      if (newPageNumber < 0) newPageNumber = 0;
-      if (newPageNumber >= me.total) newPageNumber = me.total - 1;
-
-      me.number = newPageNumber;
-    };
-
-    me.setVisiblePages = function(visiblePages) {
-      me.visible = Math.min(me.max, visiblePages);
-      me.setPageNumber(me.number);
-    };
-
-    me.getVisiblePageRange = function() {
-      var start = me.number - Math.max(Math.floor((me.visible - 1) / 2), 0);
-      var end = me.number + Math.floor(me.visible / 2) + 1;
-      var pageCount = me.total;
-
-      if (start < 0) {
-        var diffToStart = 0 - start;
-        start += diffToStart;
-        end += diffToStart;
-      }
-
-      if (end > pageCount) {
-        var diffToEnd = end - pageCount;
-        start -= diffToEnd;
-        end -= diffToEnd;
-      }
-
-      start = start < 0 ? 0 : start;
-      end = end >= pageCount ? pageCount : end;
-
-      var first = false;
-      var last = false;
-
-      if (start > 0 && me.visible > 1) {
-        start = start + 1;
-        first = true;
-      }
-
-      if (end < pageCount && me.visible > 2) {
-        end = end - 1;
-        last = true;
-      }
-
-      return {
-        first: first,
-        start: start,
-        end: end,
-        last: last
-      };
-    };
-
-    me.getRowStart = function() {
-      var rowStart = page.number * page.rows;
-      if (rowStart < 0)
-        rowStart = 0;
-
-      return rowStart;
-    };
-
-    me.getRowEnd = function() {
-      var rowStart = me.getRowStart();
-      return Math.min(rowStart + me.rows, data.length);
-    };
-
-    me.getPaddingRows = function() {
-      var rowStart = me.getRowStart();
-      var rowEnd = me.getRowEnd();
-      return data.length > me.rows ? me.rows - (rowEnd - rowStart) : 0;
-    };
-  };
-
-  var Columns = function(data, columns, options) {
-    var me = this;
-
-    me.defaults = {
-      min: 5
-    };
-
-    me.number = 0;
-    me.visible = 0;
-    me.total = columns.length;
-    me.subset = [];
-    me.padding = 0;
-    me.min = options.columns.min !== null ? options.columns.min : me.defaults.min;
-    me.max = options.columns.max !== null ? options.columns.max : null;
-    me.widths = {};
-
-    var widthsLookAhead = Math.max(100, options.rows.min);
-    var paddingColChars = 10;
-
-    me.emptyNames = function() {
-      columns.forEach(function(column) {
-        if (columns.label !== null && columns.label !== "")
-          return false;
-      });
-
-      return true;
-    };
-
-    var parsePadding = function(value) {
-      return parseInt(value) >= 0 ? parseInt(value) : 0;
-    };
-
-    me.calculateWidths = function(measures) {
-      columns.forEach(function(column) {
-        var maxChars = Math.max(
-          column.label.toString().length,
-          column.type.toString().length
-        );
-
-        for (var idxRow = 0; idxRow < Math.min(widthsLookAhead, data.length); idxRow++) {
-          maxChars = Math.max(maxChars, data[idxRow][column.name.toString()].length);
-        }
-
-        me.widths[column.name] = {
-          // width in characters
-          chars: maxChars,
-          // width for the inner html columns
-          inner: maxChars * measures.character,
-          // width adding outer styles like padding
-          outer: maxChars * measures.character + measures.padding
-        };
-      });
-    };
-
-    me.getWidth = function() {
-      var widthOuter = 0;
-      for (var idxCol = 0; idxCol < me.subset.length; idxCol++) {
-        var columnName = me.subset[idxCol].name;
-        widthOuter = widthOuter + me.widths[columnName].outer;
-      }
-
-      widthOuter = widthOuter + me.padding * paddingColChars * measurer.measures.character;
-
-      if (me.hasMoreLeftColumns()) {
-        widthOuter = widthOuter + columnNavigationWidthPX + measurer.measures.padding;
-      }
-
-      if (me.hasMoreRightColumns()) {
-        widthOuter = widthOuter + columnNavigationWidthPX + measurer.measures.padding;
-      }
-
-      return widthOuter;
-    };
-
-    me.updateSlice = function() {
-      if (me.number + me.visible >= me.total)
-        me.number = me.total - me.visible;
-
-      if (me.number < 0) me.number = 0;
-
-      me.subset = columns.slice(me.number, Math.min(me.number + me.visible, me.total));
-
-      me.subset = me.subset.map(function(column) {
-        Object.keys(column).forEach(function(colKey) {
-          column[colKey] = column[colKey] === null ? "" : column[colKey].toString();
-        });
-
-        column.width = null;
-        return column;
-      });
-    };
-
-    me.setVisibleColumns = function(columnNumber, newVisibleColumns, paddingCount) {
-      me.number = columnNumber;
-      me.visible = newVisibleColumns;
-      me.padding = paddingCount;
-
-      me.updateSlice();
-    };
-
-    me.incColumnNumber = function(increment) {
-      me.number = me.number + increment;
-    };
-
-    me.setColumnNumber = function(newNumber) {
-      me.number = newNumber;
-    };
-
-    me.setPaddingCount = function(newPadding) {
-      me.padding = newPadding;
-    };
-
-    me.getPaddingCount = function() {
-      return me.padding;
-    };
-
-    me.hasMoreLeftColumns = function() {
-      return me.number > 0;
-    };
-
-    me.hasMoreRightColumns = function() {
-      return me.number + me.visible < me.total;
-    };
-
-    me.updateSlice(0);
-    return me;
-  };
-
-  var data = source.data;
-  var page = new Page(data, options);
-  var measurer = new Measurer(data, options);
-  var columns = new Columns(data, source.columns, options);
-
-  var table = null;
-  var tableDiv = null;
-  var header = null;
-  var footer = null;
-  var tbody = null;
-
-  // Caches pagedTable.clientWidth, specially for webkit
-  var cachedPagedTableClientWidth = null;
-
-  var onChangeCallbacks = [];
-
-  var clearSelection = function() {
-    if(document.selection && document.selection.empty) {
-      document.selection.empty();
-    } else if(window.getSelection) {
-      var sel = window.getSelection();
-      sel.removeAllRanges();
-    }
-  };
-
-  var columnNavigationWidthPX = 5;
-
-  var renderColumnNavigation = function(increment, backwards) {
-    var arrow = document.createElement("div");
-    arrow.setAttribute("style",
-      "border-top: " + columnNavigationWidthPX + "px solid transparent;" +
-      "border-bottom: " + columnNavigationWidthPX + "px solid transparent;" +
-      "border-" + (backwards ? "right" : "left") + ": " + columnNavigationWidthPX + "px solid;");
-
-    var header = document.createElement("th");
-    header.appendChild(arrow);
-    header.setAttribute("style",
-      "cursor: pointer;" +
-      "vertical-align: middle;" +
-      "min-width: " + columnNavigationWidthPX + "px;" +
-      "width: " + columnNavigationWidthPX + "px;");
-
-    header.onclick = function() {
-      columns.incColumnNumber(backwards ? -1 : increment);
-
-      me.animateColumns(backwards);
-      renderFooter();
-
-      clearSelection();
-      triggerOnChange();
-    };
-
-    return header;
-  };
-
-  var maxColumnWidth = function(width) {
-    var padding = 80;
-    var columnMax = Math.max(cachedPagedTableClientWidth - padding, 0);
-
-    return parseInt(width) > 0 ?
-      Math.min(columnMax, parseInt(width)) + "px" :
-      columnMax + "px";
-  };
-
-  var clearHeader = function() {
-    var thead = pagedTable.querySelectorAll("thead")[0];
-    thead.innerHTML = "";
-  };
-
-  var renderHeader = function(clear) {
-    cachedPagedTableClientWidth = pagedTable.clientWidth;
-
-    var fragment = document.createDocumentFragment();
-
-    header = document.createElement("tr");
-    fragment.appendChild(header);
-
-    if (columns.number > 0)
-      header.appendChild(renderColumnNavigation(-columns.visible, true));
-
-    columns.subset = columns.subset.map(function(columnData) {
-      var column = document.createElement("th");
-      column.setAttribute("align", columnData.align);
-      column.style.textAlign = columnData.align;
-
-      column.style.maxWidth = maxColumnWidth(null);
-      if (columnData.width) {
-        column.style.minWidth =
-          column.style.maxWidth = maxColumnWidth(columnData.width);
-      }
-
-      var columnName = document.createElement("div");
-      columnName.setAttribute("class", "pagedtable-header-name");
-      if (columnData.label === "") {
-        columnName.innerHTML = "&nbsp;";
-      }
-      else {
-        columnName.appendChild(document.createTextNode(columnData.label));
-      }
-      column.appendChild(columnName);
-
-      var columnType = document.createElement("div");
-      columnType.setAttribute("class", "pagedtable-header-type");
-      if (columnData.type === "") {
-        columnType.innerHTML = "&nbsp;";
-      }
-      else {
-        columnType.appendChild(document.createTextNode("<" + columnData.type + ">"));
-      }
-      column.appendChild(columnType);
-
-      header.appendChild(column);
-
-      columnData.element = column;
-
-      return columnData;
-    });
-
-    for (var idx = 0; idx < columns.getPaddingCount(); idx++) {
-      var paddingCol = document.createElement("th");
-      paddingCol.setAttribute("class", "pagedtable-padding-col");
-      header.appendChild(paddingCol);
-    }
-
-    if (columns.number + columns.visible < columns.total)
-      header.appendChild(renderColumnNavigation(columns.visible, false));
-
-    if (typeof(clear) == "undefined" || clear) clearHeader();
-    var thead = pagedTable.querySelectorAll("thead")[0];
-    thead.appendChild(fragment);
-  };
-
-  me.animateColumns = function(backwards) {
-    var thead = pagedTable.querySelectorAll("thead")[0];
-
-    var headerOld = thead.querySelectorAll("tr")[0];
-    var tbodyOld = table.querySelectorAll("tbody")[0];
-
-    me.fitColumns(backwards);
-
-    renderHeader(false);
-
-    header.style.opacity = "0";
-    header.style.transform = backwards ? "translateX(-30px)" : "translateX(30px)";
-    header.style.transition = "transform 200ms linear, opacity 200ms";
-    header.style.transitionDelay = "0";
-
-    renderBody(false);
-
-    if (headerOld) {
-      headerOld.style.position = "absolute";
-      headerOld.style.transform = "translateX(0px)";
-      headerOld.style.opacity = "1";
-      headerOld.style.transition = "transform 100ms linear, opacity 100ms";
-      headerOld.setAttribute("class", "pagedtable-remove-head");
-      if (headerOld.style.transitionEnd) {
-        headerOld.addEventListener("transitionend", function() {
-          var headerOldByClass = thead.querySelector(".pagedtable-remove-head");
-          if (headerOldByClass) thead.removeChild(headerOldByClass);
-        });
-      }
-      else {
-        thead.removeChild(headerOld);
-      }
-    }
-
-    if (tbodyOld) table.removeChild(tbodyOld);
-
-    tbody.style.opacity = "0";
-    tbody.style.transition = "transform 200ms linear, opacity 200ms";
-    tbody.style.transitionDelay = "0ms";
-
-    // force relayout
-    window.getComputedStyle(header).opacity;
-    window.getComputedStyle(tbody).opacity;
-
-    if (headerOld) {
-      headerOld.style.transform = backwards ? "translateX(20px)" : "translateX(-30px)";
-      headerOld.style.opacity = "0";
-    }
-
-    header.style.transform = "translateX(0px)";
-    header.style.opacity = "1";
-
-    tbody.style.opacity = "1";
-  }
-
-  me.onChange = function(callback) {
-    onChangeCallbacks.push(callback);
-  };
-
-  var triggerOnChange = function() {
-    onChangeCallbacks.forEach(function(onChange) {
-      onChange();
-    });
-  };
-
-  var clearBody = function() {
-    if (tbody) {
-      table.removeChild(tbody);
-      tbody = null;
-    }
-  };
-
-  var renderBody = function(clear) {
-    cachedPagedTableClientWidth = pagedTable.clientWidth
-
-    var fragment = document.createDocumentFragment();
-
-    var pageData = data.slice(page.getRowStart(), page.getRowEnd());
-
-    pageData.forEach(function(dataRow, idxRow) {
-      var htmlRow = document.createElement("tr");
-      htmlRow.setAttribute("class", (idxRow % 2 !==0) ? "even" : "odd");
-
-      if (columns.hasMoreLeftColumns())
-        htmlRow.appendChild(document.createElement("td"));
-
-      columns.subset.forEach(function(columnData) {
-        var cellName = columnData.name;
-        var dataCell = dataRow[cellName];
-        var htmlCell = document.createElement("td");
-
-        if (dataCell === "NA") htmlCell.setAttribute("class", "pagedtable-na-cell");
-        if (dataCell === "__NA__") dataCell = "NA";
-
-        var cellText = document.createTextNode(dataCell);
-        htmlCell.appendChild(cellText);
-        if (dataCell.length > 50) {
-          htmlCell.setAttribute("title", dataCell);
-        }
-        htmlCell.setAttribute("align", columnData.align);
-        htmlCell.style.textAlign = columnData.align;
-        htmlCell.style.maxWidth = maxColumnWidth(null);
-        if (columnData.width) {
-          htmlCell.style.minWidth = htmlCell.style.maxWidth = maxColumnWidth(columnData.width);
-        }
-        htmlRow.appendChild(htmlCell);
-      });
-
-      for (var idx = 0; idx < columns.getPaddingCount(); idx++) {
-        var paddingCol = document.createElement("td");
-        paddingCol.setAttribute("class", "pagedtable-padding-col");
-        htmlRow.appendChild(paddingCol);
-      }
-
-      if (columns.hasMoreRightColumns())
-        htmlRow.appendChild(document.createElement("td"));
-
-      fragment.appendChild(htmlRow);
-    });
-
-    for (var idxPadding = 0; idxPadding < page.getPaddingRows(); idxPadding++) {
-      var paddingRow = document.createElement("tr");
-
-      var paddingCellRow = document.createElement("td");
-      paddingCellRow.innerHTML = "&nbsp;";
-      paddingCellRow.setAttribute("colspan", "100%");
-      paddingRow.appendChild(paddingCellRow);
-
-      fragment.appendChild(paddingRow);
-    }
-
-    if (typeof(clear) == "undefined" || clear) clearBody();
-    tbody = document.createElement("tbody");
-    tbody.appendChild(fragment);
-
-    table.appendChild(tbody);
-  };
-
-  var getLabelInfo = function() {
-    var pageStart = page.getRowStart();
-    var pageEnd = page.getRowEnd();
-    var totalRows = data.length;
-
-    var totalRowsLabel = options.rows.total ? options.rows.total : totalRows;
-    var totalRowsLabelFormat = totalRowsLabel.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,');
-
-    var infoText = (pageStart + 1) + "-" + pageEnd + " of " + totalRowsLabelFormat + " rows";
-    if (totalRows < page.rows) {
-      infoText = totalRowsLabel + " row" + (totalRows != 1 ? "s" : "");
-    }
-    if (columns.total > columns.visible) {
-      var totalColumnsLabel = options.columns.total ? options.columns.total : columns.total;
-
-      infoText = infoText + " | " + (columns.number + 1) + "-" +
-        (Math.min(columns.number + columns.visible, columns.total)) +
-        " of " + totalColumnsLabel + " columns";
-    }
-
-    return infoText;
-  };
-
-  var clearFooter = function() {
-    footer = pagedTable.querySelectorAll("div.pagedtable-footer")[0];
-    footer.innerHTML = "";
-
-    return footer;
-  };
-
-  var createPageLink = function(idxPage) {
-    var pageLink = document.createElement("a");
-    pageLinkClass = idxPage === page.number ? "pagedtable-index pagedtable-index-current" : "pagedtable-index";
-    pageLink.setAttribute("class", pageLinkClass);
-    pageLink.setAttribute("data-page-index", idxPage);
-    pageLink.onclick = function() {
-      page.setPageNumber(parseInt(this.getAttribute("data-page-index")));
-      renderBody();
-      renderFooter();
-
-      triggerOnChange();
-    };
-
-    pageLink.appendChild(document.createTextNode(idxPage + 1));
-
-    return pageLink;
-  }
-
-  var renderFooter = function() {
-    footer = clearFooter();
-
-    var next = document.createElement("a");
-    next.appendChild(document.createTextNode("Next"));
-    next.onclick = function() {
-      page.setPageNumber(page.number + 1);
-      renderBody();
-      renderFooter();
-
-      triggerOnChange();
-    };
-    if (data.length > page.rows) footer.appendChild(next);
-
-    var pageNumbers = document.createElement("div");
-    pageNumbers.setAttribute("class", "pagedtable-indexes");
-
-    var pageRange = page.getVisiblePageRange();
-
-    if (pageRange.first) {
-      var pageLink = createPageLink(0);
-      pageNumbers.appendChild(pageLink);
-
-      var pageSeparator = document.createElement("div");
-      pageSeparator.setAttribute("class", "pagedtable-index-separator-left");
-      pageSeparator.appendChild(document.createTextNode("..."))
-      pageNumbers.appendChild(pageSeparator);
-    }
-
-    for (var idxPage = pageRange.start; idxPage < pageRange.end; idxPage++) {
-      var pageLink = createPageLink(idxPage);
-
-      pageNumbers.appendChild(pageLink);
-    }
-
-    if (pageRange.last) {
-      var pageSeparator = document.createElement("div");
-      pageSeparator.setAttribute("class", "pagedtable-index-separator-right");
-      pageSeparator.appendChild(document.createTextNode("..."))
-      pageNumbers.appendChild(pageSeparator);
-
-      var pageLink = createPageLink(page.total - 1);
-      pageNumbers.appendChild(pageLink);
-    }
-
-    if (data.length > page.rows) footer.appendChild(pageNumbers);
-
-    var previous = document.createElement("a");
-    previous.appendChild(document.createTextNode("Previous"));
-    previous.onclick = function() {
-      page.setPageNumber(page.number - 1);
-      renderBody();
-      renderFooter();
-
-      triggerOnChange();
-    };
-    if (data.length > page.rows) footer.appendChild(previous);
-
-    var infoLabel = document.createElement("div");
-    infoLabel.setAttribute("class", "pagedtable-info");
-    infoLabel.setAttribute("title", getLabelInfo());
-    infoLabel.appendChild(document.createTextNode(getLabelInfo()));
-    footer.appendChild(infoLabel);
-
-    var enabledClass = "pagedtable-index-nav";
-    var disabledClass = "pagedtable-index-nav pagedtable-index-nav-disabled";
-    previous.setAttribute("class", page.number <= 0 ? disabledClass : enabledClass);
-    next.setAttribute("class", (page.number + 1) * page.rows >= data.length ? disabledClass : enabledClass);
-  };
-
-  var measuresCell = null;
-
-  var renderMeasures = function() {
-    var measuresTable = document.createElement("table");
-    measuresTable.style.visibility = "hidden";
-    measuresTable.style.position = "absolute";
-    measuresTable.style.whiteSpace = "nowrap";
-    measuresTable.style.height = "auto";
-    measuresTable.style.width = "auto";
-
-    var measuresRow = document.createElement("tr");
-    measuresTable.appendChild(measuresRow);
-
-    measuresCell = document.createElement("td");
-    var sampleString = "ABCDEFGHIJ0123456789";
-    measuresCell.appendChild(document.createTextNode(sampleString));
-
-    measuresRow.appendChild(measuresCell);
-
-    tableDiv.appendChild(measuresTable);
-  }
-
-  me.init = function() {
-    tableDiv = document.createElement("div");
-    pagedTable.appendChild(tableDiv);
-    var pagedTableClass = data.length > 0 ?
-      "pagedtable pagedtable-not-empty" :
-      "pagedtable pagedtable-empty";
-
-    if (columns.total == 0 || (columns.emptyNames() && data.length == 0)) {
-      pagedTableClass = pagedTableClass + " pagedtable-empty-columns";
-    }
-
-    tableDiv.setAttribute("class", pagedTableClass);
-
-    renderMeasures();
-    measurer.calculate(measuresCell);
-    columns.calculateWidths(measurer.measures);
-
-    table = document.createElement("table");
-    table.setAttribute("cellspacing", "0");
-    table.setAttribute("class", "table table-condensed");
-    tableDiv.appendChild(table);
-
-    table.appendChild(document.createElement("thead"));
-
-    var footerDiv = document.createElement("div");
-    footerDiv.setAttribute("class", "pagedtable-footer");
-    tableDiv.appendChild(footerDiv);
-
-    // if the host has not yet provided horizontal space, render hidden
-    if (tableDiv.clientWidth <= 0) {
-      tableDiv.style.opacity = "0";
-    }
-
-    me.render();
-
-    // retry seizing columns later if the host has not provided space
-    function retryFit() {
-      if (tableDiv.clientWidth <= 0) {
-        setTimeout(retryFit, 100);
-      } else {
-        me.render();
-        triggerOnChange();
-      }
-    }
-    if (tableDiv.clientWidth <= 0) {
-      retryFit();
-    }
-  };
-
-  var registerWidths = function() {
-    columns.subset = columns.subset.map(function(column) {
-      column.width = columns.widths[column.name].inner;
-      return column;
-    });
-  };
-
-  var parsePadding = function(value) {
-    return parseInt(value) >= 0 ? parseInt(value) : 0;
-  };
-
-  me.fixedHeight = function() {
-    return options.rows.max != null;
-  }
-
-  me.fitRows = function() {
-    if (me.fixedHeight())
-      return;
-
-    measurer.calculate(measuresCell);
-
-    var rows = options.rows.min !== null ? options.rows.min : 0;
-    var headerHeight = header !== null && header.offsetHeight > 0 ? header.offsetHeight : 0;
-    var footerHeight = footer !== null && footer.offsetHeight > 0 ? footer.offsetHeight : 0;
-
-    if (pagedTable.offsetHeight > 0) {
-      var availableHeight = pagedTable.offsetHeight - headerHeight - footerHeight;
-      rows = Math.floor((availableHeight) / measurer.measures.height);
-    }
-
-    rows = options.rows.min !== null ? Math.max(options.rows.min, rows) : rows;
-
-    page.setRows(rows);
-  }
-
-  // The goal of this function is to add as many columns as possible
-  // starting from left-to-right, when the right most limit is reached
-  // it tries to add columns from the left as well.
-  //
-  // When startBackwards is true columns are added from right-to-left
-  me.fitColumns = function(startBackwards) {
-    measurer.calculate(measuresCell);
-    columns.calculateWidths(measurer.measures);
-
-    if (tableDiv.clientWidth > 0) {
-      tableDiv.style.opacity = 1;
-    }
-
-    var visibleColumns = tableDiv.clientWidth <= 0 ? Math.max(columns.min, 1) : 1;
-    var columnNumber = columns.number;
-    var paddingCount = 0;
-
-    // track a list of added columns as we build the visible ones to allow us
-    // to remove columns when they don't fit anymore.
-    var columnHistory = [];
-
-    var lastTableHeight = 0;
-    var backwards = startBackwards;
-
-    var tableDivStyle = window.getComputedStyle(tableDiv, null);
-    var tableDivPadding = parsePadding(tableDivStyle.paddingLeft) +
-      parsePadding(tableDivStyle.paddingRight);
-
-    var addPaddingCol = false;
-    var currentWidth = 0;
-
-    while (true) {
-      columns.setVisibleColumns(columnNumber, visibleColumns, paddingCount);
-      currentWidth = columns.getWidth();
-
-      if (tableDiv.clientWidth - tableDivPadding < currentWidth) {
-        break;
-      }
-
-      columnHistory.push({
-        columnNumber: columnNumber,
-        visibleColumns: visibleColumns,
-        paddingCount: paddingCount
-      });
-
-      if (columnHistory.length > 100) {
-        console.error("More than 100 tries to fit columns, aborting");
-        break;
-      }
-
-      if (columns.max !== null &&
-        columns.visible + columns.getPaddingCount() >= columns.max) {
-        break;
-      }
-
-      // if we run out of right-columns
-      if (!backwards && columnNumber + columns.visible >= columns.total) {
-        // if we started adding right-columns, try adding left-columns
-        if (!startBackwards && columnNumber > 0) {
-          backwards = true;
-        }
-        else if (columns.min === null || visibleColumns + columns.getPaddingCount() >= columns.min) {
-          break;
-        }
-        else {
-          paddingCount = paddingCount + 1;
-        }
-      }
-
-      // if we run out of left-columns
-      if (backwards && columnNumber == 0) {
-        // if we started adding left-columns, try adding right-columns
-        if (startBackwards && columnNumber + columns.visible < columns.total) {
-          backwards = false;
-        }
-        else if (columns.min === null || visibleColumns + columns.getPaddingCount() >= columns.min) {
-          break;
-        }
-        else {
-          paddingCount = paddingCount + 1;
-        }
-      }
-
-      // when moving backwards try fitting left columns first
-      if (backwards && columnNumber > 0) {
-        columnNumber = columnNumber - 1;
-      }
-
-      if (columnNumber + visibleColumns < columns.total) {
-        visibleColumns = visibleColumns + 1;
-      }
-    }
-
-    var lastRenderableColumn = {
-        columnNumber: columnNumber,
-        visibleColumns: visibleColumns,
-        paddingCount: paddingCount
-    };
-
-    if (columnHistory.length > 0) {
-      lastRenderableColumn = columnHistory[columnHistory.length - 1];
-    }
-
-    columns.setVisibleColumns(
-      lastRenderableColumn.columnNumber,
-      lastRenderableColumn.visibleColumns,
-      lastRenderableColumn.paddingCount);
-
-    if (pagedTable.offsetWidth > 0) {
-      page.setVisiblePages(Math.max(Math.ceil(1.0 * (pagedTable.offsetWidth - 250) / 40), 2));
-    }
-
-    registerWidths();
-  };
-
-  me.fit = function(startBackwards) {
-    me.fitRows();
-    me.fitColumns(startBackwards);
-  }
-
-  me.render = function() {
-    me.fitColumns(false);
-
-    // render header/footer to measure height accurately
-    renderHeader();
-    renderFooter();
-
-    me.fitRows();
-    renderBody();
-
-    // re-render footer to match new rows
-    renderFooter();
-  }
-
-  var resizeLastWidth = -1;
-  var resizeLastHeight = -1;
-  var resizeNewWidth = -1;
-  var resizeNewHeight = -1;
-  var resizePending = false;
-
-  me.resize = function(newWidth, newHeight) {
-
-    function resizeDelayed() {
-      resizePending = false;
-
-      if (
-        (resizeNewWidth !== resizeLastWidth) ||
-        (!me.fixedHeight() && resizeNewHeight !== resizeLastHeight)
-      ) {
-        resizeLastWidth = resizeNewWidth;
-        resizeLastHeight = resizeNewHeight;
-
-        setTimeout(resizeDelayed, 200);
-        resizePending = true;
-      } else {
-        me.render();
-        triggerOnChange();
-
-        resizeLastWidth = -1;
-        resizeLastHeight = -1;
-      }
-    }
-
-    resizeNewWidth = newWidth;
-    resizeNewHeight = newHeight;
-
-    if (!resizePending) resizeDelayed();
-  };
-};
-
-var PagedTableDoc;
-(function (PagedTableDoc) {
-  var allPagedTables = [];
-
-  PagedTableDoc.initAll = function() {
-    allPagedTables = [];
-
-    var pagedTables = [].slice.call(document.querySelectorAll('[data-pagedtable="false"],[data-pagedtable=""]'));
-    pagedTables.forEach(function(pagedTable, idx) {
-      pagedTable.setAttribute("data-pagedtable", "true");
-      pagedTable.setAttribute("pagedtable-page", 0);
-      pagedTable.setAttribute("class", "pagedtable-wrapper");
-
-      var pagedTableInstance = new PagedTable(pagedTable);
-      pagedTableInstance.init();
-
-      allPagedTables.push(pagedTableInstance);
-    });
-  };
-
-  PagedTableDoc.resizeAll = function() {
-    allPagedTables.forEach(function(pagedTable) {
-      pagedTable.render();
-    });
-  };
-
-  window.addEventListener("resize", PagedTableDoc.resizeAll);
-
-  return PagedTableDoc;
-})(PagedTableDoc || (PagedTableDoc = {}));
-
-window.onload = function() {
-  PagedTableDoc.initAll();
-};
-</script>
 
 
 </head>
@@ -5129,8 +3859,35 @@ window.onload = function() {
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./bea_io.html"> 
-<span class="menu-text">BEA I-O</span></a>
+    <a class="nav-link" href="./bds.html"> 
+<span class="menu-text">BDS</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-bea" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">BEA</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-bea">    
+        <li>
+    <a class="dropdown-item" href="./bea_fa.html">
+ <span class="dropdown-text">Fixed Assets</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./bea_io.html">
+ <span class="dropdown-text">Input-Output</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./bea_reg.html">
+ <span class="dropdown-text">Regional Economic</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="./ers_rural.html"> 
+<span class="menu-text">ERS Rurality</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./naics.html"> 
+<span class="menu-text">NAICS</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./nass.html"> 
@@ -5141,8 +3898,8 @@ window.onload = function() {
 <span class="menu-text">CHRR</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./bds.html"> 
-<span class="menu-text">BDS</span></a>
+    <a class="nav-link" href="./qcew.html"> 
+<span class="menu-text">QCEW</span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -5160,9 +3917,14 @@ window.onload = function() {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#ls-list-available-data" id="toc-ls-list-available-data" class="nav-link active" data-scroll-target="#ls-list-available-data"><code>ls()</code>: list available data</a></li>
+  <li><a href="#datasets" id="toc-datasets" class="nav-link active" data-scroll-target="#datasets">Datasets</a></li>
+  <li><a href="#package-interface" id="toc-package-interface" class="nav-link" data-scroll-target="#package-interface">Package interface</a>
+  <ul class="collapse">
+  <li><a href="#ls-list-available-datasets" id="toc-ls-list-available-datasets" class="nav-link" data-scroll-target="#ls-list-available-datasets"><code>ls()</code>: list available datasets</a></li>
   <li><a href="#meta-show-collection-or-dataset-metadata" id="toc-meta-show-collection-or-dataset-metadata" class="nav-link" data-scroll-target="#meta-show-collection-or-dataset-metadata"><code>meta()</code>: show collection or dataset metadata</a></li>
   <li><a href="#get-retrieve-a-dataset" id="toc-get-retrieve-a-dataset" class="nav-link" data-scroll-target="#get-retrieve-a-dataset"><code>get()</code>: retrieve a dataset</a></li>
+  <li><a href="#path-dataset-file-path" id="toc-path-dataset-file-path" class="nav-link" data-scroll-target="#path-dataset-file-path"><code>path()</code>: dataset file path</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -5171,7 +3933,7 @@ window.onload = function() {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">pubdata: Interface for public use datasets</h1>
+<h1 class="title">Tidy Public Data</h1>
 </div>
 
 
@@ -5179,6 +3941,12 @@ window.onload = function() {
 <div class="quarto-title-meta">
 
     
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">March 19, 2026</p>
+    </div>
+  </div>
   
     
   </div>
@@ -5188,76 +3956,263 @@ window.onload = function() {
 </header>
 
 
-<p>The general package interface for public data (“pubdata”) provide a list of operation that enables exploration and interaction with the data collections, specifically using <code>ls()</code>, <code>meta()</code>,and <code>get()</code>.</p>
-<section id="ls-list-available-data" class="level2">
-<h2 class="anchored" data-anchor-id="ls-list-available-data"><code>ls()</code>: list available data</h2>
-<p>Print a list of all available data collections.</p>
+<p>“Like families, tidy datasets are all alike but every messy dataset is messy in its own way” (<a href="https://doi.org/10.18637/jss.v059.i10" title="Wickham, H. (2014). Tidy Data. Journal of Statistical Software, 59(10), 1–23.">Wickham, 2014</a>).</p>
+<p><code>pubdata</code> is an R package that provides a minimalist interface to a wide range of publicly available datasets in a standardized tidy table form.</p>
+<ul>
+<li>Discover datasets by searching table and variable metadata.</li>
+<li>Programmatically retrieve datasets from their online source to local storage.</li>
+<li>YAML metadata format for easy entry of new datasets.</li>
+<li>Work with raw data files or tidy data frames.</li>
+<li>Standardized column names and embedded data types.</li>
+<li>Minimal modification of source data, all original data preserved.</li>
+<li>Parquet format for efficient storage and loading or out-of-core processing.</li>
+<li>Disk and memory cache for quick repeated access.</li>
+</ul>
+<section id="datasets" class="level1">
+<h1>Datasets</h1>
+<p>Datasets are organized into collections by data provider and topic.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div class="kable-table">
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 12%">
+<col style="width: 78%">
+<col style="width: 9%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">collection</th>
+<th style="text-align: left;">description</th>
+<th style="text-align: right;">datasets</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">bds</td>
+<td style="text-align: left;">Business Dynamics Statistics (BDS)</td>
+<td style="text-align: right;">197</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">bea_fa</td>
+<td style="text-align: left;">BEA Fixed Assets Accounts</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">bea_io</td>
+<td style="text-align: left;">Input-Output Tables, BEA</td>
+<td style="text-align: right;">729</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">bea_reg</td>
+<td style="text-align: left;">BEA Regional Economic Accounts</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">chrr</td>
+<td style="text-align: left;">County Health Rankings and Roadmaps (CHRR)</td>
+<td style="text-align: right;">16</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ers_rural</td>
+<td style="text-align: left;">Rurality classifications from the USDA Economic Research Service (ERS)</td>
+<td style="text-align: right;">19</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">naics</td>
+<td style="text-align: left;">North American Industry Classification System (NAICS)</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">nass</td>
+<td style="text-align: left;">National Agricultural Statistics Service (NASS)</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">qcew</td>
+<td style="text-align: left;">Quarterly Census of Employment and Wages (QCEW)</td>
+<td style="text-align: right;">71</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<section id="package-interface" class="level1">
+<h1>Package interface</h1>
+<p>It is recommended not to attach the package with <code>library(pubdata)</code>. Instead, use the full namespace to call package functions, e.g. <code>pubdata::ls()</code>. Package functions are a few and short, and using the full namespace helps avoid name conflicts.</p>
+<p>Main package interface consists of these three functions:</p>
+<ul>
+<li><code>ls()</code> lists available collections and datasets.</li>
+<li><code>meta()</code> provides metadata information.</li>
+<li><code>get()</code> retrieves a raw data file or a clean dataframe.</li>
+</ul>
+<section id="ls-list-available-datasets" class="level2">
+<h2 class="anchored" data-anchor-id="ls-list-available-datasets"><code>ls()</code>: list available datasets</h2>
+<p>Without parameters, returns a list of all available data collections.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pubdata<span class="sc">::</span><span class="fu">ls</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] &quot;bds&quot;       &quot;bea_fa&quot;    &quot;bea_io&quot;    &quot;bea_reg&quot;   &quot;ers_rural&quot; &quot;naics&quot;    
-[7] &quot;nass&quot;      &quot;qcew&quot;      &quot;chrr&quot;     </code></pre>
+<pre><code>[1] &quot;bds&quot;       &quot;bea_fa&quot;    &quot;bea_io&quot;    &quot;bea_reg&quot;   &quot;chrr&quot;      &quot;ers_rural&quot;
+[7] &quot;naics&quot;     &quot;nass&quot;      &quot;qcew&quot;     </code></pre>
 </div>
 </div>
-<p><code>detail</code>: print the data collections with additional details for each data collection (description, cache file, etc).</p>
+<p>With <code>detail = TRUE</code> returns collections with descriptions.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>pubdata<span class="sc">::</span><span class="fu">ls</span>(<span class="at">detail =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div data-pagedtable="false">
-  <script data-pagedtable-source type="application/json">
-{"columns":[{"label":["collection"],"name":[1],"type":["chr"],"align":["left"]},{"label":["description"],"name":[2],"type":["chr"],"align":["left"]}],"data":[{"1":"bds","2":"Business Dynamics Statistics (BDS)"},{"1":"bea_fa","2":"BEA Fixed Assets Accounts"},{"1":"bea_io","2":"Input-Output Tables, BEA"},{"1":"bea_reg","2":"BEA Regional Economic Accounts"},{"1":"ers_rural","2":"Rurality classifications from the USDA Economic Research Service (ERS)"},{"1":"naics","2":"North American Industry Classification System (NAICS)"},{"1":"nass","2":"National Agricultural Statistics Service (NASS)"},{"1":"qcew","2":"Quarterly Census of Employment and Wages (QCEW)"},{"1":"chrr","2":"County Health Rankings and Roadmaps (CHRR)"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
-  </script>
+<div class="kable-table">
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 13%">
+<col style="width: 86%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">collection</th>
+<th style="text-align: left;">description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">bds</td>
+<td style="text-align: left;">Business Dynamics Statistics (BDS)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">bea_fa</td>
+<td style="text-align: left;">BEA Fixed Assets Accounts</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">bea_io</td>
+<td style="text-align: left;">Input-Output Tables, BEA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">bea_reg</td>
+<td style="text-align: left;">BEA Regional Economic Accounts</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">chrr</td>
+<td style="text-align: left;">County Health Rankings and Roadmaps (CHRR)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ers_rural</td>
+<td style="text-align: left;">Rurality classifications from the USDA Economic Research Service (ERS)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">naics</td>
+<td style="text-align: left;">North American Industry Classification System (NAICS)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">nass</td>
+<td style="text-align: left;">National Agricultural Statistics Service (NASS)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">qcew</td>
+<td style="text-align: left;">Quarterly Census of Employment and Wages (QCEW)</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 </div>
-<p><code>collection</code>: print the available keys in a specific collection. For example, keys in the <code>&quot;naics&quot;</code> collection:</p>
+<p>If <code>collection</code> is specified, returns the list of available dataset keys. For example, keys in the <code>&quot;ers_rural&quot;</code> collection:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>pubdata<span class="sc">::</span><span class="fu">ls</span>(<span class="at">collection =</span> <span class="st">&quot;naics&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>pubdata<span class="sc">::</span><span class="fu">ls</span>(<span class="at">collection =</span> <span class="st">&quot;ers_rural&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] &quot;raw_2007_code&quot; &quot;raw_2012_code&quot; &quot;raw_2017_code&quot; &quot;raw_2022_code&quot;
-[5] &quot;2007_code&quot;     &quot;2012_code&quot;     &quot;2017_code&quot;     &quot;2022_code&quot;    </code></pre>
+<pre><code> [1] &quot;raw_ruc_1974&quot;     &quot;raw_ruc_1983&quot;     &quot;raw_ruc_1993&quot;     &quot;raw_ruc_2003&quot;    
+ [5] &quot;raw_ruc_2003pr&quot;   &quot;raw_ruc_2013&quot;     &quot;raw_ruc_2023&quot;     &quot;ruc_1974&quot;        
+ [9] &quot;ruc_1983&quot;         &quot;ruc_1993&quot;         &quot;ruc_2003&quot;         &quot;ruc_2003pr&quot;      
+[13] &quot;ruc_2013&quot;         &quot;ruc_2023&quot;         &quot;raw_ui_2003pr&quot;    &quot;raw_ui_2003_1993&quot;
+[17] &quot;raw_ui_2013&quot;      &quot;raw_ui_2024&quot;      &quot;ui_2003pr&quot;        &quot;ui_2003_1993&quot;    
+[21] &quot;ui_2013&quot;          &quot;ui_2024&quot;          &quot;raw_ruca_1990&quot;    &quot;raw_ruca_2000&quot;   
+[25] &quot;raw_ruca_2010&quot;    &quot;raw_ruca_2010zip&quot; &quot;raw_ruca_2020&quot;    &quot;raw_ruca_2020zip&quot;
+[29] &quot;ruca_1990&quot;        &quot;ruca_2000&quot;        &quot;ruca_2010&quot;        &quot;ruca_2010zip&quot;    
+[33] &quot;ruca_2020&quot;        &quot;ruca_2020zip&quot;     &quot;raw_far_2000&quot;     &quot;raw_far_2010&quot;    
+[37] &quot;far_2000&quot;         &quot;far_2010&quot;        </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># obtain the keys with additional details</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>pubdata<span class="sc">::</span><span class="fu">ls</span>(<span class="at">collection =</span> <span class="st">&quot;naics&quot;</span>, <span class="at">detail =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># show descriptions and cache files</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>pubdata<span class="sc">::</span><span class="fu">ls</span>(<span class="at">collection =</span> <span class="st">&quot;ers_rural&quot;</span>, <span class="at">detail =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_sample</span>(<span class="at">n =</span> <span class="dv">6</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div data-pagedtable="false">
-  <script data-pagedtable-source type="application/json">
-{"columns":[{"label":["key"],"name":[1],"type":["chr"],"align":["left"]},{"label":["description"],"name":[2],"type":["chr"],"align":["left"]},{"label":["cache_file"],"name":[3],"type":["chr"],"align":["left"]},{"label":["cache_exists"],"name":[4],"type":["lgl"],"align":["right"]}],"data":[{"1":"raw_2007_code","2":"2-6 digit 2007 Code File","3":"raw/2007/codes.xls","4":"TRUE"},{"1":"raw_2012_code","2":"2-6 digit 2012 Code File","3":"raw/2012/codes.xls","4":"TRUE"},{"1":"raw_2017_code","2":"2-6 digit 2017 Code File","3":"raw/2017/codes.xlsx","4":"TRUE"},{"1":"raw_2022_code","2":"2-6 digit 2022 Code File","3":"raw/2022/codes.xlsx","4":"TRUE"},{"1":"2007_code","2":"2-6 digit 2007 NAICS codes","3":"proc/2007/code.pq","4":"TRUE"},{"1":"2012_code","2":"2-6 digit 2012 NAICS codes","3":"proc/2012/code.pq","4":"TRUE"},{"1":"2017_code","2":"2-6 digit 2017 NAICS codes","3":"proc/2017/code.pq","4":"TRUE"},{"1":"2022_code","2":"2-6 digit 2022 NAICS codes","3":"proc/2022/code.pq","4":"TRUE"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
-  </script>
+<div class="kable-table">
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 50%">
+<col style="width: 21%">
+<col style="width: 12%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">key</th>
+<th style="text-align: left;">description</th>
+<th style="text-align: left;">cache_file</th>
+<th style="text-align: left;">cache_exists</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">raw_ruca_2020zip</td>
+<td style="text-align: left;">2020 Rural-Urban Commuting Area Codes, ZIP code</td>
+<td style="text-align: left;">raw/ruca_2020zip.xlsx</td>
+<td style="text-align: left;">TRUE</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">raw_ruc_1993</td>
+<td style="text-align: left;">1993 Rural-Urban Continuum Codes</td>
+<td style="text-align: left;">raw/ruc_1993.xls</td>
+<td style="text-align: left;">TRUE</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ruca_2020zip</td>
+<td style="text-align: left;">2020 Rural-Urban Commuting Area Codes, ZIP code</td>
+<td style="text-align: left;">proc/ruca_2020zip.pq</td>
+<td style="text-align: left;">TRUE</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">raw_ruca_2000</td>
+<td style="text-align: left;">2000 Rural-Urban Commuting Area Codes, census tract</td>
+<td style="text-align: left;">raw/ruca_2000.xls</td>
+<td style="text-align: left;">TRUE</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">raw_ruca_1990</td>
+<td style="text-align: left;">1990 Rural-Urban Commuting Area Codes, census tract</td>
+<td style="text-align: left;">raw/ruca_1990.xls</td>
+<td style="text-align: left;">TRUE</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">raw_ui_2024</td>
+<td style="text-align: left;">2024 Urban Influence Codes</td>
+<td style="text-align: left;">raw/ui_2024.xlsx</td>
+<td style="text-align: left;">TRUE</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 </div>
-<p><code>pattern</code>: print all the keys that match specific regex pattern within the data collection. For example, to print the keys with regex pattern <code>&quot;2022&quot;</code> in the <code>&quot;naics&quot;</code> collection:</p>
+<p>Use <code>pattern</code> parameter to list keys that match a regex pattern within the data collection. For example, pattern <code>&quot;^ruc_&quot;</code> in the <code>&quot;ers_rural&quot;</code> collection will list all available Rural-Urban Continuum Code datasets from the USDA ERS rurality classifications collection.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>pubdata<span class="sc">::</span><span class="fu">ls</span>(<span class="at">collection =</span> <span class="st">&quot;naics&quot;</span>, <span class="at">pattern =</span> <span class="st">&quot;2022&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>pubdata<span class="sc">::</span><span class="fu">ls</span>(<span class="at">collection =</span> <span class="st">&quot;ers_rural&quot;</span>, <span class="at">pattern =</span> <span class="st">&quot;^ruc_&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] &quot;raw_2022_code&quot; &quot;2022_code&quot;    </code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># print the keys with details</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>pubdata<span class="sc">::</span><span class="fu">ls</span>(<span class="at">collection =</span> <span class="st">&quot;naics&quot;</span>, <span class="at">pattern =</span> <span class="st">&quot;2022&quot;</span>, <span class="at">detail =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div data-pagedtable="false">
-  <script data-pagedtable-source type="application/json">
-{"columns":[{"label":["key"],"name":[1],"type":["chr"],"align":["left"]},{"label":["description"],"name":[2],"type":["chr"],"align":["left"]},{"label":["cache_file"],"name":[3],"type":["chr"],"align":["left"]},{"label":["cache_exists"],"name":[4],"type":["lgl"],"align":["right"]}],"data":[{"1":"raw_2022_code","2":"2-6 digit 2022 Code File","3":"raw/2022/codes.xlsx","4":"TRUE"},{"1":"2022_code","2":"2-6 digit 2022 NAICS codes","3":"proc/2022/code.pq","4":"TRUE"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
-  </script>
-</div>
+<pre><code>[1] &quot;ruc_1974&quot;   &quot;ruc_1983&quot;   &quot;ruc_1993&quot;   &quot;ruc_2003&quot;   &quot;ruc_2003pr&quot;
+[6] &quot;ruc_2013&quot;   &quot;ruc_2023&quot;  </code></pre>
 </div>
 </div>
 </section>
 <section id="meta-show-collection-or-dataset-metadata" class="level2">
 <h2 class="anchored" data-anchor-id="meta-show-collection-or-dataset-metadata"><code>meta()</code>: show collection or dataset metadata</h2>
-<p>Obtain the metadata of a specific collection or all keys within the collection (argument <code>collection</code> must be included).</p>
+<p>Obtain metadata of a collection or a specific dataset.</p>
+<p>For <em>collections</em>, <code>meta()</code> will print:</p>
 <ul>
-<li><code>collection</code>: for data collections, <code>meta()</code> will provide information about:
-<ul>
-<li>“<strong>desc</strong>”: description</li>
-<li>“<strong>urls</strong>”: a list of link to the source of the data collection</li>
-<li>“<strong>data_keys</strong>”: the number of keys within the data collection</li>
-</ul></li>
+<li><code>desc</code>: collection description</li>
+<li><code>urls</code>: a list of data source links</li>
+<li><code>data_keys</code>: the number of data keys within the collection</li>
 </ul>
-<p>For example, to print the metadata of the <code>&quot;ers_rural&quot;</code> collection:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>pubdata<span class="sc">::</span><span class="fu">meta</span>(<span class="st">&quot;ers_rural&quot;</span>, <span class="at">print =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>pubdata<span class="sc">::</span><span class="fu">meta</span>(<span class="at">collection =</span> <span class="st">&quot;ers_rural&quot;</span>, <span class="at">print =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>collection: ers_rural
 desc: Rurality classifications from the USDA Economic Research Service (ERS)
@@ -5270,21 +4225,18 @@ urls:
 data_keys: 38</code></pre>
 </div>
 </div>
+<p>For <em>datasets</em> and raw data files, <code>meta()</code> will provide:</p>
 <ul>
-<li><code>key</code>: for a specific <strong>dataset</strong> within the data collections, <code>meta()</code> will provide information including:
-<ul>
-<li>“<strong>mask</strong>”: naming pattern</li>
-<li>“<strong>desc</strong>”: description</li>
-<li>“<strong>type</strong>”: data format (usually “table”)</li>
-<li>“<strong>path</strong>”: internal path of the dataset</li>
-<li>“<strong>depends</strong>”: dataset dependencies</li>
-<li>“<strong>schema</strong>”: the description for variables in the dataset</li>
-<li>“<strong>keys</strong>”: regex pattern used to obtain the dataset</li>
-</ul></li>
+<li><code>desc</code>: dataset description</li>
+<li><code>type</code>: “raw” or “table”</li>
+<li><code>path</code>: local file path</li>
+<li><code>depends</code>: key of the raw data file</li>
+<li><code>schema</code>: dataset variables with their descriptions and data types</li>
+<li><code>mask</code>: key naming pattern, for internal use</li>
+<li><code>keys</code>: key parts parsed with mask, for internal use</li>
 </ul>
-<p>For example, to print the metadata of the <code>&quot;ruc_2023&quot;</code> dataset within the <code>&quot;ers_rural&quot;</code> collection:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>pubdata<span class="sc">::</span><span class="fu">meta</span>(<span class="at">collection =</span> <span class="st">&quot;ers_rural&quot;</span>, <span class="at">key =</span> <span class="st">&quot;ruc_2023&quot;</span>, <span class="at">print =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>pubdata<span class="sc">::</span><span class="fu">meta</span>(<span class="at">collection =</span> <span class="st">&quot;ers_rural&quot;</span>, <span class="at">key =</span> <span class="st">&quot;ruc_2023&quot;</span>, <span class="at">print =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>desc: 2023 Rural-Urban Continuum Codes
 type: table
@@ -5317,26 +4269,283 @@ schema:
     type: character</code></pre>
 </div>
 </div>
+<p><code>meta()</code> invisibly returns the information as a nested list, which can be used to programmatically extract specific components. Set <code>print = FALSE</code> to silence the output.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>ruc_2023_meta <span class="ot">&lt;-</span> pubdata<span class="sc">::</span><span class="fu">meta</span>(<span class="at">collection =</span> <span class="st">&quot;ers_rural&quot;</span>, <span class="at">key =</span> <span class="st">&quot;ruc_2023&quot;</span>, <span class="at">print =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>ruc_2023_meta<span class="sc">$</span>schema<span class="sc">$</span>ruc_desc_2023</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$desc
+[1] &quot;Description for 2023 codes&quot;
+
+$orig
+[1] &quot;Description&quot;
+
+$type
+[1] &quot;character&quot;</code></pre>
+</div>
+</div>
 </section>
 <section id="get-retrieve-a-dataset" class="level2">
 <h2 class="anchored" data-anchor-id="get-retrieve-a-dataset"><code>get()</code>: retrieve a dataset</h2>
-<p>Download and read the dataset in specific data collection (arguments<code>collection</code> and <code>key</code> must be included).</p>
-<p>For example, to download and read the <code>&quot;ruc_2023&quot;</code> dataset in the <code>&quot;ers_rural&quot;</code> collection:</p>
-<p><code>pubdata::get(collection = &quot;ers_rural&quot;, key = &quot;ruc_2023&quot;)</code></p>
-<p>Here would be the first 10 rows of the <code>&quot;ruc_2023&quot;</code> dataset:</p>
+<p><code>get()</code> for raw data keys downloads the file to local cache and returns its path.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>pubdata<span class="sc">::</span><span class="fu">get</span>(<span class="at">collection =</span> <span class="st">&quot;ers_rural&quot;</span>, <span class="at">key =</span> <span class="st">&quot;ruc_2023&quot;</span>) <span class="sc">|&gt;</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>pubdata<span class="sc">::</span><span class="fu">get</span>(<span class="at">collection =</span> <span class="st">&quot;ers_rural&quot;</span>, <span class="at">key =</span> <span class="st">&quot;raw_ruc_2023&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] &quot;/Users/anton/work/pubdata_cache/ers_rural/raw/ruc_2023.xlsx&quot;</code></pre>
+</div>
+</div>
+<p>For tables, on the first call <code>get()</code> downloads the source dependency file if necessary, reads it, cleans the data and stores it to a local Parquet file. Subsequent calls load the Parquet file directly.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>pubdata<span class="sc">::</span><span class="fu">get</span>(<span class="at">collection =</span> <span class="st">&quot;ers_rural&quot;</span>, <span class="at">key =</span> <span class="st">&quot;ruc_2023&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div data-pagedtable="false">
-  <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["fips"],"name":[1],"type":["chr"],"align":["left"]},{"label":["state"],"name":[2],"type":["chr"],"align":["left"]},{"label":["county_name"],"name":[3],"type":["chr"],"align":["left"]},{"label":["population_2020"],"name":[4],"type":["int"],"align":["right"]},{"label":["ruc_code_2023"],"name":[5],"type":["chr"],"align":["left"]},{"label":["ruc_desc_2023"],"name":[6],"type":["chr"],"align":["left"]}],"data":[{"1":"01001","2":"AL","3":"Autauga County","4":"58805","5":"2","6":"Metro - Counties in metro areas of 250,000 to 1 million population","_rn_":"1"},{"1":"01003","2":"AL","3":"Baldwin County","4":"231767","5":"3","6":"Metro - Counties in metro areas of fewer than 250,000 population","_rn_":"2"},{"1":"01005","2":"AL","3":"Barbour County","4":"25223","5":"6","6":"Nonmetro - Urban population of 5,000 to 20,000, adjacent to a metro area","_rn_":"3"},{"1":"01007","2":"AL","3":"Bibb County","4":"22293","5":"1","6":"Metro - Counties in metro areas of 1 million population or more","_rn_":"4"},{"1":"01009","2":"AL","3":"Blount County","4":"59134","5":"1","6":"Metro - Counties in metro areas of 1 million population or more","_rn_":"5"},{"1":"01011","2":"AL","3":"Bullock County","4":"10357","5":"8","6":"Nonmetro - Urban population of fewer than 5,000, adjacent to a metro area","_rn_":"6"},{"1":"01013","2":"AL","3":"Butler County","4":"19051","5":"6","6":"Nonmetro - Urban population of 5,000 to 20,000, adjacent to a metro area","_rn_":"7"},{"1":"01015","2":"AL","3":"Calhoun County","4":"116441","5":"3","6":"Metro - Counties in metro areas of fewer than 250,000 population","_rn_":"8"},{"1":"01017","2":"AL","3":"Chambers County","4":"34772","5":"6","6":"Nonmetro - Urban population of 5,000 to 20,000, adjacent to a metro area","_rn_":"9"},{"1":"01019","2":"AL","3":"Cherokee County","4":"24971","5":"8","6":"Nonmetro - Urban population of fewer than 5,000, adjacent to a metro area","_rn_":"10"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
-  </script>
+<div class="kable-table">
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 4%">
+<col style="width: 4%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 10%">
+<col style="width: 56%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">fips</th>
+<th style="text-align: left;">state</th>
+<th style="text-align: left;">county_name</th>
+<th style="text-align: right;">population_2020</th>
+<th style="text-align: left;">ruc_code_2023</th>
+<th style="text-align: left;">ruc_desc_2023</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">01001</td>
+<td style="text-align: left;">AL</td>
+<td style="text-align: left;">Autauga County</td>
+<td style="text-align: right;">58805</td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">Metro - Counties in metro areas of 250,000 to 1 million population</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">01003</td>
+<td style="text-align: left;">AL</td>
+<td style="text-align: left;">Baldwin County</td>
+<td style="text-align: right;">231767</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">Metro - Counties in metro areas of fewer than 250,000 population</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">01005</td>
+<td style="text-align: left;">AL</td>
+<td style="text-align: left;">Barbour County</td>
+<td style="text-align: right;">25223</td>
+<td style="text-align: left;">6</td>
+<td style="text-align: left;">Nonmetro - Urban population of 5,000 to 20,000, adjacent to a metro area</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">01007</td>
+<td style="text-align: left;">AL</td>
+<td style="text-align: left;">Bibb County</td>
+<td style="text-align: right;">22293</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">Metro - Counties in metro areas of 1 million population or more</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">01009</td>
+<td style="text-align: left;">AL</td>
+<td style="text-align: left;">Blount County</td>
+<td style="text-align: right;">59134</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">Metro - Counties in metro areas of 1 million population or more</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">01011</td>
+<td style="text-align: left;">AL</td>
+<td style="text-align: left;">Bullock County</td>
+<td style="text-align: right;">10357</td>
+<td style="text-align: left;">8</td>
+<td style="text-align: left;">Nonmetro - Urban population of fewer than 5,000, adjacent to a metro area</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">01013</td>
+<td style="text-align: left;">AL</td>
+<td style="text-align: left;">Butler County</td>
+<td style="text-align: right;">19051</td>
+<td style="text-align: left;">6</td>
+<td style="text-align: left;">Nonmetro - Urban population of 5,000 to 20,000, adjacent to a metro area</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">01015</td>
+<td style="text-align: left;">AL</td>
+<td style="text-align: left;">Calhoun County</td>
+<td style="text-align: right;">116441</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">Metro - Counties in metro areas of fewer than 250,000 population</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">01017</td>
+<td style="text-align: left;">AL</td>
+<td style="text-align: left;">Chambers County</td>
+<td style="text-align: right;">34772</td>
+<td style="text-align: left;">6</td>
+<td style="text-align: left;">Nonmetro - Urban population of 5,000 to 20,000, adjacent to a metro area</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">01019</td>
+<td style="text-align: left;">AL</td>
+<td style="text-align: left;">Cherokee County</td>
+<td style="text-align: right;">24971</td>
+<td style="text-align: left;">8</td>
+<td style="text-align: left;">Nonmetro - Urban population of fewer than 5,000, adjacent to a metro area</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<section id="path-dataset-file-path" class="level2">
+<h2 class="anchored" data-anchor-id="path-dataset-file-path"><code>path()</code>: dataset file path</h2>
+<p>A common usage pattern with large datasets is to query a subset from disk without loading the entire data frame into memory. Once the dataset has been built with <code>get()</code>, the <code>path()</code> function provides a shorthand to the Parquet file location on disk.</p>
+<div class="cell" data-tbl-cap="Private employment by industry in Dane county, WI in 2024 (QCEW)">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># slow, run once</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="co"># pubdata::get(&quot;qcew&quot;, &quot;naics_ann_2024&quot;)</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="co"># fast</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>pubdata<span class="sc">::</span><span class="fu">path</span>(<span class="st">&quot;qcew&quot;</span>, <span class="st">&quot;naics_ann_2024&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  arrow<span class="sc">::</span><span class="fu">open_dataset</span>() <span class="sc">|&gt;</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(area_fips <span class="sc">==</span> <span class="st">&quot;55025&quot;</span>, agglvl_code <span class="sc">==</span> <span class="st">&quot;74&quot;</span>, own_code <span class="sc">==</span> <span class="st">&quot;5&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(industry_code, annual_avg_estabs, annual_avg_emplvl) <span class="sc">|&gt;</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect</span>() <span class="sc">|&gt;</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(pubdata<span class="sc">::</span><span class="fu">get</span>(<span class="st">&quot;qcew&quot;</span>, <span class="st">&quot;meta_naics_ind&quot;</span>), <span class="at">by =</span> <span class="st">&quot;industry_code&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="at">sector =</span> industry_title, <span class="at">establishments =</span> annual_avg_estabs, <span class="at">employment =</span> annual_avg_emplvl)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="kable-table">
+<table class="caption-top table table-sm table-striped small">
+<caption>Private employment by industry in Dane county, WI in 2024 (QCEW)</caption>
+<colgroup>
+<col style="width: 75%">
+<col style="width: 13%">
+<col style="width: 10%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">sector</th>
+<th style="text-align: right;">establishments</th>
+<th style="text-align: right;">employment</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">NAICS 11 Agriculture, forestry, fishing and hunting</td>
+<td style="text-align: right;">153</td>
+<td style="text-align: right;">2445</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">NAICS 21 Mining, quarrying, and oil and gas extraction</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">180</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">NAICS 22 Utilities</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">1034</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">NAICS 23 Construction</td>
+<td style="text-align: right;">1335</td>
+<td style="text-align: right;">17750</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">NAICS 31-33 Manufacturing</td>
+<td style="text-align: right;">565</td>
+<td style="text-align: right;">26335</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">NAICS 42 Wholesale trade</td>
+<td style="text-align: right;">893</td>
+<td style="text-align: right;">12526</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">NAICS 44-45 Retail trade</td>
+<td style="text-align: right;">1566</td>
+<td style="text-align: right;">29990</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">NAICS 48-49 Transportation and warehousing</td>
+<td style="text-align: right;">328</td>
+<td style="text-align: right;">7642</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">NAICS 51 Information</td>
+<td style="text-align: right;">459</td>
+<td style="text-align: right;">19267</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">NAICS 52 Finance and insurance</td>
+<td style="text-align: right;">1037</td>
+<td style="text-align: right;">17678</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">NAICS 53 Real estate and rental and leasing</td>
+<td style="text-align: right;">869</td>
+<td style="text-align: right;">4508</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">NAICS 54 Professional, scientific, and technical services</td>
+<td style="text-align: right;">2900</td>
+<td style="text-align: right;">26510</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">NAICS 55 Management of companies and enterprises</td>
+<td style="text-align: right;">225</td>
+<td style="text-align: right;">5353</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">NAICS 56 Administrative and support and waste management and remediation services</td>
+<td style="text-align: right;">1015</td>
+<td style="text-align: right;">14632</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">NAICS 61 Educational services</td>
+<td style="text-align: right;">324</td>
+<td style="text-align: right;">4146</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">NAICS 62 Health care and social assistance</td>
+<td style="text-align: right;">2870</td>
+<td style="text-align: right;">42442</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">NAICS 71 Arts, entertainment, and recreation</td>
+<td style="text-align: right;">313</td>
+<td style="text-align: right;">6017</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">NAICS 72 Accommodation and food services</td>
+<td style="text-align: right;">1431</td>
+<td style="text-align: right;">28265</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">NAICS 81 Other services (except public administration)</td>
+<td style="text-align: right;">1583</td>
+<td style="text-align: right;">11366</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">NAICS 99 Unclassified</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 </div>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->

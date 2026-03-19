@@ -1,23 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://antonbabkin.github.io/pubdata/bds.html</loc>
-    <lastmod>2026-03-03T18:58:26.295Z</lastmod>
+    <loc>https://antonbabkin.github.io/pubdata/qcew.html</loc>
+    <lastmod>2026-03-19T04:18:21.777Z</lastmod>
   </url>
   <url>
-    <loc>https://antonbabkin.github.io/pubdata/nass.html</loc>
-    <lastmod>2026-02-19T18:28:05.501Z</lastmod>
-  </url>
-  <url>
-    <loc>https://antonbabkin.github.io/pubdata/index.html</loc>
-    <lastmod>2025-07-10T20:32:57.831Z</lastmod>
-  </url>
-  <url>
-    <loc>https://antonbabkin.github.io/pubdata/bea_io.html</loc>
-    <lastmod>2026-02-19T18:28:05.500Z</lastmod>
+    <loc>https://antonbabkin.github.io/pubdata/naics.html</loc>
+    <lastmod>2026-03-19T04:38:15.771Z</lastmod>
   </url>
   <url>
     <loc>https://antonbabkin.github.io/pubdata/chrr.html</loc>
-    <lastmod>2026-03-03T18:58:26.295Z</lastmod>
+    <lastmod>2026-03-19T03:54:32.635Z</lastmod>
+  </url>
+  <url>
+    <loc>https://antonbabkin.github.io/pubdata/bea_io.html</loc>
+    <lastmod>2026-03-19T05:28:13.009Z</lastmod>
+  </url>
+  <url>
+    <loc>https://antonbabkin.github.io/pubdata/bds.html</loc>
+    <lastmod>2026-03-19T05:27:36.921Z</lastmod>
+  </url>
+  <url>
+    <loc>https://antonbabkin.github.io/pubdata/index.html</loc>
+    <lastmod>2026-03-19T05:22:38.862Z</lastmod>
+  </url>
+  <url>
+    <loc>https://antonbabkin.github.io/pubdata/bea_fa.html</loc>
+    <lastmod>2026-03-19T04:29:56.610Z</lastmod>
+  </url>
+  <url>
+    <loc>https://antonbabkin.github.io/pubdata/bea_reg.html</loc>
+    <lastmod>2026-03-19T04:32:10.370Z</lastmod>
+  </url>
+  <url>
+    <loc>https://antonbabkin.github.io/pubdata/ers_rural.html</loc>
+    <lastmod>2026-03-19T04:25:22.596Z</lastmod>
+  </url>
+  <url>
+    <loc>https://antonbabkin.github.io/pubdata/nass.html</loc>
+    <lastmod>2026-03-19T03:53:35.482Z</lastmod>
   </url>
 </urlset>
