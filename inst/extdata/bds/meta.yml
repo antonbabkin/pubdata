@@ -471,7 +471,7 @@ data:
 
   2022_st_cty_sec:
     mask: "{revision}_st_cty_sec"
-    desc: BDS by county, {revision} revision
+    desc: BDS by county by sector, {revision} revision
     type: table
     path: "proc/{revision}/bds{revision}_st_cty_sec.pq"
     depends: raw_{revision}_st_cty_sec

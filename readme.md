@@ -4,7 +4,7 @@
 
 [1]: https://doi.org/10.18637/jss.v059.i10 "Wickham, H. (2014). Tidy Data. Journal of Statistical Software, 59(10), 1–23."
 
-`pubdata` is an R package that provides a simple interface to a wide range of publicly available datasets in a standardized tidy table form. 
+`pubdata` is an R package that provides a minimalist interface to a wide range of publicly available datasets in a standardized tidy table form. 
 
 - Discover datasets by searching table and variable metadata.
 - Programmatically retrieve datasets from their online source to local storage.

@@ -1,5 +1,5 @@
 ---
-title: "National Agricultural Statistics Service (NASS)"
+title: "North American Industry Classification System (NAICS)"
 format:
   html:
     toc: true
@@ -13,21 +13,21 @@ execute:
 ---
 
 
-
 ```{r}
 #| echo: false
 #| output: false
+library(broom)
 library(tidyverse)
 library(arrow)
 library(DT)
 
-COLLECTION <- "nass"
+COLLECTION <- "naics"
 
 ```
 
 # Overview
 
-> The USDA's National Agricultural Statistics Service (NASS) conducts hundreds of surveys every year and prepares reports covering virtually every aspect of U.S. agriculture. Production and supplies of food and fiber, prices paid and received by farmers, farm labor and wages, farm finances, chemical use, and changes in the demographics of U.S. producers are only a few examples.
+> The North American Industry Classification System (NAICS) is the standard used by Federal statistical agencies in classifying business establishments for the purpose of collecting, analyzing, and publishing statistical data related to the U.S. business economy.
 
 Data source links.
 
@@ -57,9 +57,10 @@ descriptions <- pubdata::ls(COLLECTION, detail = TRUE) %>%
 
 dimensions <- descriptions$key %>%
   map(\(key) {
-    ds <- pubdata::path(COLLECTION, key) %>%
-      open_dataset()
-    list(key = key, rows = nrow(ds), cols = ncol(ds))
+    pq_path <- pubdata::path(COLLECTION, key)
+    if (!file.exists(pq_path)) pubdata::get(COLLECTION, key)
+    df <- open_dataset(pq_path)
+    list(key = key, rows = nrow(df), cols = ncol(df))
   }) %>%
   bind_rows()
 
@@ -69,9 +70,9 @@ inner_join(descriptions, dimensions, by = "key") %>%
 ```
 
 
-# Variables
+# Columns
 
-Listing of all variables in each table.
+Listing of all columns in each table.
 
 ```{r}
 #| echo: false
@@ -83,16 +84,17 @@ pubdata::ls(COLLECTION) %>%
   set_names() %>%
   map(\(key) {
     schema <- pubdata::meta(COLLECTION, key, print = FALSE)$schema %>%
-      bind_rows(.id = "variable") %>%
-      relocate(variable, type, desc)
+      bind_rows(.id = "column") %>%
+      relocate(column, type, desc)
     stats <- pubdata::get(COLLECTION, key) %>%
       map(\(values) list(na = sum(is.na(values)), unique = length(unique(values)))) %>%
-      bind_rows(.id = "variable")
-    inner_join(schema, stats, by = "variable")
+      bind_rows(.id = "column")
+    inner_join(schema, stats, by = "column")
   }) %>%
   bind_rows(.id = "key") %>%
   datatable(filter = "top")
 ```
+
 
 
 # Examples

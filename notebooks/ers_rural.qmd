@@ -1,0 +1,106 @@
+---
+title: "Rurality classifications from the USDA Economic Research Service (ERS)"
+format:
+  html:
+    toc: true
+    toc-location: right-body
+    code-fold: true
+    code-overflow: wrap
+    embed-resources: true
+    df-print: kable
+execute:
+  cache: true
+---
+
+
+```{r}
+#| echo: false
+#| output: false
+library(broom)
+library(tidyverse)
+library(arrow)
+library(DT)
+
+COLLECTION <- "ers_rural"
+
+```
+
+# Overview
+
+> USDA, Economic Research Service (ERS) researchers and others who analyze conditions in "rural" America most often study conditions in nonmetropolitan (nonmetro) areas, defined on the basis of counties. Counties are a standard geographic unit for collecting economic data and for conducting research to track and explain regional population and economic trends.
+
+> In addition to conducting research that uses the basic metro-nonmetro dichotomy, ERS has developed multi-level county classifications to measure rurality in more detail and to assess the economic and social diversity of nonmetro America. Some of these classification schemes have been used to determine eligibility for Federal programs that assist rural areas.
+
+> For some research and program applications, counties are too large to accurately distinguish rural and urban settlement patterns. The U.S. Department of Commerce, Bureau of the Census uses much smaller geographic building blocks to define rural areas as open country and settlements with fewer than 5,000 residents and fewer than 2,000 housing units.
+
+Data source links.
+
+```{r}
+#| echo: false
+#| results: asis
+pubdata::meta(COLLECTION, print = FALSE)$urls %>%
+  iwalk(\(url, name) {
+    cat(str_glue("  - [{name}]({url})"), "\n")
+  })
+
+```
+
+
+# Tables
+
+List of all tables in the collection.
+
+```{r}
+#| echo: false
+#| column: page
+# eval: false
+
+descriptions <- pubdata::ls(COLLECTION, detail = TRUE) %>%
+  select(key, description) %>%
+  filter(!str_starts(key, "raw"))
+
+dimensions <- descriptions$key %>%
+  map(\(key) {
+    pq_path <- pubdata::path(COLLECTION, key)
+    if (!file.exists(pq_path)) pubdata::get(COLLECTION, key)
+    df <- open_dataset(pq_path)
+    list(key = key, rows = nrow(df), cols = ncol(df))
+  }) %>%
+  bind_rows()
+
+inner_join(descriptions, dimensions, by = "key") %>%
+  datatable()
+
+```
+
+
+# Columns
+
+Listing of all columns in each table.
+
+```{r}
+#| echo: false
+#| column: page
+# eval: false
+
+pubdata::ls(COLLECTION) %>%
+  grepv("^raw_", ., invert = TRUE) %>%
+  set_names() %>%
+  map(\(key) {
+    schema <- pubdata::meta(COLLECTION, key, print = FALSE)$schema %>%
+      bind_rows(.id = "column") %>%
+      relocate(column, type, desc)
+    stats <- pubdata::get(COLLECTION, key) %>%
+      map(\(values) list(na = sum(is.na(values)), unique = length(unique(values)))) %>%
+      bind_rows(.id = "column")
+    inner_join(schema, stats, by = "column")
+  }) %>%
+  bind_rows(.id = "key") %>%
+  datatable(filter = "top")
+```
+
+
+
+# Examples
+
+Coming soon.

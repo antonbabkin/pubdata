@@ -12,8 +12,6 @@ execute:
   cache: true
 ---
 
-
-
 ```{r}
 #| echo: false
 #| output: false
@@ -45,7 +43,6 @@ pubdata::meta(COLLECTION, print = FALSE)$urls %>%
 # Tables
 
 List of all tables in the collection.
-Each table can be retrieved with `pubdata::get("chrr", key)`.
 
 ```{r}
 #| echo: false

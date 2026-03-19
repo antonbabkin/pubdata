@@ -1,91 +1,169 @@
 ---
-title: "pubdata: Interface for public use datasets"
+title: "Tidy Public Data"
 format:
   html:
+    date: today
     toc: true
     code-overflow: wrap
     embed-resources: true
-    df-print: paged
+    df-print: kable
 ---
 
-The general package interface for public data ("pubdata") provide a list of operation that enables exploration and interaction with the data collections, specifically using `ls()`, `meta()`,and `get()`.
+"Like families, tidy datasets are all alike but every messy dataset is messy in its own way" ([Wickham, 2014][1]).
+
+[1]: https://doi.org/10.18637/jss.v059.i10 "Wickham, H. (2014). Tidy Data. Journal of Statistical Software, 59(10), 1–23."
+
+`pubdata` is an R package that provides a minimalist interface to a wide range of publicly available datasets in a standardized tidy table form. 
+
+- Discover datasets by searching table and variable metadata.
+- Programmatically retrieve datasets from their online source to local storage.
+- YAML metadata format for easy entry of new datasets.
+- Work with raw data files or tidy data frames.
+- Standardized column names and embedded data types.
+- Minimal modification of source data, all original data preserved.
+- Parquet format for efficient storage and loading or out-of-core processing.
+- Disk and memory cache for quick repeated access.
+
+```{r}
+#| echo: false
+#| output: false
+library(tidyverse)
+```
+
+# Datasets
+
+Datasets are organized into collections by data provider and topic.
+
+```{r}
+#| echo: false
+pubdata::ls() %>%
+  map(\(col) {
+    list(
+      collection = col,
+      description = pubdata::meta(col, print = FALSE)$desc,
+      datasets = pubdata::ls(col) %>% grepv("^raw", ., invert = TRUE) %>% length()
+    )
+  }) %>%
+  bind_rows()
+```
 
 
-## `ls()`: list available data
+# Package interface
 
-Print a list of all available data collections.
+It is recommended not to attach the package with `library(pubdata)`.
+Instead, use the full namespace to call package functions, e.g. `pubdata::ls()`.
+Package functions are a few and short, and using the full namespace helps avoid name conflicts.
+
+Main package interface consists of these three functions:
+
+- `ls()` lists available collections and datasets.
+- `meta()` provides metadata information.
+- `get()` retrieves a raw data file or a clean dataframe.
+
+
+## `ls()`: list available datasets
+
+Without parameters, returns a list of all available data collections.
 
 ```{r}
 pubdata::ls()
 ```
 
-`detail`: print the data collections with additional details for each data collection (description, cache file, etc).
+With `detail = TRUE` returns collections with descriptions.
 
 ```{r}
 pubdata::ls(detail = TRUE)
 ```
 
-`collection`: print the available keys in a specific collection.
-For example, keys in the `"naics"` collection:
+If `collection` is specified, returns the list of  available dataset keys.
+For example, keys in the `"ers_rural"` collection:
 
 ```{r}
-pubdata::ls(collection = "naics")
+pubdata::ls(collection = "ers_rural")
 
-# obtain the keys with additional details
-pubdata::ls(collection = "naics", detail = TRUE)
+# show descriptions and cache files
+pubdata::ls(collection = "ers_rural", detail = TRUE) |>
+  slice_sample(n = 6)
 ```
 
-`pattern`: print all the keys that match specific regex pattern within the data collection.
-For example, to print the keys with regex pattern `"2022"` in the `"naics"` collection:
+Use `pattern` parameter to list keys that match a regex pattern within the data collection.
+For example, pattern `"^ruc_"` in the `"ers_rural"` collection will list all available Rural-Urban Continuum Code datasets from the USDA ERS rurality classifications collection.
 
 ```{r}
-pubdata::ls(collection = "naics", pattern = "2022")
-
-# print the keys with details
-pubdata::ls(collection = "naics", pattern = "2022", detail = TRUE)
+pubdata::ls(collection = "ers_rural", pattern = "^ruc_")
 ```
 
 ## `meta()`: show collection or dataset metadata
 
-Obtain the metadata of a specific collection or all keys within the collection (argument `collection` must be included).
+Obtain metadata of a collection or a specific dataset.
 
--   `collection`: for data collections, `meta()` will provide information about:
-    -   "**desc**": description
-    -   "**urls**": a list of link to the source of the data collection
-    -   "**data_keys**": the number of keys within the data collection
+For *collections*, `meta()` will print:
 
-For example, to print the metadata of the `"ers_rural"` collection:
+  - `desc`: collection description
+  - `urls`: a list of data source links
+  - `data_keys`: the number of data keys within the collection
 
 ```{r}
-pubdata::meta("ers_rural", print = TRUE)
+pubdata::meta(collection = "ers_rural", print = TRUE)
 ```
 
--   `key`: for a specific **dataset** within the data collections, `meta()` will provide information including:
-    -   "**mask**": naming pattern
-    -   "**desc**": description
-    -   "**type**": data format (usually "table")
-    -   "**path**": internal path of the dataset
-    -   "**depends**": dataset dependencies
-    -   "**schema**": the description for variables in the dataset
-    -   "**keys**": regex pattern used to obtain the dataset
+For *datasets* and raw data files, `meta()` will provide:
 
-For example, to print the metadata of the `"ruc_2023"` dataset within the `"ers_rural"` collection:
+  - `desc`: dataset description
+  - `type`: "raw" or "table"
+  - `path`: local file path
+  - `depends`: key of the raw data file
+  - `schema`: dataset variables with their descriptions and data types
+  - `mask`: key naming pattern, for internal use
+  - `keys`: key parts parsed with mask, for internal use
 
 ```{r}
 pubdata::meta(collection = "ers_rural", key = "ruc_2023", print = TRUE)
 ```
 
+`meta()` invisibly returns the information as a nested list, which can be used to programmatically extract specific components.
+Set `print = FALSE` to silence the output.
+
+```{r}
+ruc_2023_meta <- pubdata::meta(collection = "ers_rural", key = "ruc_2023", print = FALSE)
+ruc_2023_meta$schema$ruc_desc_2023
+```
+
+
+
 ## `get()`: retrieve a dataset
 
-Download and read the dataset in specific data collection (arguments`collection` and `key` must be included).
+`get()` for raw data keys downloads the file to local cache and returns its path.
 
-For example, to download and read the `"ruc_2023"` dataset in the `"ers_rural"` collection:
+```{r}
+pubdata::get(collection = "ers_rural", key = "raw_ruc_2023")
+```
 
-`pubdata::get(collection = "ers_rural", key = "ruc_2023")`
-
-Here would be the first 10 rows of the `"ruc_2023"` dataset:
+For tables, on the first call `get()` downloads the source dependency file if necessary, reads it, cleans the data and stores it to a local Parquet file.
+Subsequent calls load the Parquet file directly.
 
 ```{r}
 pubdata::get(collection = "ers_rural", key = "ruc_2023") |>
   head(10)
+```
+
+
+## `path()`: dataset file path
+
+A common usage pattern with large datasets is to query a subset from disk without loading the entire data frame into memory.
+Once the dataset has been built with `get()`, the `path()` function provides a shorthand to the Parquet file location on disk.
+
+```{r}
+#| tbl-cap: Private employment by industry in Dane county, WI in 2024 (QCEW)
+# slow, run once
+# pubdata::get("qcew", "naics_ann_2024")
+
+# fast
+pubdata::path("qcew", "naics_ann_2024") |>
+  arrow::open_dataset() |>
+  filter(area_fips == "55025", agglvl_code == "74", own_code == "5") |>
+  select(industry_code, annual_avg_estabs, annual_avg_emplvl) |>
+  collect() |>
+  left_join(pubdata::get("qcew", "meta_naics_ind"), by = "industry_code") |>
+  select(sector = industry_title, establishments = annual_avg_estabs, employment = annual_avg_emplvl)
 ```

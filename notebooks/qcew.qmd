@@ -3,38 +3,114 @@ title: "QCEW: Quarterly Census of Employment and Wages"
 format:
   html:
     toc: true
+    toc-location: right-body
+    code-fold: true
     code-overflow: wrap
     embed-resources: true
-    df-print: paged
+    df-print: kable
+execute:
+  cache: true
 ---
 
 ```{r}
-#| code-fold: true
+#| echo: false
 #| output: false
 library(tidyverse)
 library(scales)
 library(arrow)
+library(DT)
+
+COLLECTION <- "qcew"
 ```
 
-Placeholder page for `qcew` collection.
 
-## Dataset
+# Overview
+
+> The Quarterly Census of Employment and Wages (QCEW) program publishes a quarterly count of employment and wages reported by employers covering more than 95 percent of U.S. jobs, available at the county, MSA, state and national levels by industry.
+
+Data source links.
 
 ```{r}
-pubdata::ls("qcew", detail = TRUE)
+#| echo: false
+#| results: asis
+pubdata::meta(COLLECTION, print = FALSE)$urls %>%
+  iwalk(\(url, name) {
+    cat(str_glue("  - [{name}]({url})"), "\n")
+  })
+
 ```
+
+
+# Tables
+
+List of all tables in the collection.
+
+```{r}
+#| echo: false
+#| column: page
+# eval: false
+
+descriptions <- pubdata::ls(COLLECTION, detail = TRUE) %>%
+  select(key, description) %>%
+  filter(!str_starts(key, "raw"))
+
+dimensions <- descriptions$key %>%
+  map(\(key) {
+    pq_path <- pubdata::path(COLLECTION, key)
+    if (!file.exists(pq_path)) pubdata::get(COLLECTION, key)
+    df <- open_dataset(pq_path)
+    list(key = key, rows = nrow(df), cols = ncol(df))
+  }) %>%
+  bind_rows()
+
+inner_join(descriptions, dimensions, by = "key") %>%
+  datatable()
+
+```
+
+
+# Columns
+
+Listing of all columns in each table.
+
+```{r}
+#| echo: false
+#| column: page
+# eval: false
+
+pubdata::ls(COLLECTION) %>%
+  grepv("^raw_", ., invert = TRUE) %>%
+  set_names() %>%
+  map(\(key) {
+    schema <- pubdata::meta(COLLECTION, key, print = FALSE)$schema %>%
+      bind_rows(.id = "column") %>%
+      relocate(column, type, desc)
+    stats <- pubdata::get(COLLECTION, key) %>%
+      map(\(values) list(na = sum(is.na(values)), unique = length(unique(values)))) %>%
+      bind_rows(.id = "column")
+    inner_join(schema, stats, by = "column")
+  }) %>%
+  bind_rows(.id = "key") %>%
+  datatable(filter = "top")
+```
+
+
+# Examples
 
 ## Comparing data access methods
 
--   Reading an full year of QCEW data using `pubdata::get()` takes a few seconds, which adds up doing multiple analysis over multiple years.
--   To improve efficiency, we can combine `pubdata::path()`(returns the exact disk path for a given table table) and `arrow::open_dataset` (analyze large, multifile dataset directly from disk without reading them fully into memory)
+*By Isabella Jiang*
+
+- Reading an full year of QCEW data using `pubdata::get()` takes a few seconds, which adds up doing multiple analysis over multiple years.
+- To improve efficiency, we can combine `pubdata::path()` (returns the exact disk path for a given table table) and `arrow::open_dataset` (analyze large, multifile dataset directly from disk without reading them fully into memory)
 
 ```{r}
 # Reading an entire year and filter (2020)
 time_entire <- system.time({
   df_full <- pubdata::get("qcew", "naics_ann_2020") %>%
     filter(agglvl_code == "10", own_code == "5") %>%
-    select(area_fips, annual_avg_emplvl, avg_annual_pay)})
+    select(area_fips, annual_avg_emplvl, avg_annual_pay)
+  })
 
 # arrow + filter
 time_arrow <- system.time({
@@ -42,7 +118,8 @@ time_arrow <- system.time({
     arrow::open_dataset() %>%
     filter(agglvl_code == "10", own_code == "5") %>%
     select(area_fips, annual_avg_emplvl) %>%
-    collect()})
+    collect()
+  })
 
 tibble(
   Method = c("Load entire table into memory", "Query subset using Arrow Dataset"),
@@ -50,9 +127,8 @@ tibble(
 )
 ```
 
-## Examples of analysis
 
-10 smallest states by employment in 2024.
+## Smallest states by employment in 2024
 
 ```{r}
 pubdata::get("qcew", "naics_ann_2024") %>%
@@ -64,7 +140,10 @@ pubdata::get("qcew", "naics_ann_2024") %>%
   head(10)
 ```
 
-Top 10 industries by annual average pay in 2024 (5-Digit NAICS).
+
+## Top 10 industries by annual average pay in 2024
+
+*By Isabella Jiang*
 
 ```{r}
 pubdata::get("qcew", "naics_ann_2024") %>% 
@@ -75,10 +154,16 @@ pubdata::get("qcew", "naics_ann_2024") %>%
   head(10)
 ```
 
-Employment growth rate by ownership (2020-2024) (Using `pubdata::path()` with `arrow::open_dataset()` for faster multiyear querying.)
+
+## Employment growth rate by ownership (2020-2024)
+
+*By Isabella Jiang*
+
+Using `pubdata::path()` with `arrow::open_dataset()` for faster multiyear querying.
 
 ```{r}
-df_arrow <- pubdata::path("qcew", "naics_ann_2020") %>% dirname() %>%
+df_arrow <- pubdata::path("qcew", "naics_ann_2020") %>% 
+  dirname() %>%
   arrow::open_dataset() %>%
   filter(
     agglvl_code == "11",
@@ -100,14 +185,12 @@ ggplot(df_arrow, aes(x = year, y = oty_annual_avg_emplvl_pct_chg, color = own_ti
   theme_minimal()
 ```
 
-The annual average pay trends of top 3 supersectors in 2024 (2020-2024).
 
-```{r message=FALSE}
-#preload data
-for (y in 2020:2024) {
-  pubdata::get("qcew", paste0("naics_ann_", y))
-}
-options(timeout = 800)
+## The annual average pay trends of top 3 supersectors in 2024
+
+*By Isabella Jiang*
+
+```{r}
 
 top3_industries <- pubdata::get("qcew", "naics_ann_2024") %>%
   filter(agglvl_code == "13") %>%
@@ -119,7 +202,7 @@ df_top3 <- map_dfr(2020:2024, function(y) {
   pubdata::get("qcew", paste0("naics_ann_", y)) %>%
     filter(agglvl_code == "13", industry_code %in% top3_industries) %>%
     group_by(year = y, industry_code) %>% 
-    summarize(avg_annual_pay = mean(avg_annual_pay, na.rm = TRUE)) %>% 
+    summarize(avg_annual_pay = mean(avg_annual_pay, na.rm = TRUE), .groups = "drop_last") %>% 
     left_join(pubdata::get("qcew", "meta_naics_ind"), by = "industry_code") %>%
     select(year, industry_code, industry_title, avg_annual_pay)
 })
@@ -137,7 +220,10 @@ ggplot(df_top3, aes(x = year, y = avg_annual_pay, color = industry_title)) +
   theme_minimal()
 ```
 
-Linear association between annual average annual pay and establishments (2020–2024)
+
+## Linear association between annual average annual pay and establishments
+
+*By Isabella Jiang*
 
 ```{r}
 df_pay_estabs <- map_dfr(2020:2024, function(y) {
@@ -149,5 +235,6 @@ df_pay_estabs <- map_dfr(2020:2024, function(y) {
 
 lm_pay_estabs <- lm(avg_annual_pay ~ annual_avg_estabs, data = df_pay_estabs)
 
-lm_pay_estabs %>% summary()
+lm_pay_estabs %>%
+  summary()
 ```

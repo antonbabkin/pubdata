@@ -45,7 +45,6 @@ pubdata::meta(COLLECTION, print = FALSE)$urls %>%
 # Tables
 
 List of all tables in the collection.
-Each table can be retrieved with `pubdata::get("bea_io", key)`.
 
 ```{r}
 #| echo: false
@@ -122,7 +121,7 @@ $$
 Billions of dollars in 2022.
 
 ```{r}
-
+#| warning: false
 x <- pubdata::get("bea_io", "2023_mu_use-bef-pro_sec_2022")
 commodity_codes <- x %>%
   filter(core_matrix) %>%
@@ -238,7 +237,7 @@ x %>%
 
 ## Inputs to grain farming
 
-2017 dollar value of top 10 detail level commodities used is inputs to Grain farming industry.
+2017 dollar value of top 10 detail level commodities used as inputs to Grain farming industry.
 
 ```{r}
 pubdata::get("bea_io", "2023_mu_use-bef-pro_det_2017") %>%

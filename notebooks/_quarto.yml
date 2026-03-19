@@ -2,11 +2,15 @@ project:
   type: website
   render:
     - index.qmd
-    - bea_io.qmd
-    - nass.qmd
-    - chrr.qmd
     - bds.qmd
-    # - qcew.qmd
+    - bea_fa.qmd
+    - bea_io.qmd
+    - bea_reg.qmd
+    - chrr.qmd
+    - ers_rural.qmd
+    - naics.qmd
+    - nass.qmd
+    - qcew.qmd
   post-render: touch _site/.nojekyll
 
 website:
@@ -16,16 +20,26 @@ website:
     left:
       - text: Home
         href: index.qmd
-      - text: BEA I-O
-        href: bea_io.qmd
+      - text: BDS
+        href: bds.qmd
+      - text: BEA
+        menu: 
+          - text: Fixed Assets
+            href: bea_fa.qmd
+          - text: Input-Output
+            href: bea_io.qmd
+          - text: Regional Economic
+            href: bea_reg.qmd
+      - text: ERS Rurality
+        href: ers_rural.qmd
+      - text: NAICS
+        href: naics.qmd
       - text: NASS
         href: nass.qmd
       - text: CHRR
         href: chrr.qmd
-      - text: BDS
-        href: bds.qmd
-      # - text: QCEW
-      #   href: qcew.qmd
+      - text: QCEW
+        href: qcew.qmd
 
 format:
   html:
