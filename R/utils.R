@@ -12,7 +12,7 @@ pubdata_path <- function(...) {
 
 #' Path to metadata YAML file
 pubdata_meta_path <- function(collection) {
-  system.file(file.path("extdata", collection, "meta.yml"), package = "pubdata")
+  system.file(file.path("extdata", paste0(collection, ".yml")), package = "pubdata")
 }
 
 
