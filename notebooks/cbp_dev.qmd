@@ -1,0 +1,49 @@
+---
+title: "CBP development"
+format:
+  html:
+    code-fold: true
+
+---
+
+```{r}
+library(tidyverse)
+library(yaml)
+
+logger::log_threshold(logger::DEBUG)
+
+
+```
+
+
+# 2012 schema
+
+All numeric columns are integers, but largest payroll values do not fit into R's 32-bit integer data type, so we use double type for all payroll columns.
+
+Which columns overlap across datasets?
+
+```{r}
+
+columns <- ls("cbp") |>
+  grepv("raw", x = _) |>
+  set_names() |>
+  map(\(k) {
+    cols <- get("cbp", k) |>
+      read_csv(n_max = 1) |>
+      names()
+    x <- data.frame(column = cols)
+    x[[k]] <- TRUE
+    x
+  }) |>
+  reduce(\(x, y) full_join(x, y, by = "column"))
+
+columns
+
+columns %>%
+  filter(raw_2012_us & raw_2012_st & raw_2012_co) %>%
+  pull(column)
+
+
+
+```
+

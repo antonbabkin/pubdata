@@ -1,0 +1,574 @@
+collection: cbp
+desc: County Business Patterns (CBP)
+urls:
+  "Home":
+    https://www.census.gov/programs-surveys/cbp.html
+  "CSV datasets":
+    https://www.census.gov/programs-surveys/cbp/data/datasets.html
+  "Record Layouts":
+    https://www.census.gov/programs-surveys/cbp/technical-documentation/record-layouts.html
+
+
+# schema blocks
+schema:
+  core: &schema_core
+    naics:
+      type: character
+      desc: |
+        Industry Code - 6-digit NAICS code.
+    empflag:
+      type: character
+      desc: |
+        Data Suppression Flag. Denotes an employment size class for data withheld to avoid disclosure (confidentiality) or because data do not meet publication standards.
+        A: 0-19
+        B: 20-99
+        C: 100-249
+        E: 250-499
+        F: 500-999
+        G: 1,000-2,499
+        H: 2,500-4,999
+        I: 5,000-9,999
+        J: 10,000-24,999
+        K: 25,000-49,999
+        L: 50,000-99,999
+        M: 100,000 or More
+    emp_nf:
+      type: character
+      desc: |
+        Total Mid-March Employees Noise Flag.
+        G: 0 to < 2% noise (low noise)
+        H: 2 to < 5% noise (medium noise)
+        D: Withheld to avoid disclosing data for individual companies; data are included in higher-level totals. Employment or payroll field set to zero.
+        S: Withheld because estimate did not meet publication standards. Employment or payroll field set to zero.
+    emp:
+      type: integer
+      desc: |
+        Total Mid-March Employees with Noise.
+    qp1_nf:
+      type: character
+      desc: |
+        Total First Quarter Payroll Noise Flag.
+        G: 0 to < 2% noise (low noise)
+        H: 2 to < 5% noise (medium noise)
+        D: Withheld to avoid disclosing data for individual companies; data are included in higher-level totals. Employment or payroll field set to zero.
+        S: Withheld because estimate did not meet publication standards. Employment or payroll field set to zero.
+    qp1:
+      type: double
+      desc: |
+        Total First Quarter Payroll ($1,000) with Noise.
+    ap_nf:
+      type: character
+      desc: |
+        Total Annual Payroll Noise Flag.
+        G: 0 to < 2% noise (low noise)
+        H: 2 to < 5% noise (medium noise)
+        D: Withheld to avoid disclosing data for individual companies; data are included in higher-level totals. Employment or payroll field set to zero.
+        S: Withheld because estimate did not meet publication standards. Employment or payroll field set to zero.
+    ap:
+      type: double
+      desc: |
+        Total Annual Payroll ($1,000) with Noise.
+    est:
+      type: integer
+      desc: |
+        Total Number of Establishments.
+  uscode: &schema_uscode
+    uscode:
+      type: character
+      desc: |
+        U.S. Geography Indicator = "98"
+  st: &schema_st
+    fipstate:
+      type: character
+      desc: |
+        FIPS State Code
+    censtate:
+      type: character
+      desc: |
+        Census State Code
+  co: &schema_co
+    fipscty:
+      type: character
+      desc: |
+        FIPS County Code
+    cencty:
+      type: character
+      desc: |
+        Census County Code
+  lfo: &schema_lfo
+    lfo:
+      type: character
+      desc: |
+        Legal Form of Organization.
+        -: All Establishments
+        C: Corporations
+        Z: S-Corporations
+        S: Sole Proprietorships
+        P: Partnerships
+        N: Non-Profits
+        G: Government
+        O: Other
+  size_n: &schema_size_n
+    n1_4:
+      type: integer
+      desc: |
+        Number of Establishments: 1-4 Employee Size Class.
+    n5_9:
+      type: integer
+      desc: |
+        Number of Establishments: 5-9 Employee Size Class.
+    n10_19:
+      type: integer
+      desc: |
+        Number of Establishments: 10-19 Employee Size Class.
+    n20_49:
+      type: integer
+      desc: |
+        Number of Establishments: 20-49 Employee Size Class.
+    n50_99:
+      type: integer
+      desc: |
+        Number of Establishments: 50-99 Employee Size Class.
+    n100_249:
+      type: integer
+      desc: |
+        Number of Establishments: 100-249 Employee Size Class.
+    n250_499:
+      type: integer
+      desc: |
+        Number of Establishments: 250-499 Employee Size Class.
+    n500_999:
+      type: integer
+      desc: |
+        Number of Establishments: 500-999 Employee Size Class.
+    n1000:
+      type: integer
+      desc: |
+        Number of Establishments: 1,000 or More Employee Size Class.
+  size_n1000: &schema_size_n1000
+    n1000_1:
+      type: integer
+      desc: |
+        Number of Establishments: Employment Size Class: 1,000-1,499 Employees
+    n1000_2:
+      type: integer
+      desc: |
+        Number of Establishments: Employment Size Class: 1,500-2,499 Employees
+    n1000_3:
+      type: integer
+      desc: |
+        Number of Establishments: Employment Size Class: 2,500-4,999 Employees
+    n1000_4:
+      type: integer
+      desc: |
+        Number of Establishments: Employment Size Class: 5,000 or More Employees
+  size_eqa: &schema_size_eqa
+    f1_4:
+      type: character
+      desc: |
+        Data Suppression Flag: 1-4 Employee Size Class.
+    e1_4nf:
+      type: character
+      desc: |
+        Mid-March Employees Noise Flag: 1-4 Employee Size Class.
+        G: 0 to < 2% noise (low noise)
+        H: 2 to < 5% noise (medium noise)
+        D: Withheld to avoid disclosing data for individual companies; data are included in higher-level totals. Employment or payroll field set to zero.
+        S: Withheld because estimate did not meet publication standards. Employment or payroll field set to zero.
+    e1_4:
+      type: integer
+      desc: |
+        Mid-March Employees with Noise: 1-4 Employee Size Class.
+    q1_4nf:
+      type: character
+      desc: |
+        First Quarter Payroll Noise Flag: 1-4 Employee Size Class.
+        G: 0 to < 2% noise (low noise)
+        H: 2 to < 5% noise (medium noise)
+        D: Withheld to avoid disclosing data for individual companies; data are included in higher-level totals. Employment or payroll field set to zero.
+        S: Withheld because estimate did not meet publication standards. Employment or payroll field set to zero.
+    q1_4:
+      type: double
+      desc: |
+        First Quarter Payroll ($1,000) with Noise: 1-4 Employee Size Class.
+    a1_4nf:
+      type: character
+      desc: |
+        Annual Payroll Noise Flag: 1-4 Employee Size Class.
+        G: 0 to < 2% noise (low noise)
+        H: 2 to < 5% noise (medium noise)
+        D: Withheld to avoid disclosing data for individual companies; data are included in higher-level totals. Employment or payroll field set to zero.
+        S: Withheld because estimate did not meet publication standards. Employment or payroll field set to zero.
+    a1_4:
+      type: double
+      desc: |
+        Annual Payroll ($1,000) with Noise: 1-4 Employee Size Class.
+    f5_9:
+      type: character
+      desc: |
+        Data Suppression Flag: 5-9 Employee Size Class.
+    e5_9nf:
+      type: character
+      desc: |
+        Mid-March Employees Noise Flag: 5-9 Employee Size Class.
+        G: 0 to < 2% noise (low noise)
+        H: 2 to < 5% noise (medium noise)
+        D: Withheld to avoid disclosing data for individual companies; data are included in higher-level totals. Employment or payroll field set to zero.
+        S: Withheld because estimate did not meet publication standards. Employment or payroll field set to zero.
+    e5_9:
+      type: integer
+      desc: |
+        Mid-March Employees with Noise: 5-9 Employee Size Class.
+    q5_9nf:
+      type: character
+      desc: |
+        First Quarter Payroll Noise Flag: 5-9 Employee Size Class.
+        G: 0 to < 2% noise (low noise)
+        H: 2 to < 5% noise (medium noise)
+        D: Withheld to avoid disclosing data for individual companies; data are included in higher-level totals. Employment or payroll field set to zero.
+        S: Withheld because estimate did not meet publication standards. Employment or payroll field set to zero.
+    q5_9:
+      type: double
+      desc: |
+        First Quarter Payroll ($1,000) with Noise: 5-9 Employee Size Class.
+    a5_9nf:
+      type: character
+      desc: |
+        Annual Payroll Noise Flag: 5-9 Employee Size Class.
+        G: 0 to < 2% noise (low noise)
+        H: 2 to < 5% noise (medium noise)
+        D: Withheld to avoid disclosing data for individual companies; data are included in higher-level totals. Employment or payroll field set to zero.
+        S: Withheld because estimate did not meet publication standards. Employment or payroll field set to zero.
+    a5_9:
+      type: double
+      desc: |
+        Annual Payroll ($1,000) with Noise: 5-9 Employee Size Class.
+    f10_19:
+      type: character
+      desc: |
+        Data Suppression Flag: 10-19 Employee Size Class.
+    e10_19nf:
+      type: character
+      desc: |
+        Mid-March Employees Noise Flag: 10-19 Employee Size Class.
+        G: 0 to < 2% noise (low noise)
+        H: 2 to < 5% noise (medium noise)
+        D: Withheld to avoid disclosing data for individual companies; data are included in higher-level totals. Employment or payroll field set to zero.
+        S: Withheld because estimate did not meet publication standards. Employment or payroll field set to zero.
+    e10_19:
+      type: integer
+      desc: |
+        Mid-March Employees with Noise: 10-19 Employee Size Class.
+    q10_19nf:
+      type: character
+      desc: |
+        First Quarter Payroll Noise Flag: 10-19 Employee Size Class.
+        G: 0 to < 2% noise (low noise)
+        H: 2 to < 5% noise (medium noise)
+        D: Withheld to avoid disclosing data for individual companies; data are included in higher-level totals. Employment or payroll field set to zero.
+        S: Withheld because estimate did not meet publication standards. Employment or payroll field set to zero.
+    q10_19:
+      type: double
+      desc: |
+        First Quarter Payroll ($1,000) with Noise: 10-19 Employee Size Class.
+    a10_19nf:
+      type: character
+      desc: |
+        Annual Payroll Noise Flag: 10-19 Employee Size Class.
+        G: 0 to < 2% noise (low noise)
+        H: 2 to < 5% noise (medium noise)
+        D: Withheld to avoid disclosing data for individual companies; data are included in higher-level totals. Employment or payroll field set to zero.
+        S: Withheld because estimate did not meet publication standards. Employment or payroll field set to zero.
+    a10_19:
+      type: double
+      desc: |
+        Annual Payroll ($1,000) with Noise: 10-19 Employee Size Class.
+    f20_49:
+      type: character
+      desc: |
+        Data Suppression Flag: 20-49 Employee Size Class.
+    e20_49nf:
+      type: character
+      desc: |
+        Mid-March Employees Noise Flag: 20-49 Employee Size Class.
+        G: 0 to < 2% noise (low noise)
+        H: 2 to < 5% noise (medium noise)
+        D: Withheld to avoid disclosing data for individual companies; data are included in higher-level totals. Employment or payroll field set to zero.
+        S: Withheld because estimate did not meet publication standards. Employment or payroll field set to zero.
+    e20_49:
+      type: integer
+      desc: |
+        Mid-March Employees with Noise: 20-49 Employee Size Class.
+    q20_49nf:
+      type: character
+      desc: |
+        First Quarter Payroll Noise Flag: 20-49 Employee Size Class.
+        G: 0 to < 2% noise (low noise)
+        H: 2 to < 5% noise (medium noise)
+        D: Withheld to avoid disclosing data for individual companies; data are included in higher-level totals. Employment or payroll field set to zero.
+        S: Withheld because estimate did not meet publication standards. Employment or payroll field set to zero.
+    q20_49:
+      type: double
+      desc: |
+        First Quarter Payroll ($1,000) with Noise: 20-49 Employee Size Class.
+    a20_49nf:
+      type: character
+      desc: |
+        Annual Payroll Noise Flag: 20-49 Employee Size Class.
+        G: 0 to < 2% noise (low noise)
+        H: 2 to < 5% noise (medium noise)
+        D: Withheld to avoid disclosing data for individual companies; data are included in higher-level totals. Employment or payroll field set to zero.
+        S: Withheld because estimate did not meet publication standards. Employment or payroll field set to zero.
+    a20_49:
+      type: double
+      desc: |
+        Annual Payroll ($1,000) with Noise: 20-49 Employee Size Class.
+    f50_99:
+      type: character
+      desc: |
+        Data Suppression Flag: 50-99 Employee Size Class.
+    e50_99nf:
+      type: character
+      desc: |
+        Mid-March Employees Noise Flag: 50-99 Employee Size Class.
+        G: 0 to < 2% noise (low noise)
+        H: 2 to < 5% noise (medium noise)
+        D: Withheld to avoid disclosing data for individual companies; data are included in higher-level totals. Employment or payroll field set to zero.
+        S: Withheld because estimate did not meet publication standards. Employment or payroll field set to zero.
+    e50_99:
+      type: integer
+      desc: |
+        Mid-March Employees with Noise: 50-99 Employee Size Class.
+    q50_99nf:
+      type: character
+      desc: |
+        First Quarter Payroll Noise Flag: 50-99 Employee Size Class.
+        G: 0 to < 2% noise (low noise)
+        H: 2 to < 5% noise (medium noise)
+        D: Withheld to avoid disclosing data for individual companies; data are included in higher-level totals. Employment or payroll field set to zero.
+        S: Withheld because estimate did not meet publication standards. Employment or payroll field set to zero.
+    q50_99:
+      type: double
+      desc: |
+        First Quarter Payroll ($1,000) with Noise: 50-99 Employee Size Class.
+    a50_99nf:
+      type: character
+      desc: |
+        Annual Payroll Noise Flag: 50-99 Employee Size Class.
+        G: 0 to < 2% noise (low noise)
+        H: 2 to < 5% noise (medium noise)
+        D: Withheld to avoid disclosing data for individual companies; data are included in higher-level totals. Employment or payroll field set to zero.
+        S: Withheld because estimate did not meet publication standards. Employment or payroll field set to zero.
+    a50_99:
+      type: double
+      desc: |
+        Annual Payroll ($1,000) with Noise: 50-99 Employee Size Class.
+    f100_249:
+      type: character
+      desc: |
+        Data Suppression Flag: 100-249 Employee Size Class.
+    e100_249nf:
+      type: character
+      desc: |
+        Mid-March Employees Noise Flag: 100-249 Employee Size Class.
+        G: 0 to < 2% noise (low noise)
+        H: 2 to < 5% noise (medium noise)
+        D: Withheld to avoid disclosing data for individual companies; data are included in higher-level totals. Employment or payroll field set to zero.
+        S: Withheld because estimate did not meet publication standards. Employment or payroll field set to zero.
+    e100_249:
+      type: integer
+      desc: |
+        Mid-March Employees with Noise: 100-249 Employee Size Class.
+    q100_249nf:
+      type: character
+      desc: |
+        First Quarter Payroll Noise Flag: 100-249 Employee Size Class.
+        G: 0 to < 2% noise (low noise)
+        H: 2 to < 5% noise (medium noise)
+        D: Withheld to avoid disclosing data for individual companies; data are included in higher-level totals. Employment or payroll field set to zero.
+        S: Withheld because estimate did not meet publication standards. Employment or payroll field set to zero.
+    q100_249:
+      type: double
+      desc: |
+        First Quarter Payroll ($1,000) with Noise: 100-249 Employee Size Class.
+    a100_249nf:
+      type: character
+      desc: |
+        Annual Payroll Noise Flag: 100-249 Employee Size Class.
+        G: 0 to < 2% noise (low noise)
+        H: 2 to < 5% noise (medium noise)
+        D: Withheld to avoid disclosing data for individual companies; data are included in higher-level totals. Employment or payroll field set to zero.
+        S: Withheld because estimate did not meet publication standards. Employment or payroll field set to zero.
+    a100_249:
+      type: double
+      desc: |
+        Annual Payroll ($1,000) with Noise: 100-249 Employee Size Class.
+    f250_499:
+      type: character
+      desc: |
+        Data Suppression Flag: 250-499 Employee Size Class.
+    e250_499nf:
+      type: character
+      desc: |
+        Mid-March Employees Noise Flag: 250-499 Employee Size Class.
+        G: 0 to < 2% noise (low noise)
+        H: 2 to < 5% noise (medium noise)
+        D: Withheld to avoid disclosing data for individual companies; data are included in higher-level totals. Employment or payroll field set to zero.
+        S: Withheld because estimate did not meet publication standards. Employment or payroll field set to zero.
+    e250_499:
+      type: integer
+      desc: |
+        Mid-March Employees with Noise: 250-499 Employee Size Class.
+    q250_499nf:
+      type: character
+      desc: |
+        First Quarter Payroll Noise Flag: 250-499 Employee Size Class.
+        G: 0 to < 2% noise (low noise)
+        H: 2 to < 5% noise (medium noise)
+        D: Withheld to avoid disclosing data for individual companies; data are included in higher-level totals. Employment or payroll field set to zero.
+        S: Withheld because estimate did not meet publication standards. Employment or payroll field set to zero.
+    q250_499:
+      type: double
+      desc: |
+        First Quarter Payroll ($1,000) with Noise: 250-499 Employee Size Class.
+    a250_499nf:
+      type: character
+      desc: |
+        Annual Payroll Noise Flag: 250-499 Employee Size Class.
+        G: 0 to < 2% noise (low noise)
+        H: 2 to < 5% noise (medium noise)
+        D: Withheld to avoid disclosing data for individual companies; data are included in higher-level totals. Employment or payroll field set to zero.
+        S: Withheld because estimate did not meet publication standards. Employment or payroll field set to zero.
+    a250_499:
+      type: double
+      desc: |
+        Annual Payroll ($1,000) with Noise: 250-499 Employee Size Class.
+    f500_999:
+      type: character
+      desc: |
+        Data Suppression Flag: 500-999 Employee Size Class.
+    e500_999nf:
+      type: character
+      desc: |
+        Mid-March Employees Noise Flag: 500-999 Employee Size Class.
+        G: 0 to < 2% noise (low noise)
+        H: 2 to < 5% noise (medium noise)
+        D: Withheld to avoid disclosing data for individual companies; data are included in higher-level totals. Employment or payroll field set to zero.
+        S: Withheld because estimate did not meet publication standards. Employment or payroll field set to zero.
+    e500_999:
+      type: integer
+      desc: |
+        Mid-March Employees with Noise: 500-999 Employee Size Class.
+    q500_999nf:
+      type: character
+      desc: |
+        First Quarter Payroll Noise Flag: 500-999 Employee Size Class.
+        G: 0 to < 2% noise (low noise)
+        H: 2 to < 5% noise (medium noise)
+        D: Withheld to avoid disclosing data for individual companies; data are included in higher-level totals. Employment or payroll field set to zero.
+        S: Withheld because estimate did not meet publication standards. Employment or payroll field set to zero.
+    q500_999:
+      type: double
+      desc: |
+        First Quarter Payroll ($1,000) with Noise: 500-999 Employee Size Class.
+    a500_999nf:
+      type: character
+      desc: |
+        Annual Payroll Noise Flag: 500-999 Employee Size Class.
+        G: 0 to < 2% noise (low noise)
+        H: 2 to < 5% noise (medium noise)
+        D: Withheld to avoid disclosing data for individual companies; data are included in higher-level totals. Employment or payroll field set to zero.
+        S: Withheld because estimate did not meet publication standards. Employment or payroll field set to zero.
+    a500_999:
+      type: double
+      desc: |
+        Annual Payroll ($1,000) with Noise: 500-999 Employee Size Class.
+    f1000:
+      type: character
+      desc: |
+        Data Suppression Flag: 1,000 or More Employee Size Class.
+    e1000nf:
+      type: character
+      desc: |
+        Mid-March Employees Noise Flag: 1,000 or More Employee Size Class.
+        G: 0 to < 2% noise (low noise)
+        H: 2 to < 5% noise (medium noise)
+        D: Withheld to avoid disclosing data for individual companies; data are included in higher-level totals. Employment or payroll field set to zero.
+        S: Withheld because estimate did not meet publication standards. Employment or payroll field set to zero.
+    e1000:
+      type: integer
+      desc: |
+        Mid-March Employees with Noise: 1,000 or More Employee Size Class.
+    q1000nf:
+      type: character
+      desc: |
+        First Quarter Payroll Noise Flag: 1,000 or More Employee Size Class.
+        G: 0 to < 2% noise (low noise)
+        H: 2 to < 5% noise (medium noise)
+        D: Withheld to avoid disclosing data for individual companies; data are included in higher-level totals. Employment or payroll field set to zero.
+        S: Withheld because estimate did not meet publication standards. Employment or payroll field set to zero.
+    q1000:
+      type: double
+      desc: |
+        First Quarter Payroll ($1,000) with Noise: 1,000 or More Employee Size Class.
+    a1000nf:
+      type: character
+      desc: |
+        Annual Payroll Noise Flag: 1,000 or More Employee Size Class.
+        G: 0 to < 2% noise (low noise)
+        H: 2 to < 5% noise (medium noise)
+        D: Withheld to avoid disclosing data for individual companies; data are included in higher-level totals. Employment or payroll field set to zero.
+        S: Withheld because estimate did not meet publication standards. Employment or payroll field set to zero.
+    a1000:
+      type: double
+      desc: |
+        Annual Payroll ($1,000) with Noise: 1,000 or More Employee Size Class.
+
+
+data:
+
+  raw_2012_us:
+    desc: CBP 2012 U.S. file
+    type: raw
+    path: raw/2012/cbp2012_us.zip
+    url: https://www2.census.gov/programs-surveys/cbp/datasets/2012/cbp12us.zip
+
+  raw_2012_st:
+    desc: CBP 2012 state file
+    type: raw
+    path: raw/2012/cbp2012_st.zip
+    url: https://www2.census.gov/programs-surveys/cbp/datasets/2012/cbp12st.zip
+
+  raw_2012_co:
+    desc: CBP 2012 county file
+    type: raw
+    path: raw/2012/cbp2012_co.zip
+    url: https://www2.census.gov/programs-surveys/cbp/datasets/2012/cbp12co.zip
+
+
+  2012_us:
+    mask: "{year}_{geo}"
+    desc: "CBP {year} U.S. file"
+    type: table
+    path: "proc/{year}/cbp{year}_us.pq"
+    depends: "raw_{year}_us"
+    schema:
+      <<: [*schema_core, *schema_uscode, *schema_lfo, *schema_size_n, *schema_size_eqa]
+
+  2012_st:
+    mask: "{year}_{geo}"
+    desc: "CBP {year} state file"
+    type: table
+    path: "proc/{year}/cbp{year}_st.pq"
+    depends: "raw_{year}_st"
+    schema:
+      <<: [*schema_core, *schema_st, *schema_lfo, *schema_size_n, *schema_size_eqa]
+
+  2012_co:
+    mask: "{year}_{geo}"
+    desc: "CBP {year} county file"
+    type: table
+    path: "proc/{year}/cbp{year}_co.pq"
+    depends: "raw_{year}_co"
+    schema:
+      <<: [*schema_core, *schema_st, *schema_co, *schema_size_n, *schema_size_n1000]
