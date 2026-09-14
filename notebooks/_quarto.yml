@@ -6,6 +6,7 @@ project:
     - bea_fa.qmd
     - bea_io.qmd
     - bea_reg.qmd
+    - cbp.qmd
     - chrr.qmd
     - ers_rural.qmd
     - naics.qmd
@@ -30,14 +31,16 @@ website:
             href: bea_io.qmd
           - text: Regional Economic
             href: bea_reg.qmd
+      - text: CHRR
+        href: chrr.qmd
+      - text: CBP
+        href: cbp.qmd
       - text: ERS Rurality
         href: ers_rural.qmd
       - text: NAICS
         href: naics.qmd
       - text: NASS
         href: nass.qmd
-      - text: CHRR
-        href: chrr.qmd
       - text: QCEW
         href: qcew.qmd
 
